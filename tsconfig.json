@@ -1,11 +1,12 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
-        "module": "ESNext",
         "moduleResolution": "Node",
         "esModuleInterop": true,
         "strict": true,
-        "jsx": "preserve"
+        "jsx": "preserve",
+        "target": "es2020",
+        "module": "commonjs",
+        "skipLibCheck": true
     },
     "include": [
         "src"
