@@ -5,7 +5,7 @@
         "strict": true,
         "jsx": "preserve",
         "target": "es2020",
-        "module": "commonjs",
+        "module": "esnext",
         "skipLibCheck": true
     },
     "include": [
