@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "strict": true,
+        "jsx": "preserve",
+        "target": "es2020",
+        "module": "esnext",
+        "skipLibCheck": true
+    },
+    "include": [
+        "src"
+    ]
+}

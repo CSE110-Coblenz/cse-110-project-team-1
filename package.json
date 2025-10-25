@@ -1,0 +1,31 @@
+{
+  "name": "cse-110-project-team-1",
+  "version": "1.0.0",
+  "description": "Copyright (c) <year> <copyright holders>",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CSE110-Coblenz/cse-110-project-team-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CSE110-Coblenz/cse-110-project-team-1/issues"
+  },
+  "homepage": "https://github.com/CSE110-Coblenz/cse-110-project-team-1#readme",
+  "dependencies": {
+    "konva": "^10.0.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.1.11",
+    "vitest": "^4.0.1"
+  }
+}
