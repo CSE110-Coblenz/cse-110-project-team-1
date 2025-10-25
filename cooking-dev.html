@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Cooking Minigame - Dev Mode</title>
+</head>
+
+<body>
+  <div id="container"></div>
+  <script type="module">
+        import MockGameCoordinator from './src/mocks/MockGameCoordinator.ts';
+        
+        console.log('Initializing Cooking Game Dev Mode...');
+        
+        window.onload = () => {
+            const mockCoordinator = new MockGameCoordinator();
+            mockCoordinator.transitionToCookingGame();
+        };
+    </script>
+</body>
+
+</html>
