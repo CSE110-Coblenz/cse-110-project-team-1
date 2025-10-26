@@ -1,5 +1,13 @@
+import { CookingModel } from '../model/CookingModel';
+import { CookingView } from '../view/CookingView';
+
 export default class CookingController {
+    private model: CookingModel;
+    private view: CookingView;
+
     constructor() {
+        this.model = new CookingModel();
+        this.view = new CookingView();
         console.log('CookingController created');
     }
 
@@ -12,6 +20,8 @@ export default class CookingController {
         console.log('Customer types:', customerTypes);
         
         // TODO: Initialize model and view
+        this.model.initialize(customerTypes);
+        this.view.initialize(this.model.getCustomerData(), this.model.getLabel(), this.model.getScore());
         // TODO: Game loop
         
         // For now, just show we're working
