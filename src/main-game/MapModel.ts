@@ -9,15 +9,9 @@ export class MapModel {
     private height: number;
     private walls: Wall[] = [];
 
-    private seededRandom: (() => number) | null = null;
-
     constructor(config: MapConfig) {
         this.width = config.width;
         this.height = config.height;
-
-        if (config.seed !== undefined) {
-            this.seededRandom = this.xorshiftSeed(config.seed);
-        }
 
         const count = config.wallCount ?? 40;
         const minR = config.wallMinRadius ?? 20;
@@ -26,18 +20,7 @@ export class MapModel {
     }
 
     private rand() {
-        if (this.seededRandom) return this.seededRandom();
         return Math.random();
-    }
-
-    private xorshiftSeed(seed: number) {
-        let x = seed || 123456789;
-        return function () {
-            x ^= x << 13;
-            x ^= x >> 17;
-            x ^= x << 5;
-            return (x < 0 ? ~x + 1 : x) % 1000000 / 1000000;
-        };
     }
 
     private bboxOfPoints(points: Point[]) {
@@ -51,20 +34,19 @@ export class MapModel {
         return { minX, minY, maxX, maxY };
     }
 
-    private overlapsBBox(a: { minX: number; minY: number; maxX: number; maxY: number },
+    private overlaps(a: { minX: number; minY: number; maxX: number; maxY: number },
         b: { minX: number; minY: number; maxX: number; maxY: number }) {
         return !(a.maxX < b.minX || a.minX > b.maxX || a.maxY < b.minY || a.minY > b.maxY);
     }
 
-    private generatePolygon(cx: number, cy: number, radius: number, verts: number): Point[] {
-        const pts: Point[] = [];
-        const jitter = 0.4; // irregularity
-        for (let i = 0; i < verts; i++) {
-            const angle = (i / verts) * Math.PI * 2 + (this.rand() - 0.5) * 0.3;
-            const r = radius * (1 - jitter * this.rand());
-            pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r });
-        }
-        return pts;
+    // generate an axis-aligned rectangle centered at cx,cy with half-width hw and half-height hh
+    private generateRectPoints(cx: number, cy: number, hw: number, hh: number): Point[] {
+        return [
+            { x: cx - hw, y: cy - hh },
+            { x: cx + hw, y: cy - hh },
+            { x: cx + hw, y: cy + hh },
+            { x: cx - hw, y: cy + hh },
+        ];
     }
 
     private generateWalls(count: number, minR: number, maxR: number) {
@@ -73,16 +55,20 @@ export class MapModel {
         let attempts = 0;
         while (walls.length < count && attempts < maxAttempts) {
             attempts++;
-            const cx = Math.floor(this.rand() * this.width);
-            const cy = Math.floor(this.rand() * this.height);
-            const radius = minR + Math.floor(this.rand() * (maxR - minR));
-            const verts = 3 + Math.floor(this.rand() * 5);
-            const pts = this.generatePolygon(cx, cy, radius, verts);
+            // pick center within world but leave room for size
+            const rectW = minR + Math.floor(this.rand() * (maxR - minR));
+            const rectH = minR + Math.floor(this.rand() * (maxR - minR));
+            const hw = Math.floor(rectW / 2);
+            const hh = Math.floor(rectH / 2);
+            const cx = Math.floor(this.rand() * (this.width - rectW)) + hw;
+            const cy = Math.floor(this.rand() * (this.height - rectH)) + hh;
+
+            const pts = this.generateRectPoints(cx, cy, hw, hh);
 
             // bbox
             const bbox = this.bboxOfPoints(pts);
 
-            // ensure inside world bounds with a margin
+            // ensure inside world bounds
             if (bbox.minX < 0 || bbox.minY < 0 || bbox.maxX > this.width || bbox.maxY > this.height) continue;
 
             // avoid player's spawn area roughly at center
@@ -90,8 +76,6 @@ export class MapModel {
             const spawnY = Math.floor(this.height / 2);
             const dist = Math.hypot(spawnX - cx, spawnY - cy);
             if (dist < Math.max(80, minR * 2)) continue;
-
-
 
             walls.push({ id: `w-${walls.length}-${Date.now()}`, points: pts });
         }
@@ -103,30 +87,20 @@ export class MapModel {
         const region = { minX: x, minY: y, maxX: x + w, maxY: y + h };
         return this.walls.filter(wall => {
             const b = this.bboxOfPoints(wall.points);
-            return this.overlapsBBox(b, region);
+            return this.overlaps(b, region);
         });
     }
 
     public getWidth() { return this.width; }
     public getHeight() { return this.height; }
 
-    // simple point-in-polygon test for walkability/collision
     public isPointInsideWall(px: number, py: number) {
+        // since walls are axis-aligned rectangles, test against bbox of each wall
         for (const wall of this.walls) {
-            if (this.pointInPolygon({ x: px, y: py }, wall.points)) return true;
+            const b = this.bboxOfPoints(wall.points);
+            if (px >= b.minX && px <= b.maxX && py >= b.minY && py <= b.maxY) return true;
         }
         return false;
     }
 
-    private pointInPolygon(point: Point, vs: Point[]) {
-        let inside = false;
-        for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-            const xi = vs[i].x, yi = vs[i].y;
-            const xj = vs[j].x, yj = vs[j].y;
-            const intersect = ((yi > point.y) !== (yj > point.y)) &&
-                (point.x < (xj - xi) * (point.y - yi) / (yj - yi + 0.0000001) + xi);
-            if (intersect) inside = !inside;
-        }
-        return inside;
-    }
 }

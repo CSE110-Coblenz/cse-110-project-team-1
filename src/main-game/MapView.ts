@@ -8,21 +8,13 @@ import { Viewport, Wall } from './types';
  */
 export class MapView {
     private backgroundColor: string;
-    private images: Map<string, HTMLImageElement>;
+    private wallColor: string;
 
-    constructor(backgroundColor = '#87ceeb', images?: Map<string, HTMLImageElement>) {
+    constructor(backgroundColor = '#87ceeb', wallColor = '#333333') {
         this.backgroundColor = backgroundColor;
-        this.images = images || new Map();
+        this.wallColor = wallColor;
     }
 
-    public setImages(map: Map<string, HTMLImageElement>) {
-        this.images = map;
-    }
-
-    /**
-     * Draw into either a CanvasRenderingContext2D or a Konva.Layer.
-     * Keep the original parameter order to avoid renaming call sites.
-     */
     public draw(
         ctxOrLayer: CanvasRenderingContext2D | Konva.Layer,
         viewport: Viewport,
@@ -51,7 +43,7 @@ export class MapView {
                 const line = new Konva.Line({
                     points,
                     closed: true,
-                    fill: '#333333',
+                    fill: this.wallColor,
                 });
                 layer.add(line);
             }
@@ -76,7 +68,7 @@ export class MapView {
                 ctx.lineTo(wall.points[i].x, wall.points[i].y);
             }
             ctx.closePath();
-            ctx.fillStyle = '#333333';
+            ctx.fillStyle = this.wallColor;
             ctx.fill();
             ctx.strokeStyle = 'rgba(0,0,0,0.6)';
             ctx.lineWidth = 2;

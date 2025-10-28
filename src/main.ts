@@ -1,4 +1,4 @@
-import { startGame, GameHandle } from './main-game/index';
+import { startGame, GameHandle } from './main-game/gameplay';
 
 // Simple single-page main menu
 const app = document.getElementById('app') || document.body;
@@ -33,7 +33,15 @@ function showMainMenu() {
             }
             showMainMenu();
         });
+        const next = createButton('Next Level', async () => {
+            if (activeHandle) {
+                activeHandle.stop();
+                activeHandle = null;
+            }
+            activeHandle = await startGame(app);
+        });
         app.appendChild(back);
+        app.appendChild(next);
     });
 
     const mini1 = createButton('MiniGame A (placeholder)', () => alert('MiniGame A not implemented'));
