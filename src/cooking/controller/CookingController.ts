@@ -29,20 +29,43 @@ export default class CookingController {
     }
 
     /**
-     * Temporary test method to verify setup is working
+     * Temporary test method to verify setup is working and display model data
      */
     private showTestMessage(customerTypes: string[]): void {
         const container = document.getElementById('container');
         if (container) {
+            const customerData = this.model.getCustomerData();
+            const currentLabel = this.model.getLabel();
+            const score = this.model.getScore();
+
             container.innerHTML = `
                 <div style="padding: 20px; font-family: Arial;">
-                    <h1>Cooking Game Setup Working!</h1>
+                    <h1>Cooking Game - Model Initialization Test</h1>
                     <p>MockGameCoordinator successfully started CookingController</p>
+
                     <h3>Customer Types Received:</h3>
                     <ul>
                         ${customerTypes.map(type => `<li>${type}</li>`).join('')}
                     </ul>
-                    <p>Ready to implement game logic!</p>
+
+                    <hr>
+
+                    <h3>Model Data:</h3>
+                    <p><strong>Current Label:</strong> ${currentLabel}</p>
+                    <p><strong>Score:</strong> ${score}</p>
+
+                    <h3>Active Customers:</h3>
+                    <ul>
+                        ${customerData.map(customer => `
+                            <li>
+                                <strong>ID:</strong> ${customer.customerId} |
+                                <strong>Type:</strong> ${customer.customerType} |
+                                <strong>Patience:</strong> ${customer.patience}
+                            </li>
+                        `).join('')}
+                    </ul>
+
+                    <p style="margin-top: 20px; color: green;">✓ Model initialization successful!</p>
                 </div>
             `;
         }
