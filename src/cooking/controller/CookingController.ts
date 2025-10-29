@@ -1,4 +1,5 @@
 import { CookingModel } from '../model/CookingModel';
+import { Label } from '../model/Label';
 import { CookingView } from '../view/CookingView';
 
 export default class CookingController {
@@ -38,37 +39,87 @@ export default class CookingController {
             const currentLabel = this.model.getLabel();
             const score = this.model.getScore();
 
-            container.innerHTML = `
-                <div style="padding: 20px; font-family: Arial;">
-                    <h1>Cooking Game - Model Initialization Test</h1>
-                    <p>MockGameCoordinator successfully started CookingController</p>
+            // Prepend test info (view placeholder is already added by initialize)
+            const testDiv = document.createElement('div');
+            testDiv.style.cssText = 'padding: 20px; font-family: Arial;';
+            testDiv.innerHTML = `
+                <h1>Cooking Game - Model Initialization Test</h1>
+                <p>MockGameCoordinator successfully started CookingController</p>
 
-                    <h3>Customer Types Received:</h3>
-                    <ul>
-                        ${customerTypes.map(type => `<li>${type}</li>`).join('')}
-                    </ul>
+                <h3>Customer Types Received:</h3>
+                <ul>
+                    ${customerTypes.map(type => `<li>${type}</li>`).join('')}
+                </ul>
 
-                    <hr>
+                <hr>
 
-                    <h3>Model Data:</h3>
-                    <p><strong>Current Label:</strong> ${currentLabel}</p>
-                    <p><strong>Score:</strong> ${score}</p>
+                <h3>Model Data:</h3>
+                <p><strong>Current Label:</strong> ${currentLabel}</p>
+                <p><strong>Score:</strong> ${score}</p>
 
-                    <h3>Active Customers:</h3>
-                    <ul>
-                        ${customerData.map(customer => `
-                            <li>
-                                <strong>ID:</strong> ${customer.customerId} |
-                                <strong>Type:</strong> ${customer.customerType} |
-                                <strong>Patience:</strong> ${customer.patience}
-                            </li>
-                        `).join('')}
-                    </ul>
+                <h3>Active Customers:</h3>
+                <ul>
+                    ${customerData.map(customer => `
+                        <li>
+                            <strong>ID:</strong> ${customer.customerId} |
+                            <strong>Type:</strong> ${customer.customerType} |
+                            <strong>Patience:</strong> ${customer.patience}
+                        </li>
+                    `).join('')}
+                </ul>
 
-                    <p style="margin-top: 20px; color: green;">✓ Model initialization successful!</p>
-                </div>
+                <p style="margin-top: 20px; color: green;">✓ Model initialization successful!</p>
             `;
+            container.prepend(testDiv);
         }
+
+        // Test view methods with delays so we can see each change
+        console.log('\n=== Testing View Methods ===');
+        
+        setTimeout(() => {
+            console.log('Test 1: updateScore(100)');
+            this.view.updateScore(100);
+        }, 1000);
+        
+        setTimeout(() => {
+            if (this.model.getLabel() !== 'consumer') {
+                console.log('Test 2: updateLabel("consumer")');
+                this.view.updateLabel('consumer');
+            }
+            else
+            {
+                console.log('Test 2: updateLabel("producer")');
+                this.view.updateLabel('producer');
+            }
+        }, 2000);
+        
+        setTimeout(() => {
+            console.log('Test 3: updateCustomers() with modified patience');
+            // Modify customer data to show the update is working
+            const customers = this.model.getCustomerData();
+            const modifiedCustomers = []; //not actually modifying model data, just for view test
+            for (let i = 0; i < customers.length; i++) {
+                modifiedCustomers.push({
+                    customerId: customers[i].customerId,
+                    customerType: customers[i].customerType,
+                    patience: customers[i].patience - 50  // Reduce patience by 50%
+                });
+            }
+            this.view.updateCustomers(modifiedCustomers);
+        }, 3000);
+        
+        setTimeout(() => {
+            console.log('Test 4: showGameOver(250)');
+            this.view.showGameOver(250);
+        }, 4000);
+        
+        // Don't call clear() so the view stays visible (can uncomment to see wipe)
+        // setTimeout(() => {
+        //     console.log('Test 5: clear()');
+        //     this.view.clear();
+        // }, 5000);
+        
+        console.log('=== View Method Tests Scheduled ===\n');
     }
 
     // Potential Additional Methods: 
