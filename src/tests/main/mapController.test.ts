@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { MapController } from '../../main-game/MapController';
+import { MapController } from '../../main-game/Map/MapController';
 
 describe('MapController', () => {
     it('initializes viewport centered', () => {

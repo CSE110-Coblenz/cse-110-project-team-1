@@ -1,7 +1,7 @@
 import Konva from 'konva';
-import { MapModel } from './MapModel';
-import { MapController } from './MapController';
-import { MapView } from './MapView';
+import { MapModel } from './Map/MapModel';
+import { MapController } from './Map/MapController';
+import { MapView } from './Map/MapView';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {

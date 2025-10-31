@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { MapView } from '../../main-game/MapView';
+import { MapView } from '../../main-game/Map/MapView';
 
 function makeMockCtx() {
     const ctx: any = {

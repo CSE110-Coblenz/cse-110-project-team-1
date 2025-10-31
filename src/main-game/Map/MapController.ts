@@ -1,5 +1,5 @@
 import { MapModel } from './MapModel';
-import { Viewport, Position } from './types';
+import { Viewport, Position } from '../types';
 
 /**
  * MapController manages the camera/viewport inside the MapModel.
