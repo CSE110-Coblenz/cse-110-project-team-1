@@ -24,8 +24,8 @@ export class NPCModel {
         for (const pos of positions) {
             const npc = new NPC();
             npc.position = pos;
-            npc.width = 32;
-            npc.height = 32;
+            npc.width = 5;
+            npc.height = 5;
             this.npcs.push(npc);
         }
     }
@@ -40,16 +40,19 @@ export class NPCModel {
         this.npcs.forEach((npc: NPC) => {
             let attempts = 0;
             let x: number, y: number;
+            x = 0;
+            y = 0;
 
             do {
+                console.log("The point x: " + x + ", y: " + y + " is inside a wall")
                 x = Math.floor(Math.random() * (width - 2 * padding)) + padding;
                 y = Math.floor(Math.random() * (height - 2 * padding)) + padding;
                 attempts++;
             } while (map_model.isPointInsideWall(x, y) && attempts < maxAttempts);
 
             if (attempts < maxAttempts) {
-                npc.position = { x, y };
-                this.npcs.push(npc);
+                npc.position = {x, y};
+                //this.npcs.push(npc);
             }
         });
     }

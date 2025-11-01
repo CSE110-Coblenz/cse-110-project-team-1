@@ -14,13 +14,18 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-    const worldWidth = Math.max(800, window.innerWidth * 5);
-    const worldHeight = Math.max(600, window.innerHeight * 5);
+    // const worldWidth = Math.max(800, window.innerWidth * 5);
+    // const worldHeight = Math.max(600, window.innerHeight * 5)
+    console.log("Starting game with window size:", window.innerWidth, window.innerHeight);
+    const worldWidth = Math.max(800, window.innerWidth);
+    const worldHeight = Math.max(600, window.innerHeight);
 
     const config = {
         width: worldWidth,
         height: worldHeight,
-        wallCount: 1500,
+        //wallCount: 1500,
+        //wallCount: 100,
+        wallCount: 10,
         wallMinRadius: 30,
         wallMaxRadius: 160,
     };
@@ -52,7 +57,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
         const vp = map_controller.getViewport();
         const walls = map_controller.getVisibleWalls();
         map_view.draw(vp, walls);
-        npc_model.generateNPCLocations(map_model, worldHeight / 5, worldWidth / 5);
+        npc_model.generateNPCLocations(map_model, worldHeight, worldWidth);
         npc_view.updateNPCShapes(npc_model.getNPCs());
         npc_view.draw();
     }
