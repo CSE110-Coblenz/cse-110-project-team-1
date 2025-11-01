@@ -7,10 +7,14 @@ import { Viewport, Wall } from './types';
  * either a CanvasRenderingContext2D (legacy) or a Konva.Layer (preferred).
  */
 export class MapView {
+    // static defaults
+    public static DEFAULT_BACKGROUND = '#87ceeb';
+    public static DEFAULT_WALL_COLOR = '#333333';
+
     private backgroundColor: string;
     private wallColor: string;
 
-    constructor(backgroundColor = '#87ceeb', wallColor = '#333333') {
+    constructor(backgroundColor = MapView.DEFAULT_BACKGROUND, wallColor = MapView.DEFAULT_WALL_COLOR) {
         this.backgroundColor = backgroundColor;
         this.wallColor = wallColor;
     }
