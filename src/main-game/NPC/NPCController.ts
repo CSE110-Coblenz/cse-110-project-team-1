@@ -1,5 +1,7 @@
 import { NPCModel } from './NPCModel';
 import { NPCView } from './NPCView';
+import { Position, Wall } from '../types';
+import { NPC } from './NPC';
 
 /**
  * NPCController manages the locations, animations, and interactions between NPCs
@@ -17,6 +19,32 @@ export class NPCController {
     }
 
     private animateNPCs(): void {
+        this.model.getNPCs().forEach((npc) => {
+            npc.animate();
+        },);
+    }
 
+    public moveNPCsDown(): void {
+        this.model.getNPCs().forEach((npc) => {
+            npc.moveDown();
+        },);
+    }
+
+    public moveNPCsUp(): void {
+        this.model.getNPCs().forEach((npc) => {
+            npc.moveUp();
+        },);
+    }
+
+    public moveNPCsLeft(): void {
+        this.model.getNPCs().forEach((npc) => {
+            npc.moveLeft();
+        },);
+    }
+
+    public moveNPCsRight(): void {
+        this.model.getNPCs().forEach((npc) => {
+            npc.moveRight();
+        },);
     }
 }

@@ -1,20 +1,28 @@
 
-import { Position } from '../types';
+import { MapToNextDirection } from '../types';
+import { Player } from './types';
 
 
-export class NPC{
-    private position: Position
+export class NPC extends Player{
 
+    public is_chasing: boolean;
 
-    constructor(input_position: Position){
-        this.position = input_position;
+    constructor(){
+        super();
+        this.is_chasing = false;
     }
 
-    public updatePosition(new_position: Position): void {
-        this.position = new_position;
+    private incrDirection(): void{
+        this.direction = MapToNextDirection.get(this.direction)!;
     }
 
-    public getPosition(): Position {
-        return this.position;
+    public startChase(): void {
+        this.is_chasing = true;
+    }
+
+    public animate(): void {
+        if (!this.is_chasing){
+            this.incrDirection();
+        }
     }
 }
