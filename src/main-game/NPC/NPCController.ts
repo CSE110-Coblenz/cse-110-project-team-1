@@ -1,5 +1,6 @@
 import { NPCModel } from './NPCModel';
 import { NPCView } from './NPCView';
+import { MapModel } from '../MapModel';
 import { Position, Wall } from '../types';
 import { NPC } from './NPC';
 
@@ -16,6 +17,11 @@ export class NPCController {
         this.model = model;
         this.view = view;
 
+    }
+
+    public populateNPCS(map_model: MapModel, height: number, width: number): void {
+        this.model.generateNPCLocations(map_model, height, width);
+        this.view.updateNPCShapes(this.model.getNPCs());
     }
 
     private animateNPCs(): void {

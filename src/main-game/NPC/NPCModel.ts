@@ -1,5 +1,6 @@
 import { NPC } from './NPC';
 import { Position, Wall } from '../types';
+import { MapModel } from '../MapModel';
 
 /**
  * NPCModel for storing the locations of each NPC
@@ -34,7 +35,7 @@ export class NPCModel {
         return this.npcs;
     }
 
-    public generateNPCLocations(map_model, height: number, width: number): void {
+    public generateNPCLocations(map_model: MapModel, height: number, width: number): void {
         const padding = 5;
         const maxAttempts = 1000;
         this.npcs.forEach((npc: NPC) => {
@@ -52,7 +53,6 @@ export class NPCModel {
 
             if (attempts < maxAttempts) {
                 npc.position = {x, y};
-                //this.npcs.push(npc);
             }
         });
     }

@@ -14,18 +14,12 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-    // const worldWidth = Math.max(800, window.innerWidth * 5);
-    // const worldHeight = Math.max(600, window.innerHeight * 5)
-    console.log("Starting game with window size:", window.innerWidth, window.innerHeight);
-    const worldWidth = Math.max(800, window.innerWidth);
-    const worldHeight = Math.max(600, window.innerHeight);
-
+    const worldWidth = Math.max(800, window.innerWidth * 5);
+    const worldHeight = Math.max(600, window.innerHeight * 5);
     const config = {
         width: worldWidth,
         height: worldHeight,
-        //wallCount: 1500,
-        //wallCount: 100,
-        wallCount: 10,
+        wallCount: 1500,
         wallMinRadius: 30,
         wallMaxRadius: 160,
     };
@@ -50,15 +44,14 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const map_view = new MapView(layer, '#8fb3d9');
 
     const npc_controller = new NPCController(npc_model, npc_view);
-    const map_controller = new MapController(map_model, stage.width(), stage.height(), npc_controller);
+    const map_controller = new MapController(map_model, stage.width(), stage.height());
 
 
     function render() {
         const vp = map_controller.getViewport();
         const walls = map_controller.getVisibleWalls();
         map_view.draw(vp, walls);
-        npc_model.generateNPCLocations(map_model, worldHeight, worldWidth);
-        npc_view.updateNPCShapes(npc_model.getNPCs());
+        npc_controller.populateNPCS(map_model, worldHeight, worldWidth);
         npc_view.draw();
     }
 
