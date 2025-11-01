@@ -1,6 +1,5 @@
 import { MapModel } from './MapModel';
 import { Viewport, Position } from './types';
-import { NPCController } from './NPC/NPCController';
 
 /**
  * MapController manages the camera/viewport inside the MapModel.
@@ -9,18 +8,13 @@ import { NPCController } from './NPC/NPCController';
 export class MapController {
     private model: MapModel;
     private viewport: Viewport;
-    private npc_controller: NPCController;
 
-    constructor(model: MapModel,
-                viewportWidth: number,
-                viewportHeight: number,
-                npc_controller: NPCController) {
+    constructor(model: MapModel, viewportWidth: number, viewportHeight: number) {
         this.model = model;
         // center viewport on map center by default
         const startX = Math.max(0, Math.floor(model.getWidth() / 2 - viewportWidth / 2));
         const startY = Math.max(0, Math.floor(model.getHeight() / 2 - viewportHeight / 2));
         this.viewport = { x: startX, y: startY, width: viewportWidth, height: viewportHeight };
-        this.npc_controller = npc_controller;
     }
 
     public getViewport(): Viewport {

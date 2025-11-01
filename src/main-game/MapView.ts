@@ -18,8 +18,6 @@ export class MapView extends View{
 
     public draw(viewport: Viewport, walls: Wall[]): void {
         // Konva path
-        //if ((ctxOrLayer as Konva.Layer).getClassName && (ctxOrLayer as Konva.Layer).getClassName() === 'Layer') {
-        //const layer = ctxOrLayer as Konva.Layer;
         this.layer.destroyChildren();
         const bg = new Konva.Rect({
             x: 0,
@@ -45,31 +43,5 @@ export class MapView extends View{
         }
 
         this.layer.batchDraw();
-        //return;
-        //}
-
-        // Canvas path (legacy)
-        // const ctx = this.layer as CanvasRenderingContext2D;
-        // ctx.clearRect(0, 0, viewport.width, viewport.height);
-        // ctx.fillStyle = this.backgroundColor;
-        // ctx.fillRect(0, 0, viewport.width, viewport.height);
-
-        // ctx.save();
-        // ctx.translate(-viewport.x, -viewport.y);
-        // for (const wall of walls) {
-        //     if (!wall.points.length) continue;
-        //     ctx.beginPath();
-        //     ctx.moveTo(wall.points[0].x, wall.points[0].y);
-        //     for (let i = 1; i < wall.points.length; i++) {
-        //         ctx.lineTo(wall.points[i].x, wall.points[i].y);
-        //     }
-        //     ctx.closePath();
-        //     ctx.fillStyle = this.wallColor;
-        //     ctx.fill();
-        //     ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-        //     ctx.lineWidth = 2;
-        //     ctx.stroke();
-        // }
-        // ctx.restore();
     }
 }
