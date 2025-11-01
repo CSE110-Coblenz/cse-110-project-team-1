@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Viewport, Wall, View } from '../types';
+import { Viewport, Wall, View } from './types';
 
 /**
  * MapView renders a viewport of the MapModel.

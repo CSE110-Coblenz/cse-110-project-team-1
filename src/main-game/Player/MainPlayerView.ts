@@ -7,5 +7,4 @@ export class NPCView extends View {
   constructor(layer: Konva.Layer) {
     super(layer, []);
   }
-
 }

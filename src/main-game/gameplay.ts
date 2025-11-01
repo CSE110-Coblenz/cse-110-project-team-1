@@ -1,8 +1,8 @@
 import Konva from 'konva';
 import { Position } from './types';
-import { MapModel } from './Map/MapModel';
-import { MapController } from './Map/MapController';
-import { MapView } from './Map/MapView';
+import { MapModel } from './MapModel';
+import { MapController } from './MapController';
+import { MapView } from './MapView';
 import { NPCView } from './NPC/NPCView';
 import { NPCModel } from './NPC/NPCModel';
 import { NPC } from './NPC/NPC';

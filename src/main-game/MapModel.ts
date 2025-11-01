@@ -1,4 +1,4 @@
-import { MapConfig, Wall, Point, Position } from '../types';
+import { MapConfig, Wall, Point, Position } from './types';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.

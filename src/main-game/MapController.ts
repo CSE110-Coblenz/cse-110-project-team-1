@@ -1,6 +1,6 @@
 import { MapModel } from './MapModel';
-import { Viewport, Position } from '../types';
-import { NPCController } from '../NPC/NPCController';
+import { Viewport, Position } from './types';
+import { NPCController } from './NPC/NPCController';
 
 /**
  * MapController manages the camera/viewport inside the MapModel.
@@ -25,11 +25,6 @@ export class MapController {
 
     public getViewport(): Viewport {
         return { ...this.viewport };
-    }
-
-    public setupMap(): void {
-        //this.placeWalls();
-        this.npc_controller.placeNPCs(this.getVisibleWalls(), this.model.getHeight(), this.model.getWidth());
     }
 
     public setViewportSize(width: number, height: number) {

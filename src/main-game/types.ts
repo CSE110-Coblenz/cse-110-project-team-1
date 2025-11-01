@@ -68,16 +68,10 @@ export const MapToNextDirection = new Map<Direction, Direction>([
   [Direction.Right, Direction.Up],
 ]);
 
-export enum WallType {
-    Rect,
-    LShape
-}
 
 export interface Wall {
     id: string;
-    type: WallType;
     points: Point[]; // polygon points in world coordinates
-    bbox: { minX: number; minY: number; maxX: number; maxY: number };
 }
 
 export interface MapConfig {
