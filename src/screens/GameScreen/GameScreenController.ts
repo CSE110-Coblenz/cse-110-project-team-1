@@ -1,13 +1,15 @@
-import { ScreenController } from "../../types.ts";
-import type { ScreenSwitcher } from "../../types.ts";
-import { GameScreenModel } from "./GameScreenModel.ts";
-import { GameScreenView } from "./GameScreenView.ts";
-import { GAME_DURATION } from "../../constants.ts";
+import { ScreenController } from "../../types";
+import type { ScreenSwitcher } from "../../types";
+import type { Layer } from "konva/lib/Layer";
+import { GameScreenModel } from "./GameScreenModel";
+import { GameScreenView } from "./GameScreenView";
+import { GAME_DURATION } from "../../constants";
 
 /**
  * GameScreenController - Coordinates game logic between Model and View
  */
 export class GameScreenController extends ScreenController {
+	private layer?: Layer;
 	private model: GameScreenModel;
 	private view: GameScreenView;
 	private screenSwitcher: ScreenSwitcher;
@@ -24,6 +26,34 @@ export class GameScreenController extends ScreenController {
 
 		// TODO: Task 4 - Initialize squeeze sound audio
 		this.squeezeSound = new Audio(); // Placeholder
+	}
+
+	/**
+	 * Mount the screen into a Konva layer. We add the view's group to the
+	 * layer so it becomes visible on the stage.
+	 */
+	mount(layer?: Layer): void {
+		this.layer = layer;
+		if (this.layer) {
+			this.layer.add(this.view.getGroup());
+			// request a redraw so the newly added group appears
+			this.layer.draw();
+		}
+	}
+
+	/**
+	 * Dispose the screen: stop timers, remove view from layer, cleanup resources.
+	 */
+	dispose(): void {
+		this.stopTimer();
+		if (this.layer) {
+			try {
+				this.view.getGroup().remove();
+				this.layer.draw();
+			} catch (e) {
+				// ignore removal errors
+			}
+		}
 	}
 
 	/**
