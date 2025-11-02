@@ -1,8 +1,9 @@
 import { Customer } from '../model/Customer';
 import { Label, LabelType } from '../model/Label';
+import { Species } from '../../common/types/Species';
 
 export class CustomerFactory {
-  private static readonly customerToLabelMap: Record<string, LabelType> = {
+  private static readonly customerToLabelMap: Record<Species, LabelType> = {
     // Define your customer type to label mappings here
     // Example:
     'mushroom': 'decomposer',
@@ -10,7 +11,7 @@ export class CustomerFactory {
     'sunflower': 'producer',
   };
 
-  static createCustomer(customerType: string): Customer {
+  static createCustomer(customerType: Species): Customer {
     const labelType = this.customerToLabelMap[customerType];
     if (!labelType) {
       throw new Error(`Unknown customer type: ${customerType}`);

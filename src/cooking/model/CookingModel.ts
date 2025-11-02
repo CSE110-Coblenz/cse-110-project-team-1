@@ -4,6 +4,7 @@ import { CustomerFactory } from './CustomerFactory';
 import { DeckLogic } from './DeckLogic';
 import { CookingGameConfig } from '../config/CookingGameConfig';
 import { CustomerDisplayData } from '../types/CustomerDisplayData';
+import { Species } from '../../common/types/Species';
 
 export class CookingModel {
     private customerQueue: Customer[] = [];
@@ -17,7 +18,7 @@ export class CookingModel {
         // Empty constructor - actual initialization happens in initialize()
     }
 
-    initialize(customerTypes: string[]) {
+    initialize(customerTypes: Species[]) {
         // Initialize all customers based on the config
         // Randomly select NUM_CUSTOMERS from the provided customerTypes
         this.customerQueue = [];

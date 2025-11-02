@@ -1,6 +1,7 @@
 import { CookingModel } from '../model/CookingModel';
 import { Label } from '../model/Label';
 import { CookingView } from '../view/CookingView';
+import { Species } from '../../common/types/Species';
 
 export default class CookingController {
     private model: CookingModel;
@@ -14,9 +15,9 @@ export default class CookingController {
 
     /**
      * Starts the cooking game with the given customer types that's passed from the main game
-     * @param customerTypes - Array of customer type IDs from main game (we assume it's a list of string for now)
+     * @param customerTypes - Array of customer species from main game
      */
-    startGame(customerTypes: string[]): void {
+    startGame(customerTypes: Species[]): void {
         console.log('CookingController.startGame called');
         console.log('Customer types:', customerTypes);
         
@@ -35,7 +36,7 @@ export default class CookingController {
     /**
      * Temporary test method to verify setup is working and display model data
      */
-    private showTestMessage(customerTypes: string[]): void {
+    private showTestMessage(customerTypes: Species[]): void {
         const container = document.getElementById('container');
         if (container) {
             const customerData = this.model.getCustomerData();

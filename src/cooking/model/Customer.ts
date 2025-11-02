@@ -1,12 +1,13 @@
 import { CookingGameConfig } from '../config/CookingGameConfig';
 import { Label } from './Label';
+import { Species } from '../../common/types/Species';
 
 export class Customer {
-  type: string;
+  type: Species;
   patience: number;
   correctLabel: Label;
 
-  constructor(type: string, correctLabel: Label) {
+  constructor(type: Species, correctLabel: Label) {
     this.type = type;
     this.patience = CookingGameConfig.INITIAL_PATIENCE;
     this.correctLabel = correctLabel;
