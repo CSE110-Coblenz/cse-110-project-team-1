@@ -8,6 +8,7 @@ import { Viewport, Position } from './types';
  */
 export class MapController {
     private model: MapModel;
+    private static DEFAULT_STEP_SIZE = 64; // pixels
 
     constructor(model: MapModel, viewportWidth: number, viewportHeight: number) {
         this.model = model;
@@ -27,16 +28,16 @@ export class MapController {
     }
 
     // movement in pixels
-    public moveUp(pixels = 64) {
+    public moveUp(pixels = MapController.DEFAULT_STEP_SIZE) {
         this.model.moveViewportBy(0, -pixels);
     }
-    public moveDown(pixels = 64) {
+    public moveDown(pixels = MapController.DEFAULT_STEP_SIZE) {
         this.model.moveViewportBy(0, pixels);
     }
-    public moveLeft(pixels = 64) {
+    public moveLeft(pixels = MapController.DEFAULT_STEP_SIZE) {
         this.model.moveViewportBy(-pixels, 0);
     }
-    public moveRight(pixels = 64) {
+    public moveRight(pixels = MapController.DEFAULT_STEP_SIZE) {
         this.model.moveViewportBy(pixels, 0);
     }
 
