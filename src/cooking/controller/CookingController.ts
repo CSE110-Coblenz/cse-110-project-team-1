@@ -20,9 +20,12 @@ export default class CookingController {
         console.log('CookingController.startGame called');
         console.log('Customer types:', customerTypes);
         
-        // TODO: Initialize model and view
+    // TODO: Initialize model and view
         this.model.initialize(customerTypes);
-        this.view.initialize(this.model.getCustomerData(), this.model.getLabel(), this.model.getScore());
+    this.view.initialize(this.model.getCustomerData(), this.model.getLabel(), this.model.getScore());
+    // Initialize progress bar in the view
+    const progressInit = this.model.getProgress();
+    this.view.updateProgress(progressInit.correct, progressInit.total);
         // TODO: Game loop
         
         // For now, just show we're working
@@ -81,6 +84,12 @@ export default class CookingController {
             this.view.updateScore(100);
         }, 1000);
         
+        // Progress test events
+        setTimeout(() => {
+            console.log('Test 1a: handleCorrectAssignment()');
+            this.handleCorrectAssignment();
+        }, 1200);
+
         setTimeout(() => {
             if (this.model.getLabel() !== 'consumer') {
                 console.log('Test 2: updateLabel("consumer")');
@@ -93,6 +102,11 @@ export default class CookingController {
             }
         }, 2000);
         
+        setTimeout(() => {
+            console.log('Test 2a: handleCorrectAssignment()');
+            this.handleCorrectAssignment();
+        }, 2200);
+
         setTimeout(() => {
             console.log('Test 3: updateCustomers() with modified patience');
             // Modify customer data to show the update is working
@@ -109,6 +123,11 @@ export default class CookingController {
         }, 3000);
         
         setTimeout(() => {
+            console.log('Test 3a: handleCorrectAssignment()');
+            this.handleCorrectAssignment();
+        }, 3500);
+
+        setTimeout(() => {
             console.log('Test 4: showGameOver(250)');
             this.view.showGameOver(250);
         }, 4000);
@@ -120,6 +139,16 @@ export default class CookingController {
         // }, 5000);
         
         console.log('=== View Method Tests Scheduled ===\n');
+    }
+
+    /**
+     * Called when the player correctly assigns a label.
+     * Updates model progress and refreshes view progress bar and score.
+     */
+    private handleCorrectAssignment(): void {
+        const progress = this.model.serveCustomerCorrect();
+        this.view.updateProgress(progress.correct, progress.total);
+        this.view.updateScore(this.model.getScore());
     }
 
     // Potential Additional Methods: 

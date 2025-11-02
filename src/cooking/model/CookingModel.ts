@@ -94,4 +94,29 @@ export class CookingModel {
         // Return score data for the view
         return this.score;
     }
+
+    /**
+     * Returns current progress towards total correct assignments
+     * correct = customersServed, total = configured NUM_CUSTOMERS
+     */
+    getProgress(): { correct: number; total: number } {
+        return {
+            correct: this.customersServed,
+            total: CookingGameConfig.NUM_CUSTOMERS,
+        };
+    }
+
+    /**
+     * Records a correct assignment. Increments customersServed and score.
+     * Returns updated progress for convenience.
+     */
+    serveCustomerCorrect(): { correct: number; total: number } {
+        const total = CookingGameConfig.NUM_CUSTOMERS;
+        if (this.customersServed < total) {
+            this.customersServed += 1;
+            // Optional: basic scoring for correct assignment
+            this.score += 10;
+        }
+        return { correct: this.customersServed, total };
+    }
 }

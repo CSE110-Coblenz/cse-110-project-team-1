@@ -22,6 +22,15 @@ export class CookingView {
             container.innerHTML += `
                 <div id="view-placeholder" style="border: 2px solid blue; padding: 10px; margin-top: 20px;">
                     <h2>View Component Placeholder</h2>
+                    <div id="progress-container" style="margin: 8px 0 12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <span>Progress</span>
+                            <span id="progress-text">0/0</span>
+                        </div>
+                        <div style="width:100%;height:12px;background:#e5e7eb;border-radius:6px;overflow:hidden;">
+                            <div id="progress-bar" style="height:100%;width:0%;background:#3b82f6;transition:width 0.25s ease;"></div>
+                        </div>
+                    </div>
                     <div id="score-display">Score: <span id="score-value">0</span></div>
                     <div id="label-display">Label: <span id="label-value">none</span></div>
                     <div id="customers-display">Customers: <span id="customers-value">[]</span></div>
@@ -46,6 +55,36 @@ export class CookingView {
         if (scoreElement) {
             scoreElement.textContent = score.toString();
         }
+    }
+
+    /**
+     * Updates the progress bar and numeric text (e.g., 3/10)
+     */
+    updateProgress(correct: number, total: number): void {
+        const bar = document.getElementById('progress-bar');
+        const text = document.getElementById('progress-text');
+        if (!bar || !text) {
+            return;
+        }
+
+        let safeTotal = total;
+        if (safeTotal < 1) {
+            safeTotal = 0;
+        }
+
+        let percent = 0;
+        if (safeTotal > 0) {
+            percent = Math.round((correct * 100) / safeTotal);
+            if (percent < 0) {
+                percent = 0;
+            }
+            if (percent > 100) {
+                percent = 100;
+            }
+        }
+
+        bar.style.width = percent + '%';
+        text.textContent = correct + '/' + safeTotal;
     }
 
     /**
