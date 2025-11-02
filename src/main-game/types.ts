@@ -9,6 +9,13 @@ export interface Wall {
     points: Point[]; // polygon points in world coordinates
 }
 
+export interface WallTemplate {
+    name: string;
+    points: Point[]; // relative to (0,0)
+    width: number;
+    height: number;
+}
+
 export interface MapConfig {
     width: number; // world width in pixels
     height: number; // world height in pixels
