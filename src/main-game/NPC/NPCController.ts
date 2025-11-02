@@ -22,7 +22,7 @@ export class NPCController {
         this.view.updateNPCShapes(this.model.getNPCs());
     }
 
-    private animateNPCs(): void {
+    public animateNPCs(): void {
         this.model.getNPCs().forEach((npc) => {
             npc.animate();
         },);

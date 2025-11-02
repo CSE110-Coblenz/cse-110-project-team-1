@@ -5,7 +5,6 @@ export interface Point {
 }
 
 export interface Wall {
-    id: string;
     points: Point[]; // polygon points in world coordinates
 }
 
@@ -55,17 +54,6 @@ export abstract class View {
         this.shapes = [];
     }
 
-    // protected addShapes(shapes: Konva.Shape[]): void {
-    //     for (const shape of shapes) {
-    //         if( this.layer instanceof Konva.Layer){
-    //             this.layer.add(shape);
-    //         } else {
-
-    //         }
-    //         this.shapes.push(shape);
-    //     }
-    // }
-
     protected destroyShapes(): void {
         for (const shape of this.shapes) {
             shape.remove();
@@ -105,5 +93,12 @@ export const MapToNextDirection = new Map<Direction, Direction>([
   [Direction.Right, Direction.Up],
 ]);
 
+export const ReverseMapToNextDirection = new Map<Direction, Direction>([
+  [Direction.Up, Direction.Right],
+  [Direction.Right, Direction.Down],
+  [Direction.Down, Direction.Left],
+  [Direction.Left, Direction.Up],
+]);
 
-export const DEF_PXL_ADV: number = 64;
+
+export const DEF_PXL_ADV: number = 24;

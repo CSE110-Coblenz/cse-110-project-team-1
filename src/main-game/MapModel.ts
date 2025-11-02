@@ -32,7 +32,7 @@ export class MapModel {
                             spacing);
     }
 
-    private bboxOfPoints(points: Point[]) {
+    public bboxOfPoints(points: Point[]) {
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         for (const p of points) {
             if (p.x < minX) minX = p.x;

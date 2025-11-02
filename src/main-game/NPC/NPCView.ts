@@ -7,8 +7,6 @@ export class NPCView extends View {
 
   public updateNPCShapes(npcs: NPC[]): void {
     this.destroyShapes();
-    const shapes: Konva.Rect[] = []
-    console.log("Updating NPC shapes for:", npcs);
     npcs.forEach((npc) => {
         const shape = new Konva.Rect({
             x: npc.position.x,
@@ -17,9 +15,8 @@ export class NPCView extends View {
             height: npc.height,
             fill: NPC_RED,
             });
-        shapes.push(shape);
+        this.shapes.push(shape);
     });
-    this.shapes = shapes
     for (const shape of this.shapes) {
         this.layer.add(shape);
     }

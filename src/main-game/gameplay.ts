@@ -53,6 +53,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const npc_controller = new NPCController(npc_model, npc_view);
     const map_controller = new MapController(map_model, stage.width(), stage.height());
 
+    let animationInterval: number | undefined;
 
     const playerModel = new PlayerModel(Math.floor(map_model.getWidth() / 2), Math.floor(map_model.getHeight() / 2), 12, 800, 100, 'anteater');
     const playerView = new PlayerView();
@@ -74,8 +75,17 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 
     render();
 
+    animationInterval = window.setInterval(() => {
+        npc_controller.animateNPCs();
+        npc_view.updateNPCShapes(npc_model.getNPCs());
+    }, 750);
+
     function stop() {
         playerController.detachKeyboardListeners();
+        if (animationInterval !== undefined) {
+            clearInterval(animationInterval);
+            animationInterval = undefined;
+        }
         try { stage.destroy(); } catch (e) { /* ignore */ }
         if (div.parentElement) div.parentElement.removeChild(div);
     }
