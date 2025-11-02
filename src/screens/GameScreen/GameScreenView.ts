@@ -12,26 +12,10 @@ export class GameScreenView implements View {
 	private score: number = 0;
 	private timer: number = 0;
 
-	private lemonCircle: Konva.Circle;
 
-	constructor(onLemonClick?: () => void) {
+	constructor() {
 		this.group = new Konva.Group();
 
-		// Create a simple circle to represent the lemon / clickable target
-		this.lemonCircle = new Konva.Circle({
-			x: 100,
-			y: 100,
-			radius: 30,
-			fill: "#ffea00",
-			stroke: "#f0c300",
-			strokeWidth: 2,
-		});
-
-		if (onLemonClick) {
-			this.lemonCircle.on("click", onLemonClick);
-		}
-
-		this.group.add(this.lemonCircle);
 	}
 
 	getGroup(): Group {
@@ -55,13 +39,6 @@ export class GameScreenView implements View {
 		this.timer = ms;
 	}
 
-	randomizeLemonPosition(): void {
-		// Move the lemon to a random place in a 800x600 area (example)
-		const x = Math.floor(Math.random() * 700) + 50;
-		const y = Math.floor(Math.random() * 500) + 50;
-		this.lemonCircle.x(x);
-		this.lemonCircle.y(y);
-	}
 }
 
 export default GameScreenView;
