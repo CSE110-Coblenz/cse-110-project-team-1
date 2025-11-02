@@ -1,7 +1,6 @@
 import Konva from "konva";
 import type { Group } from "konva/lib/Group";
 import type { View } from "../../types";
-
 /**
  * Minimal GameScreenView implementing the project's `View` interface.
  * This is intentionally lightweight: it exposes a Konva.Group and a few
