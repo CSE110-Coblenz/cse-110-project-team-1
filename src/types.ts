@@ -11,14 +11,16 @@ export interface View {
  * Screen types for navigation
  *
  * - "menu": Main menu screen
+ * - "intro": Tutorial/intro screen
  * - "game": Gameplay screen
- * - "result": Results screen with final score
- *   - score: Final score to display on results screen
+ * - "cooking": Cooking minigame screen
+ * - "result": Results screen with final score (score: number)
  */
 export type Screen =
 	| { type: "menu" }
+	| { type: "intro" }
 	| { type: "game" }
-	| { type: "intro"}
+	| { type: "cooking" }
 	| { type: "result"; score: number };
 
 export abstract class ScreenController {

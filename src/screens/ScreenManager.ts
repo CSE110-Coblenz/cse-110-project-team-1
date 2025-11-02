@@ -4,6 +4,7 @@ import { GameScreenController } from "./GameScreen/GameScreenController";
 import { MenuScreenController } from "./MenuScreen/MenuScreenController";
 import { ResultScreenController } from "./ResultScreen/ResultScreenController";
 import { IntroScreenController } from "./IntroScreen/IntroScreenController";
+import { CookingScreenController } from "./CookingScreen/CookingScreenController";
 
 /**
  * ScreenManager: simple manager that switches between screens.
@@ -70,6 +71,13 @@ export class ScreenManager implements ScreenSwitcher {
         this.current = introController as unknown as ScreenController;
         this.current.mount(this.layer);
         introController.show();
+        break;
+      }
+      case "cooking": {
+        const cookingController = new CookingScreenController(this);
+        this.current = cookingController as unknown as ScreenController;
+        this.current.mount(this.layer);
+        cookingController.show();
         break;
       }
       default:
