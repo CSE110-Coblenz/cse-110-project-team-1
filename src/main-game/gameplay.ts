@@ -42,7 +42,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const view = new MapView('#8fb3d9');
 
     const playerModel = new PlayerModel(Math.floor(model.getWidth() / 2), Math.floor(model.getHeight() / 2), 12, 800, 100, 'anteater');
-    const playerView = new PlayerView('#ffcc00');
+    const playerView = new PlayerView();
     const playerController = new PlayerController(playerModel, playerView, model, controller);
 
     function render() {
