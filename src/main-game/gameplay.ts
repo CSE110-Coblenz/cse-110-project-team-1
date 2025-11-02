@@ -14,6 +14,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const config = {
         width: worldWidth,
         height: worldHeight,
+        spacing: 120,
         wallCount: 1500,
         wallMinRadius: 30,
         wallMaxRadius: 160,

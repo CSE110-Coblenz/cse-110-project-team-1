@@ -9,11 +9,11 @@ export interface Wall {
     points: Point[]; // polygon points in world coordinates
 }
 
-export interface WallTemplate {
-    name: string;
-    points: Point[]; // relative to (0,0)
-    width: number;
-    height: number;
+export interface Cell {
+    x: number;
+    y: number;
+    visited: boolean;
+    walls: { top: boolean; right: boolean; bottom: boolean; left: boolean };
 }
 
 export interface MapConfig {
@@ -24,6 +24,7 @@ export interface MapConfig {
     wallMaxRadius?: number; // max size of wall polys
     backgroundImageKey?: string;
     wallImageKey?: string;
+    spacing: number; // min spacing between walls
     seed?: number; // optional seed for deterministic generation
 }
 
