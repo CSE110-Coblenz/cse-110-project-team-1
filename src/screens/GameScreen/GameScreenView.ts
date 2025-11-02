@@ -12,10 +12,28 @@ export class GameScreenView implements View {
 	private score: number = 0;
 	private timer: number = 0;
 
-
 	constructor() {
 		this.group = new Konva.Group();
 
+		const background = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: 800,
+			height: 600,
+			fill: "#002b36",
+			opacity: 0.9,
+		});
+
+		const label = new Konva.Text({
+			x: 120,
+			y: 120,
+			text: "Game Screen Placeholder",
+			fontSize: 36,
+			fill: "#ffffff",
+		});
+
+		this.group.add(background);
+		this.group.add(label);
 	}
 
 	getGroup(): Group {

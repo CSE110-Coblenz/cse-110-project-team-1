@@ -3,6 +3,7 @@ import type { Layer } from "konva/lib/Layer";
 import { GameScreenController } from "./GameScreen/GameScreenController";
 import { MenuScreenController } from "./MenuScreen/MenuScreenController";
 import { ResultScreenController } from "./ResultScreen/ResultScreenController";
+import { IntroScreenController } from "./IntroScreen/IntroScreenController";
 
 /**
  * ScreenManager: simple manager that switches between screens.
@@ -62,6 +63,13 @@ export class ScreenManager implements ScreenSwitcher {
         this.current = resultController as unknown as ScreenController;
         this.current.mount(this.layer);
         resultController.show();
+        break;
+      }
+      case "intro": {
+        const introController = new IntroScreenController(this);
+        this.current = introController as unknown as ScreenController;
+        this.current.mount(this.layer);
+        introController.show();
         break;
       }
       default:
