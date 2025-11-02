@@ -1,4 +1,4 @@
-import { MapConfig, Wall, Point, Position } from './types';
+import { MapConfig, Wall, Point, Position, Viewport } from './types';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -8,14 +8,20 @@ export class MapModel {
     private width: number;
     private height: number;
     private walls: Wall[] = [];
+    private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
+
+    // static defaults
+    public static DEFAULT_WALL_COUNT = 40;
+    public static DEFAULT_WALL_MIN_RADIUS = 20;
+    public static DEFAULT_WALL_MAX_RADIUS = 120;
 
     constructor(config: MapConfig) {
         this.width = config.width;
         this.height = config.height;
 
-        const count = config.wallCount ?? 40;
-        const minR = config.wallMinRadius ?? 20;
-        const maxR = config.wallMaxRadius ?? 120;
+        const count = config.wallCount ?? MapModel.DEFAULT_WALL_COUNT;
+        const minR = config.wallMinRadius ?? MapModel.DEFAULT_WALL_MIN_RADIUS;
+        const maxR = config.wallMaxRadius ?? MapModel.DEFAULT_WALL_MAX_RADIUS;
         this.generateWalls(count, minR, maxR);
     }
 
@@ -81,6 +87,43 @@ export class MapModel {
         }
 
         this.walls = walls;
+    }
+
+    public getViewport(): Viewport {
+        return { ...this.viewport };
+    }
+
+    public setViewportSize(width: number, height: number) {
+        this.viewport.width = width;
+        this.viewport.height = height;
+        this.clampViewport();
+    }
+
+    public setViewportPosition(x: number, y: number) {
+        this.viewport.x = x;
+        this.viewport.y = y;
+        this.clampViewport();
+    }
+
+    public moveViewportBy(dx: number, dy: number) {
+        this.viewport.x += dx;
+        this.viewport.y += dy;
+        this.clampViewport();
+    }
+
+    public centerViewportOn(position: Position) {
+        this.viewport.x = Math.floor(position.x - this.viewport.width / 2);
+        this.viewport.y = Math.floor(position.y - this.viewport.height / 2);
+        this.clampViewport();
+    }
+
+    private clampViewport() {
+        const maxX = Math.max(0, this.width - this.viewport.width);
+        const maxY = Math.max(0, this.height - this.viewport.height);
+        if (this.viewport.x < 0) this.viewport.x = 0;
+        if (this.viewport.y < 0) this.viewport.y = 0;
+        if (this.viewport.x > maxX) this.viewport.x = maxX;
+        if (this.viewport.y > maxY) this.viewport.y = maxY;
     }
 
     public getWallsInRegion(x: number, y: number, w: number, h: number): Wall[] {
