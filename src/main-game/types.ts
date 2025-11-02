@@ -20,14 +20,21 @@ export abstract class View {
     protected layer: Konva.Layer;
     protected shapes: Konva.Shape[];
 
-    constructor(layer: Konva.Layer, shapes: Konva.Shape[]) {
+    constructor(layer: Konva.Layer) {
         this.layer = layer;
-        this.shapes = shapes;
-
-        for (const shape of this.shapes) {
-            this.layer.add(shape);
-        }
+        this.shapes = [];
     }
+
+    // protected addShapes(shapes: Konva.Shape[]): void {
+    //     for (const shape of shapes) {
+    //         if( this.layer instanceof Konva.Layer){
+    //             this.layer.add(shape);
+    //         } else {
+
+    //         }
+    //         this.shapes.push(shape);
+    //     }
+    // }
 
     protected destroyShapes(): void {
         for (const shape of this.shapes) {

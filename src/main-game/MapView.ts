@@ -15,12 +15,13 @@ export class MapView extends View{
     private backgroundColor: string;
     private wallColor: string;
 
-    constructor(backgroundColor = MapView.DEFAULT_BACKGROUND, wallColor = MapView.DEFAULT_WALL_COLOR) {
+    constructor(layer: Konva.Layer, backgroundColor = MapView.DEFAULT_BACKGROUND, wallColor = MapView.DEFAULT_WALL_COLOR) {
+        super(layer);
         this.backgroundColor = backgroundColor;
         this.wallColor = wallColor;
     }
 
-    public draw(viewport: Viewport, walls: Wall[]): void {
+    public addWallstoView(viewport: Viewport, walls: Wall[]): void {
         // Konva path
         this.layer.destroyChildren();
         const bg = new Konva.Rect({
@@ -45,7 +46,5 @@ export class MapView extends View{
             });
             this.layer.add(line);
         }
-
-        this.layer.batchDraw();
     }
 }

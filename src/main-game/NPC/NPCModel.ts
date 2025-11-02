@@ -1,5 +1,5 @@
 import { NPC } from './NPC';
-import { Position, Wall } from '../types';
+import { Position } from '../types';
 import { MapModel } from '../MapModel';
 
 /**
@@ -10,25 +10,7 @@ export class NPCModel {
     private npcs: NPC[];
 
     constructor() {
-        this.npcs = [];
-        const positions: Position[] = [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        { x: 0, y: 0 },
-        ];
-        for (const pos of positions) {
-            const npc = new NPC();
-            npc.position = pos;
-            npc.width = 5;
-            npc.height = 5;
-            this.npcs.push(npc);
-        }
+        this.npcs = Array.from({ length: 10 }, () => new NPC());
     }
 
     public getNPCs() : NPC[] {

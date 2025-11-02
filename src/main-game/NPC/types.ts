@@ -7,11 +7,13 @@ export abstract class Player{
     public height: number
     protected direction: Direction
     protected species: Species
+    protected static readonly DEF_WIDTH: number = 10;
+    protected static readonly DEF_HEIGHT: number = 10;
 
     constructor(species: Species = Species.SPEC1, 
                 position: Position = {x: 0, y: 0},
-                width: number = 32, 
-                height: number = 32){
+                width: number = Player.DEF_WIDTH, 
+                height: number = Player.DEF_HEIGHT){
         this.position = position;
         this.direction = Direction.Down;
         this.species = species;

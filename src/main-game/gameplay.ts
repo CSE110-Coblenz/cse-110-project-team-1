@@ -1,11 +1,9 @@
 import Konva from 'konva';
-import { Position } from './types';
 import { MapModel } from './MapModel';
 import { MapController } from './MapController';
 import { MapView } from './MapView';
 import { NPCView } from './NPC/NPCView';
 import { NPCModel } from './NPC/NPCModel';
-import { NPC } from './NPC/NPC';
 import { NPCController } from './NPC/NPCController';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
@@ -14,12 +12,15 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-    const worldWidth = Math.max(800, window.innerWidth * 5);
-    const worldHeight = Math.max(600, window.innerHeight * 5);
+    // const worldWidth = Math.max(800, window.innerWidth * 5);
+    // const worldHeight = Math.max(600, window.innerHeight * 5);
+    // For testing purposes, test the spawning within the current window
+    const worldWidth = Math.max(800, window.innerWidth);
+    const worldHeight = Math.max(600, window.innerHeight);
     const config = {
         width: worldWidth,
         height: worldHeight,
-        wallCount: 1500,
+        wallCount: 15,
         wallMinRadius: 30,
         wallMaxRadius: 160,
     };
@@ -50,7 +51,8 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     function render() {
         const vp = map_controller.getViewport();
         const walls = map_controller.getVisibleWalls();
-        map_view.draw(vp, walls);
+        map_view.addWallstoView(vp, walls);
+        map_view.draw();
         npc_controller.populateNPCS(map_model, worldHeight, worldWidth);
         npc_view.draw();
     }

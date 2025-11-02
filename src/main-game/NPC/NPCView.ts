@@ -1,12 +1,12 @@
 import Konva from 'konva';
-import { View, Position } from '../types'; // adjust path as needed
-import { NPC_RED, NPC_WIDTH, NPC_HEIGHT } from '../types'; // assuming your color constant
+import { View } from '../types'; // adjust path as needed
+import { NPC_RED} from '../types'; // assuming your color constant
 import { NPC } from './NPC';
 
 export class NPCView extends View {
 
   constructor(layer: Konva.Layer) {
-    super(layer, []);
+    super(layer);
   }
 
   public updateNPCShapes(npcs: NPC[]): void {

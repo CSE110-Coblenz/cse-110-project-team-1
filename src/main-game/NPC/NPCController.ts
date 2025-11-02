@@ -1,8 +1,6 @@
 import { NPCModel } from './NPCModel';
 import { NPCView } from './NPCView';
 import { MapModel } from '../MapModel';
-import { Position, Wall } from '../types';
-import { NPC } from './NPC';
 
 /**
  * NPCController manages the locations, animations, and interactions between NPCs
