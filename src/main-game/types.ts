@@ -5,6 +5,7 @@ export interface Point {
 }
 
 export interface Wall {
+    id: string;
     points: Point[]; // polygon points in world coordinates
 }
 
