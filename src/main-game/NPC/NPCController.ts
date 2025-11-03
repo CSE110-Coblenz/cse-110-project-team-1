@@ -10,7 +10,8 @@ import { Point, Position, Viewport } from '../types'
  * the NPCs onto the screen
  */
 export class NPCController {
-    private static SPAWN_RADIUS: number = 50;
+    public static SPAWN_RADIUS: number = 50;
+    public static WALL_CLEARANCE: number = 50;
     private model: NPCModel;
     private view: NPCView;
 
@@ -22,7 +23,7 @@ export class NPCController {
     public spawn(map: MapModel, existingNPCPositions: Position[]): Position | void {
         const NPC_RADIUS = NPCController.SPAWN_RADIUS;
         const MAX_SPAWN_ATTEMPTS = 2000;
-        const WALL_CLEARANCE = 50; // distance from walls
+        const WALL_CLEARANCE = NPCController.WALL_CLEARANCE; // distance from walls
 
         // Check if a point is inside a polygon
         const isPointInsidePolygon = (pointX: number, pointY: number, polygon: Point[]) => {

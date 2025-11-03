@@ -14,7 +14,7 @@ export interface GameHandle {
     stop: () => void;
 }
 
-function populateNPCs(npc_count: number): NPC[]{
+export function populateNPCs(npc_count: number): NPC[]{
     let npcs = [];
     for (let i: number = 0; i < npc_count; i++) {
         npcs.push(NPC.create(Species.ANTEATER));

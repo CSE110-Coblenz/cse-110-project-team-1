@@ -54,8 +54,8 @@ export class MapController {
         this.model.centerViewportOn(position);
     }
 
-    public assignNPCs(npcs: NPC[]){
-        this.npcs = npcs;
+    public getNPCs(){
+        return this.npcs;
     }
 
     public placeNPCs(npcs: NPC[]){
