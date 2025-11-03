@@ -1,4 +1,4 @@
-import { MapConfig, Wall, Point, Position, Cell, Viewport } from './types';
+import { MapConfig, Wall, Point, Position, Viewport } from './types';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -11,19 +11,25 @@ export class MapModel {
     private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 
     // static defaults
+    public static DEFAULT_SPACING = 80;
     public static DEFAULT_WALL_COUNT = 40;
-    public static DEFAULT_WALL_MIN_RADIUS = 20;
-    public static DEFAULT_WALL_MAX_RADIUS = 120;
+    public static DEFAULT_WALL_MIN_WIDTH = 110;
+    public static DEFAULT_WALL_MAX_WIDTH = 120;
 
     constructor(config: MapConfig) {
         this.width = config.width;
         this.height = config.height;
 
-        const spacing = config.spacing ?? 80;
+        const spacing = config.spacing ?? MapModel.DEFAULT_SPACING;
         const count = config.wallCount ?? MapModel.DEFAULT_WALL_COUNT;
-        const minR = config.wallMinRadius ?? MapModel.DEFAULT_WALL_MIN_RADIUS;
-        const maxR = config.wallMaxRadius ?? MapModel.DEFAULT_WALL_MAX_RADIUS;
-        this.generateWalls(this.width, this.height, count, spacing);
+        const minWidth = config.wallMinWidth ?? MapModel.DEFAULT_WALL_MIN_WIDTH;
+        const maxWidth = config.wallMaxWidth ?? MapModel.DEFAULT_WALL_MAX_WIDTH;
+        this.generateWalls(this.width, 
+                            this.height, 
+                            minWidth,
+                            maxWidth,
+                            count, 
+                            spacing);
     }
 
     private bboxOfPoints(points: Point[]) {
@@ -37,133 +43,55 @@ export class MapModel {
         return { minX, minY, maxX, maxY };
     }
 
-    private getUnvisitedNeighbors(
-        cell: Cell,
-        grid: Cell[][],
-        cols: number,
-        rows: number
-        ): Cell[] {
-        const neighbors: Cell[] = [];
-        const { x, y } = cell;
-
-        if (y > 0 && !grid[y - 1][x].visited) neighbors.push(grid[y - 1][x]);
-        if (x < cols - 1 && !grid[y][x + 1].visited) neighbors.push(grid[y][x + 1]);
-        if (y < rows - 1 && !grid[y + 1][x].visited) neighbors.push(grid[y + 1][x]);
-        if (x > 0 && !grid[y][x - 1].visited) neighbors.push(grid[y][x - 1]);
-
-        return neighbors;
-    }
-
-    private removeWall(a: Cell, b: Cell) {
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-
-        if (dx === 1) {
-            a.walls.right = false;
-            b.walls.left = false;
-        } else if (dx === -1) {
-            a.walls.left = false;
-            b.walls.right = false;
-        } else if (dy === 1) {
-            a.walls.bottom = false;
-            b.walls.top = false;
-        } else if (dy === -1) {
-            a.walls.top = false;
-            b.walls.bottom = false;
-        }
-    }
-
-    private makeRectWall(p1: Point, p2: Point, thickness = 20): Wall {
-        // Create a thin rectangle between p1 and p2
-        if (p1.y === p2.y) {
-            // Horizontal wall
-            return {
-                id: "hi",
-                points: [
-                    { x: p1.x, y: p1.y - thickness / 2 },
-                    { x: p2.x, y: p2.y - thickness / 2 },
-                    { x: p2.x, y: p2.y + thickness / 2 },
-                    { x: p1.x, y: p1.y + thickness / 2 }
-                ]
-            };
-        } else {
-            // Vertical wall
-            return {
-                id: "hi",
-                points: [
-                    { x: p1.x - thickness / 2, y: p1.y },
-                    { x: p1.x + thickness / 2, y: p1.y },
-                    { x: p2.x + thickness / 2, y: p2.y },
-                    { x: p2.x - thickness / 2, y: p2.y }
-                ]
-            };
-        }
-    }
-
-
-    private generateWalls(width: number, height: number, minWalls: number, minSpacing: number): void {
-        const cellSize = Math.max(minSpacing, 120);
-        const cols = Math.floor(width / cellSize);
-        const rows = Math.floor(height / cellSize);
-
-        // Step 1: Initialize grid
-        const grid: Cell[][] = [];
-        for (let y = 0; y < rows; y++) {
-            const row: Cell[] = [];
-            for (let x = 0; x < cols; x++) {
-            row.push({
-                x,
-                y,
-                visited: false,
-                walls: { top: true, right: true, bottom: true, left: true }
-            });
-            }
-            grid.push(row);
-        }
-
-        // Step 2: Recursive DFS for connectivity
-        const stack: Cell[] = [];
-        const start = grid[0][0];
-        start.visited = true;
-        stack.push(start);
-
-        while (stack.length > 0) {
-            const current = stack.pop()!;
-            const neighbors = this.getUnvisitedNeighbors(current, grid, cols, rows);
-
-            if (neighbors.length > 0) {
-            stack.push(current);
-            const next = neighbors[Math.floor(Math.random() * neighbors.length)];
-            this.removeWall(current, next);
-            next.visited = true;
-            stack.push(next);
-            }
-        }
-
-        // Step 3: Generate wall rectangles from cell walls
+    private generateWalls(
+        width: number,
+        height: number,
+        minWidth: number,
+        maxWidth: number,
+        count: number,
+        spacing: number
+    ): void {
         const walls: Wall[] = [];
+        let attempts = 0;
+        const maxAttempts = count * 20;
 
-        for (let y = 0; y < rows; y++) {
-            for (let x = 0; x < cols; x++) {
-            const cell = grid[y][x];
-            const x0 = x * cellSize;
-            const y0 = y * cellSize;
-            const x1 = x0 + cellSize;
-            const y1 = y0 + cellSize;
-            const openBias = Math.random() < 0.2;
+        const randInRange = (min: number, max: number) => min + Math.random() * (max - min);
 
-            if (cell.walls.top && !openBias)
-                walls.push(this.makeRectWall({ x: x0, y: y0 }, { x: x1, y: y0 }));
-            if (cell.walls.right && !openBias)
-                walls.push(this.makeRectWall({ x: x1, y: y0 }, { x: x1, y: y1 }));
-            if (cell.walls.bottom && !openBias)
-                walls.push(this.makeRectWall({ x: x0, y: y1 }, { x: x1, y: y1 }));
-            if (cell.walls.left && !openBias)
-                walls.push(this.makeRectWall({ x: x0, y: y0 }, { x: x0, y: y1 }));
-            }
+        while (walls.length < count && attempts < maxAttempts) {
+            attempts++;
+            const r = Math.random();
+            const aspect = r < 1/3 ? 2 : r < 2/3 ? 3 : 4;
+            const longSide = randInRange(minWidth, maxWidth);
+            const shortSide = longSide / aspect;
+
+            const horizontal = Math.random() < 0.5;
+
+            const w = horizontal ? longSide : shortSide;
+            const h = horizontal ? shortSide : longSide;
+
+            const x = randInRange(spacing, width - w - spacing);
+            const y = randInRange(spacing, height - h - spacing);
+
+            const newWall: Wall = {
+                id: `wall_${walls.length}`,
+                points: [
+                    { x, y },
+                    { x: x + w, y },
+                    { x: x + w, y: y + h },
+                    { x, y: y + h }
+                ]
+            };
+
+            const bbox = { minX: x - spacing, minY: y - spacing, maxX: x + w + spacing, maxY: y + h + spacing };
+            const overlap = walls.some(wall => {
+                const b = this.bboxOfPoints(wall.points);
+                return !(bbox.maxX < b.minX || bbox.minX > b.maxX || bbox.maxY < b.minY || bbox.minY > b.maxY);
+            });
+
+            if (!overlap) walls.push(newWall);
         }
 
-        this.walls = walls.slice(0, Math.max(walls.length, minWalls));;
+        this.walls = walls;
     }
 
     public getWalls() { return this.walls; }

@@ -9,22 +9,15 @@ export interface Wall {
     points: Point[]; // polygon points in world coordinates
 }
 
-export interface Cell {
-    x: number;
-    y: number;
-    visited: boolean;
-    walls: { top: boolean; right: boolean; bottom: boolean; left: boolean };
-}
-
 export interface MapConfig {
     width: number; // world width in pixels
     height: number; // world height in pixels
     wallCount?: number; // number of random polygonal walls
-    wallMinRadius?: number; // min size of wall polys
-    wallMaxRadius?: number; // max size of wall polys
+    wallMinWidth?: number; // min size of wall polys
+    wallMaxWidth?: number; // max size of wall polys
     backgroundImageKey?: string;
     wallImageKey?: string;
-    spacing: number; // min spacing between walls
+    spacing?: number; // min spacing between walls
     seed?: number; // optional seed for deterministic generation
 }
 

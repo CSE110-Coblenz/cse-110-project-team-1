@@ -15,9 +15,9 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
         width: worldWidth,
         height: worldHeight,
         spacing: 120,
-        wallCount: 1500,
-        wallMinRadius: 30,
-        wallMaxRadius: 160,
+        wallCount: 2500,
+        wallMinWidth: 80,
+        wallMaxWidth: 160,
     };
 
     const model = new MapModel(config);
