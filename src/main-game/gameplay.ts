@@ -6,9 +6,7 @@ import { PlayerModel } from './PlayerModel';
 import { PlayerView } from './PlayerView';
 import { PlayerController } from './PlayerController';
 import { NPC } from './NPC/NPC'
-import { NPCView } from './NPC/NPCView';
 import { NPCModel } from './NPC/NPCModel';
-import { NPCController } from './NPC/NPCController';
 import { Species } from './types'
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
@@ -16,16 +14,17 @@ export interface GameHandle {
     stop: () => void;
 }
 
-function populateNPCs(): NPC[]{
-    return [];
+function populateNPCs(npc_count: number): NPC[]{
+    let npcs = [];
+    for (let i: number = 0; i < npc_count; i++) {
+        npcs.push(NPC.create(Species.ANTEATER));
+    }
+    return npcs;
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-    // const worldWidth = Math.max(800, window.innerWidth * 5);
-    // const worldHeight = Math.max(600, window.innerHeight * 5);
-    // For testing purposes, test the spawning within the current window
-    const worldWidth = Math.max(800, window.innerWidth);
-    const worldHeight = Math.max(600, window.innerHeight);
+    const worldWidth = Math.max(800, window.innerWidth * 5);
+    const worldHeight = Math.max(600, window.innerHeight * 5);
     const config = {
         width: worldWidth,
         height: worldHeight,
@@ -52,39 +51,43 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const layer = new Konva.Layer();
     stage.add(layer);
 
-    const controller = new MapController(map_model, stage.width(), stage.height());
-    //const npc_view = new NPCView(layer);
-    const map_view = new MapView('#8fb3d9');
-
-    //const npc_controller = new NPCController(npc_model, npc_view);
     const map_controller = new MapController(map_model, stage.width(), stage.height());
+    const map_view = new MapView('#8fb3d9');
 
     let animationInterval: number | undefined;
 
     const playerModel = new PlayerModel(Math.floor(map_model.getWidth() / 2), Math.floor(map_model.getHeight() / 2), 12, 800, 100, Species.ANTEATER);
     const playerView = new PlayerView();
-    const playerController = new PlayerController(playerModel, playerView, map_model, controller);
+    const playerController = new PlayerController(playerModel, playerView, map_model, map_controller);
 
     function render() {
-        const vp = controller.getViewport();
-        const walls = controller.getVisibleWalls();
-        playerController.draw(layer, vp);
-        layer.batchDraw();
-
+        const vp = map_controller.getViewport();
+        const walls = map_controller.getVisibleWalls();
         map_view.draw(layer, vp, walls);
-        //npc_controller.populateNPCS(map_model, worldHeight, worldWidth);
-        //npc_view.draw();
+        playerController.draw(layer, vp);
+        map_controller.drawNPCs(layer, vp);
+        layer.batchDraw();
     }
 
     // attach input handling for player
     playerController.attachKeyboardListeners(render);
 
+    let npcs: NPC[] = populateNPCs(200);
+    map_controller.placeNPCs(npcs);
     render();
 
-    // animationInterval = window.setInterval(() => {
-    //     npc_controller.animateNPCs();
-    //     npc_view.updateNPCShapes(npc_model.getNPCs());
-    // }, 750);
+    let lastTimestamp: number | null = null;
+
+    function gameLoop(timestamp: number) {
+        if (lastTimestamp == null) lastTimestamp = timestamp;
+        const deltaSec = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
+        lastTimestamp = timestamp;
+        map_controller.animateNPCs(timestamp);
+        playerController.updateFromInput(deltaSec);
+        render();
+        animationInterval = requestAnimationFrame(gameLoop);
+    }
+    animationInterval = requestAnimationFrame(gameLoop);
 
     function stop() {
         playerController.detachKeyboardListeners();

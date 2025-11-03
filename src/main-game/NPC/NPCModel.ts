@@ -135,7 +135,7 @@ import { PlayerModel } from '../PlayerModel';
 
 export class NPCModel extends PlayerModel{
 
-    private is_idle: boolean = false;
+    private is_idle: boolean = true;
 
     private static NextDirection = new Map<Direction, Direction>([
       [Direction.Up, Direction.Left],

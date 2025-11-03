@@ -1,4 +1,5 @@
 import { MapModel } from './MapModel';
+import { NPC } from './NPC/NPC';
 import { Viewport, Position } from './types';
 
 /**
@@ -7,7 +8,10 @@ import { Viewport, Position } from './types';
  * the viewport state lives in the model itself.
  */
 export class MapController {
+    private npcs: NPC[] = [];
     private model: MapModel;
+    private lastMoveTime: number = 0;
+    private moveInterval: number = 250;
     private static DEFAULT_STEP_SIZE = 64; // pixels
 
     constructor(model: MapModel, viewportWidth: number, viewportHeight: number) {
@@ -48,5 +52,38 @@ export class MapController {
 
     public centerOn(position: Position) {
         this.model.centerViewportOn(position);
+    }
+
+    public assignNPCs(npcs: NPC[]){
+        this.npcs = npcs;
+    }
+
+    public placeNPCs(npcs: NPC[]){
+        let placedNPCs: Position[] = []
+        npcs.forEach((npc: NPC) => {
+            let spawn_position: Position | void = npc.getController().spawn(this.model, placedNPCs);
+            if(spawn_position){
+                placedNPCs.push(spawn_position);
+                this.npcs.push(npc);
+            }
+        });
+    }
+
+    public drawNPCs(target: CanvasRenderingContext2D | any, viewport: Viewport): void{
+        if(this.npcs.length == 0){
+            return;
+        }
+        this.npcs.forEach((npc: NPC) => {
+            npc.getController().draw(target, viewport);
+        });
+    }
+
+    public animateNPCs(currentTime: number){
+        if (currentTime - this.lastMoveTime >= this.moveInterval) {
+            this.npcs.forEach((npc: NPC) => {
+                npc.getController().animate();
+            });
+            this.lastMoveTime = currentTime;
+        }
     }
 }

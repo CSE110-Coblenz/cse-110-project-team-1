@@ -5,11 +5,10 @@ import { NPCController } from './NPCController';
 import { Species } from '../types';
 
 
-
 export class NPC {
-    private model: NPCModel;
-    private view: NPCView;
-    private controller: NPCController;
+    private readonly model: NPCModel;
+    private readonly view: NPCView;
+    private readonly controller: NPCController;
 
     private constructor(species: Species) {
         this.model = new NPCModel();
@@ -19,5 +18,17 @@ export class NPC {
 
     static create(species: Species): NPC {
         return new NPC(species);
+    }
+
+    public getController(): NPCController {
+        return this.controller;
+    }
+
+    public getModel(): NPCModel {
+        return this.model;
+    }
+
+    public getView(): NPCView {
+        return this.view;
     }
 }
