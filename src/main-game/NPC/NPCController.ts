@@ -45,9 +45,9 @@ export class NPCController {
             const pointVecY = pointY - segStartY;
             const projection = segmentVecX * pointVecX + segmentVecY * pointVecY;
             if (projection <= 0) return pointVecX**2 + pointVecY**2;
-            const segmentLengthSq = segmentVecX**2 + segmentVecY**2;
-            if (projection >= segmentLengthSq) return (pointX - segEndX)**2 + (pointY - segEndY)**2;
-            const t = projection / segmentLengthSq;
+            const segmentLengthSquared = segmentVecX**2 + segmentVecY**2;
+            if (projection >= segmentLengthSquared) return (pointX - segEndX)**2 + (pointY - segEndY)**2;
+            const t = projection / segmentLengthSquared;
             const closestX = segStartX + t * segmentVecX;
             const closestY = segStartY + t * segmentVecY;
             return (pointX - closestX)**2 + (pointY - closestY)**2;
@@ -71,22 +71,22 @@ export class NPCController {
                 if (isPointInsidePolygon(candidateX, candidateY, wallPolygon)) return true;
 
                 // Too close to wall edges?
-                const minDistanceToEdgeSq = (NPC_RADIUS + WALL_CLEARANCE)**2;
+                const minDistanceToEdgeSquared = (NPC_RADIUS + WALL_CLEARANCE)**2;
                 for (let i = 0, j = wallPolygon.length - 1; i < wallPolygon.length; j = i++) {
                     if (squaredDistancePointToSegment(
                         candidateX, candidateY,
                         wallPolygon[j].x, wallPolygon[j].y,
                         wallPolygon[i].x, wallPolygon[i].y
-                    ) <= minDistanceToEdgeSq) return true;
+                    ) <= minDistanceToEdgeSquared) return true;
                 }
             }
 
             // --- Check other NPCs ---
-            const minDistanceToOtherNPCsSq = (2 * NPC_RADIUS + WALL_CLEARANCE)**2;
+            const minDistanceToOtherNPCsSquared = (2 * NPC_RADIUS + WALL_CLEARANCE)**2;
             for (const otherNPC of existingNPCPositions) {
                 const deltaX = otherNPC.x - candidateX;
                 const deltaY = otherNPC.y - candidateY;
-                if ((deltaX**2 + deltaY**2) < minDistanceToOtherNPCsSq) return true;
+                if ((deltaX**2 + deltaY**2) < minDistanceToOtherNPCsSquared) return true;
             }
 
             return false;

@@ -44,7 +44,8 @@ export enum Species {
     SPEC1 = "Species 1",
     SPEC2 = "Species 2",
     ANTEATER = "Anteater",
-    CAT = "Cat"
+    CAT = "Cat",
+    TEST = "Test"
 }
 
 export const MaptoNextSpecies = new Map<Species, Species>([

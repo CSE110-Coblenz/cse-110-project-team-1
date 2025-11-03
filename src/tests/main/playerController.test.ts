@@ -1,13 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { PlayerModel } from '../../main-game/PlayerModel';
 import { PlayerView } from '../../main-game/PlayerView';
+import { Species } from '../../main-game/types';
 import { PlayerController } from '../../main-game/PlayerController';
 import { MapModel } from '../../main-game/MapModel';
 import { MapController } from '../../main-game/MapController';
 
 describe('PlayerController (movement & collision)', () => {
     it('moves when destination is clear and within bounds', () => {
-        const player = new PlayerModel(50, 50, 10, 100, 100, 'test');
+        const player = new PlayerModel(50, 50, 10, 100, 100, Species.TEST);
         const view = new PlayerView();
         const mapMock = {
             getWidth: () => 200,
@@ -23,7 +24,7 @@ describe('PlayerController (movement & collision)', () => {
     });
 
     it('prevents movement that would go out of world bounds', () => {
-        const player = new PlayerModel(190, 100, 10, 100, 100, 'test');
+        const player = new PlayerModel(190, 100, 10, 100, 100, Species.TEST);
         const view = new PlayerView();
         const mapMock = {
             getWidth: () => 200,
@@ -39,7 +40,7 @@ describe('PlayerController (movement & collision)', () => {
     });
 
     it('prevents movement that would intersect a wall', () => {
-        const player = new PlayerModel(50, 50, 10, 100, 100, 'test');
+        const player = new PlayerModel(50, 50, 10, 100, 100, Species.TEST);
         const view = new PlayerView();
         const mapMock = {
             getWidth: () => 200,

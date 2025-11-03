@@ -39,5 +39,4 @@ export class NPCModel extends PlayerModel{
         this.direction = this.animation_map.get(this.direction)!;
         this.moveBy(...NPCModel.DirectionToDelta.get(this.direction)!); 
     }
-
 }
