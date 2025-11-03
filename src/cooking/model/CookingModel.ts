@@ -12,7 +12,7 @@ export class CookingModel {
     private customerIdMap: Map<Customer, string> = new Map();
     private currentLabel: Label | null = null;
     private score: number = 0;
-    private customersServed: number = 0;
+    private customersCorrect: number = 0;
     private customersIncorrect: number = 0;
 
     constructor() {
@@ -42,7 +42,7 @@ export class CookingModel {
 
         // Reset score and customers served
         this.score = 0;
-        this.customersServed = 0;
+    this.customersCorrect = 0;
         this.customersIncorrect = 0;
     }
 
@@ -104,7 +104,7 @@ export class CookingModel {
      */
     getProgress(): { correct: number; incorrect: number; total: number } {
         return {
-            correct: this.customersServed,
+            correct: this.customersCorrect,
             incorrect: this.customersIncorrect,
             total: CookingGameConfig.NUM_CUSTOMERS,
         };
@@ -119,11 +119,11 @@ export class CookingModel {
      */
     handleAssignment(customerId: string, labelType: string): { correct: number; incorrect: number; total: number; wasCorrect: boolean } {
         const total = CookingGameConfig.NUM_CUSTOMERS;
-        const totalServed = this.customersServed + this.customersIncorrect;
+        const totalServed = this.customersCorrect + this.customersIncorrect;
         
         if (totalServed >= total) {
             return { 
-                correct: this.customersServed, 
+                correct: this.customersCorrect, 
                 incorrect: this.customersIncorrect, 
                 total,
                 wasCorrect: false
@@ -142,7 +142,7 @@ export class CookingModel {
 
         if (!targetCustomer) {
             return { 
-                correct: this.customersServed, 
+                correct: this.customersCorrect, 
                 incorrect: this.customersIncorrect, 
                 total,
                 wasCorrect: false
@@ -153,14 +153,14 @@ export class CookingModel {
         const isCorrect = this.isLabelCorrectForCustomer(targetCustomer, labelType);
         
         if (isCorrect) {
-            this.customersServed = this.customersServed + 1;
+            this.customersCorrect = this.customersCorrect + 1;
             this.score = this.score + 10;
         } else {
             this.customersIncorrect = this.customersIncorrect + 1;
         }
 
         return { 
-            correct: this.customersServed, 
+            correct: this.customersCorrect, 
             incorrect: this.customersIncorrect, 
             total,
             wasCorrect: isCorrect
@@ -175,8 +175,7 @@ export class CookingModel {
      * @returns true if the label matches the customer's type
      */
     private isLabelCorrectForCustomer(customer: Customer, labelType: string): boolean {
-        // For now, simple matching: label type should match customer type
-        // This can be expanded with more complex rules later
-        return customer.type === labelType;
+        // label is correct if it matches the customer's correctLabel.type
+        return customer.correctLabel.type === labelType;
     }
 }

@@ -89,8 +89,10 @@ export default class CookingController {
         setTimeout(() => {
             console.log('Test 1a: handleAssignment() - correct assignment');
             const customerData = this.model.getCustomerData();
-            if (customerData.length > 0) {
-                this.handleAssignment(customerData[0].customerId, customerData[0].customerType);
+            // Simpler: assume first customer exists and has correctLabel
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
             }
         }, 1200);
 
@@ -109,8 +111,9 @@ export default class CookingController {
         setTimeout(() => {
             console.log('Test 2a: handleAssignment() - correct assignment');
             const customerData = this.model.getCustomerData();
-            if (customerData.length > 0) {
-                this.handleAssignment(customerData[0].customerId, customerData[0].customerType);
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
             }
         }, 2200);
 
@@ -132,8 +135,9 @@ export default class CookingController {
         setTimeout(() => {
             console.log('Test 3a: handleAssignment() - correct assignment');
             const customerData = this.model.getCustomerData();
-            if (customerData.length > 0) {
-                this.handleAssignment(customerData[0].customerId, customerData[0].customerType);
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
             }
         }, 3500);
 
