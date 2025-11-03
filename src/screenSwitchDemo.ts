@@ -24,8 +24,8 @@ buttons.forEach((button) => {
     }
 
     const screen: Screen =
-      target === "result"
-        ? { type: "result", score: Math.floor(Math.random() * 1000) }
+      target === "ending"
+        ? { type: "ending" }
         : target === "game"
         ? { type: "game" }
         : target === "menu"
