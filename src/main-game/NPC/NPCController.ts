@@ -19,103 +19,89 @@ export class NPCController {
         this.view = view;
     }
 
-    public spawn(map_model: MapModel, placedNPCs: Position[]): Position | void {
-        const radius = NPCController.SPAWN_RADIUS
-        const maxAttempts = 2000;
-        const WALL_PADDING = 50;
+    public spawn(map: MapModel, existingNPCPositions: Position[]): Position | void {
+        const NPC_RADIUS = NPCController.SPAWN_RADIUS;
+        const MAX_SPAWN_ATTEMPTS = 2000;
+        const WALL_CLEARANCE = 50; // distance from walls
 
-        const pointInPolygon = (px: number, py: number, poly: Point[]) => {
+        // Check if a point is inside a polygon
+        const isPointInsidePolygon = (pointX: number, pointY: number, polygon: Point[]) => {
             let inside = false;
-            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-                const xi = poly[i].x, yi = poly[i].y;
-                const xj = poly[j].x, yj = poly[j].y;
-                const intersect = ((yi > py) !== (yj > py)) &&
-                    (px < (xj - xi) * (py - yi) / (yj - yi + 0.0) + xi);
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const { x: currentX, y: currentY } = polygon[i];
+                const { x: prevX, y: prevY } = polygon[j];
+                const intersect = ((currentY > pointY) !== (prevY > pointY)) &&
+                                (pointX < (prevX - currentX) * (pointY - currentY) / (prevY - currentY) + currentX);
                 if (intersect) inside = !inside;
             }
             return inside;
         };
 
-        const distPointSegmentSq = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
-            const vx = bx - ax, vy = by - ay;
-            const wx = px - ax, wy = py - ay;
-            const c1 = vx * wx + vy * wy;
-            if (c1 <= 0) return wx * wx + wy * wy;
-            const c2 = vx * vx + vy * vy;
-            if (c2 <= c1) {
-                const dx = px - bx, dy = py - by;
-                return dx * dx + dy * dy;
-            }
-            const t = c1 / c2;
-            const projx = ax + t * vx, projy = ay + t * vy;
-            const dx = px - projx, dy = py - projy;
-            return dx * dx + dy * dy;
+        // Squared distance from a point to a line segment
+        const squaredDistancePointToSegment = (pointX: number, pointY: number, segStartX: number, segStartY: number, segEndX: number, segEndY: number) => {
+            const segmentVecX = segEndX - segStartX;
+            const segmentVecY = segEndY - segStartY;
+            const pointVecX = pointX - segStartX;
+            const pointVecY = pointY - segStartY;
+            const projection = segmentVecX * pointVecX + segmentVecY * pointVecY;
+            if (projection <= 0) return pointVecX**2 + pointVecY**2;
+            const segmentLengthSq = segmentVecX**2 + segmentVecY**2;
+            if (projection >= segmentLengthSq) return (pointX - segEndX)**2 + (pointY - segEndY)**2;
+            const t = projection / segmentLengthSq;
+            const closestX = segStartX + t * segmentVecX;
+            const closestY = segStartY + t * segmentVecY;
+            return (pointX - closestX)**2 + (pointY - closestY)**2;
         };
 
-        let attempts = 0;
-        let placed = false;
+        // Check if candidate position collides with walls or other NPCs
+        const isPositionInvalid = (candidateX: number, candidateY: number) => {
+            // --- Check walls ---
+            for (const wall of map.getWalls()) {
+                const wallPolygon: Point[] = (wall as any).points;
+                const xValues = wallPolygon.map(p => p.x);
+                const yValues = wallPolygon.map(p => p.y);
+                const minX = Math.min(...xValues), maxX = Math.max(...xValues);
+                const minY = Math.min(...yValues), maxY = Math.max(...yValues);
 
-        while (!placed && attempts < maxAttempts) {
-            attempts++;
-            const x = radius + Math.random() * (map_model.getWidth() - 2 * radius);
-            const y = radius + Math.random() * (map_model.getHeight() - 2 * radius);
-            let collides = false;
+                // Quick bounding-box check
+                if (candidateX < minX - NPC_RADIUS || candidateX > maxX + NPC_RADIUS ||
+                    candidateY < minY - NPC_RADIUS || candidateY > maxY + NPC_RADIUS) continue;
 
-            // --- Check against walls ---
-            for (const wall of map_model.getWalls()) {
-                const poly: Point[] = (wall as any).points;
-                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-                for (const p of poly) {
-                    if (p.x < minX) minX = p.x;
-                    if (p.y < minY) minY = p.y;
-                    if (p.x > maxX) maxX = p.x;
-                    if (p.y > maxY) maxY = p.y;
-                }
+                // Inside polygon?
+                if (isPointInsidePolygon(candidateX, candidateY, wallPolygon)) return true;
 
-                if (x < minX - radius || x > maxX + radius ||
-                    y < minY - radius || y > maxY + radius ) {
-                    continue;
-                }
-
-                // inside polygon
-                if (pointInPolygon(x, y, poly)) {
-                    collides = true;
-                    break;
-                }
-
-                // near edge
-                const rSq = (radius + WALL_PADDING) * (radius + WALL_PADDING);
-                for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-                    const ax = poly[j].x, ay = poly[j].y;
-                    const bx = poly[i].x, by = poly[i].y;
-                    const dSq = distPointSegmentSq(x, y, ax, ay, bx, by);
-                    if (dSq <= rSq) {
-                        collides = true;
-                        break;
-                    }
-                }
-                if (collides) break;
-            }
-
-            if (!collides) {
-                for (const other of placedNPCs) {
-                    const dx = other.x - x;
-                    const dy = other.y - y;
-                    const distSq = dx * dx + dy * dy;
-                    const minDist = (2 * radius + WALL_PADDING) * (2 * radius + WALL_PADDING);
-                    if (distSq < minDist) {
-                        collides = true;
-                        break;
-                    }
+                // Too close to wall edges?
+                const minDistanceToEdgeSq = (NPC_RADIUS + WALL_CLEARANCE)**2;
+                for (let i = 0, j = wallPolygon.length - 1; i < wallPolygon.length; j = i++) {
+                    if (squaredDistancePointToSegment(
+                        candidateX, candidateY,
+                        wallPolygon[j].x, wallPolygon[j].y,
+                        wallPolygon[i].x, wallPolygon[i].y
+                    ) <= minDistanceToEdgeSq) return true;
                 }
             }
 
-            if (!collides) {
-                this.model.setPosition(x, y);
-                placedNPCs.push({ x, y });
-                placed = true;
+            // --- Check other NPCs ---
+            const minDistanceToOtherNPCsSq = (2 * NPC_RADIUS + WALL_CLEARANCE)**2;
+            for (const otherNPC of existingNPCPositions) {
+                const deltaX = otherNPC.x - candidateX;
+                const deltaY = otherNPC.y - candidateY;
+                if ((deltaX**2 + deltaY**2) < minDistanceToOtherNPCsSq) return true;
             }
-            return {x, y};
+
+            return false;
+        };
+
+        // --- Main spawn loop ---
+        for (let attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
+            const candidateX = NPC_RADIUS + Math.random() * (map.getWidth() - 2 * NPC_RADIUS);
+            const candidateY = NPC_RADIUS + Math.random() * (map.getHeight() - 2 * NPC_RADIUS);
+
+            if (!isPositionInvalid(candidateX, candidateY)) {
+                this.model.setPosition(candidateX, candidateY);
+                existingNPCPositions.push({ x: candidateX, y: candidateY });
+                return { x: candidateX, y: candidateY };
+            }
         }
     }
 
