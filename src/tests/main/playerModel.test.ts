@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { Species } from '../../main-game/types';
 import { PlayerModel } from '../../main-game/PlayerModel';
 
 describe('PlayerModel', () => {
@@ -20,7 +21,7 @@ describe('PlayerModel', () => {
   });
 
   it('gets and sets speed and health', () => {
-    const p = new PlayerModel(0, 0, 12, 250, 80, 'cat');
+    const p = new PlayerModel(0, 0, 12, 250, 80, Species.CAT);
     expect(p.getSpeed()).toBe(250);
     expect(p.getHealth()).toBe(80);
     p.setSpeed(300);

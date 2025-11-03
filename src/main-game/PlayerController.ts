@@ -50,47 +50,6 @@ export class PlayerController {
 
         window.addEventListener('keydown', this.keyDownHandler);
         window.addEventListener('keyup', this.keyUpHandler);
-
-        // // start animation loop
-        // this.lastTimestamp = null;
-        // const loop = (timestamp: number) => {
-        //     if (this.lastTimestamp == null) this.lastTimestamp = timestamp;
-        //     const deltaSec = Math.min(0.1, (timestamp - this.lastTimestamp) / 1000); // cap dt to 100ms to avoid large jumps
-        //     this.lastTimestamp = timestamp;
-        //     let moved = false;
-
-        //     // compute direction vector
-        //     let dirX = 0, dirY = 0;
-        //     if (this.pressedKeys.has('ArrowUp') || this.pressedKeys.has('w')) dirY -= 1;
-        //     if (this.pressedKeys.has('ArrowDown') || this.pressedKeys.has('s')) dirY += 1;
-        //     if (this.pressedKeys.has('ArrowLeft') || this.pressedKeys.has('a')) dirX -= 1;
-        //     if (this.pressedKeys.has('ArrowRight') || this.pressedKeys.has('d')) dirX += 1;
-
-        //     if (dirX !== 0 || dirY !== 0) {
-        //         // normalize diagonal movement
-        //         const mag = Math.hypot(dirX, dirY) || 1;
-        //         dirX = dirX / mag;
-        //         dirY = dirY / mag;
-
-        //         // determine speed
-        //         const speed = this.model.getSpeed();
-        //         // allow sprint when Shift held
-        //         const sprint = this.pressedKeys.has('Shift');
-        //         const effectiveSpeed = sprint ? speed * 1.8 : speed;
-        //         const deltaX = dirX * effectiveSpeed * deltaSec;
-        //         const deltaY = dirY * effectiveSpeed * deltaSec;
-        //         moved = this.tryMove(deltaX, deltaY);
-        //     }
-
-        //     if (moved) {
-        //         this.mapController.centerOn(this.model.getPosition());
-        //         if (this.renderCallback) this.renderCallback();
-        //     }
-
-        //     this.animationFrameId = requestAnimationFrame(loop);
-        // };
-
-        // this.animationFrameId = requestAnimationFrame(loop);
     }
 
     public updateFromInput(deltaSec: number) {

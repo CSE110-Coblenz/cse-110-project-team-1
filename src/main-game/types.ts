@@ -33,47 +33,6 @@ export interface Position {
     y: number;
 }
 
-
-import Konva from 'konva';
-
-export abstract class Controller {
-
-}
-
-export const NPC_WIDTH: number = 32;
-export const NPC_HEIGHT: number = 32;
-
-export const NPC_RED = '#FF0000'; // red box
-export const MAIN_PLAYER_BLUE = '#0000FF'; // red box
-
-export abstract class View {
-    protected layer: Konva.Layer;
-    protected shapes: Konva.Shape[];
-
-    constructor(layer: Konva.Layer) {
-        this.layer = layer;
-        this.shapes = [];
-    }
-
-    protected destroyShapes(): void {
-        for (const shape of this.shapes) {
-            shape.remove();
-            shape.destroy();
-        }
-        this.shapes = [];
-    }
-
-    protected AddShapes(): void {
-        for (const shape of this.shapes) {
-            this.layer.add(shape);
-        }
-    }
-
-    draw(): void{
-        this.layer.batchDraw();
-    }
-}
-
 export enum Direction {
     Up = 0,
     Down = 1,
@@ -85,6 +44,7 @@ export enum Species {
     SPEC1 = "Species 1",
     SPEC2 = "Species 2",
     ANTEATER = "Anteater",
+    CAT = "Cat"
 }
 
 export const MaptoNextSpecies = new Map<Species, Species>([
