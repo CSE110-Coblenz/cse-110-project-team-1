@@ -1,6 +1,12 @@
 import { CustomerDisplayData } from "../types/CustomerDisplayData";
+import Konva from 'konva';
 
 export class CookingView {
+    private progressStage: Konva.Stage | null = null;
+    private progressBarCorrect: Konva.Rect | null = null;
+    private progressBarIncorrect: Konva.Rect | null = null;
+    private progressText: Konva.Text | null = null;
+
     constructor() {
         console.log('CookingView created');
     }
@@ -22,15 +28,7 @@ export class CookingView {
             container.innerHTML += `
                 <div id="view-placeholder" style="border: 2px solid blue; padding: 10px; margin-top: 20px;">
                     <h2>View Component Placeholder</h2>
-                    <div id="progress-container" style="margin: 8px 0 12px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                            <span>Progress</span>
-                            <span id="progress-text">0/0</span>
-                        </div>
-                        <div style="width:100%;height:12px;background:#e5e7eb;border-radius:6px;overflow:hidden;">
-                            <div id="progress-bar" style="height:100%;width:0%;background:#3b82f6;transition:width 0.25s ease;"></div>
-                        </div>
-                    </div>
+                    <div id="progress-konva-container" style="margin: 8px 0 12px;"></div>
                     <div id="score-display">Score: <span id="score-value">0</span></div>
                     <div id="label-display">Label: <span id="label-value">none</span></div>
                     <div id="customers-display">Customers: <span id="customers-value">[]</span></div>
@@ -38,11 +36,89 @@ export class CookingView {
                 </div>
             `;
             
+            // Create Konva progress bar
+            this.createKonvaProgressBar();
+            
             //Update initial data
             this.updateScore(score);
             this.updateLabel(label);
             this.updateCustomers(customerData);
         }
+    }
+
+    /**
+     * Creates the Konva-based progress bar
+     */
+    private createKonvaProgressBar(): void {
+        const konvaContainer = document.getElementById('progress-konva-container');
+        if (!konvaContainer) {
+            return;
+        }
+
+        this.progressStage = new Konva.Stage({
+            container: 'progress-konva-container',
+            width: 400,
+            height: 40
+        });
+
+        const layer = new Konva.Layer();
+
+        // Progress label text
+        const labelText = new Konva.Text({
+            x: 0,
+            y: 0,
+            text: 'Progress',
+            fontSize: 14,
+            fill: 'black'
+        });
+
+        // Progress numeric text (e.g., "0/5")
+        this.progressText = new Konva.Text({
+            x: 340,
+            y: 0,
+            text: '0/0',
+            fontSize: 14,
+            fill: 'black',
+            width: 60,
+            align: 'right'
+        });
+
+        // Background bar (gray)
+        const bgBar = new Konva.Rect({
+            x: 0,
+            y: 20,
+            width: 400,
+            height: 16,
+            fill: '#e5e7eb',
+            cornerRadius: 8
+        });
+
+        // Incorrect bar (red, under green)
+        this.progressBarIncorrect = new Konva.Rect({
+            x: 0,
+            y: 20,
+            width: 0,
+            height: 16,
+            fill: '#ef4444',
+            cornerRadius: 8
+        });
+
+        // Correct progress bar (green, on top)
+        this.progressBarCorrect = new Konva.Rect({
+            x: 0,
+            y: 20,
+            width: 0,
+            height: 16,
+            fill: '#22c55e',
+            cornerRadius: 8
+        });
+
+        layer.add(labelText);
+        layer.add(this.progressText);
+        layer.add(bgBar);
+        layer.add(this.progressBarIncorrect);
+        layer.add(this.progressBarCorrect);
+        this.progressStage.add(layer);
     }
 
     /**
@@ -59,11 +135,10 @@ export class CookingView {
 
     /**
      * Updates the progress bar and numeric text (e.g., 3/10)
+     * Shows green bar for correct, red bar for incorrect
      */
-    updateProgress(correct: number, total: number): void {
-        const bar = document.getElementById('progress-bar');
-        const text = document.getElementById('progress-text');
-        if (!bar || !text) {
+    updateProgress(correct: number, incorrect: number, total: number): void {
+        if (!this.progressBarCorrect || !this.progressBarIncorrect || !this.progressText) {
             return;
         }
 
@@ -72,19 +147,54 @@ export class CookingView {
             safeTotal = 0;
         }
 
-        let percent = 0;
+        let totalServed = correct + incorrect;
+        if (totalServed > safeTotal) {
+            totalServed = safeTotal;
+        }
+
+        let percentCorrect = 0;
+        let percentTotal = 0;
         if (safeTotal > 0) {
-            percent = Math.round((correct * 100) / safeTotal);
-            if (percent < 0) {
-                percent = 0;
+            percentCorrect = Math.round((correct * 100) / safeTotal);
+            percentTotal = Math.round((totalServed * 100) / safeTotal);
+            
+            if (percentCorrect < 0) {
+                percentCorrect = 0;
             }
-            if (percent > 100) {
-                percent = 100;
+            if (percentCorrect > 100) {
+                percentCorrect = 100;
+            }
+            if (percentTotal < 0) {
+                percentTotal = 0;
+            }
+            if (percentTotal > 100) {
+                percentTotal = 100;
             }
         }
 
-        bar.style.width = percent + '%';
-        text.textContent = correct + '/' + safeTotal;
+        const targetWidthCorrect = (400 * percentCorrect) / 100;
+        const targetWidthTotal = (400 * percentTotal) / 100;
+
+        // Animate red bar (total served = correct + incorrect)
+        const tweenIncorrect = new Konva.Tween({
+            node: this.progressBarIncorrect,
+            duration: 0.25,
+            width: targetWidthTotal,
+            easing: Konva.Easings.EaseInOut
+        });
+        tweenIncorrect.play();
+
+        // Animate green bar (correct only)
+        const tweenCorrect = new Konva.Tween({
+            node: this.progressBarCorrect,
+            duration: 0.25,
+            width: targetWidthCorrect,
+            easing: Konva.Easings.EaseInOut
+        });
+        tweenCorrect.play();
+
+        // Update text to show correct/total
+        this.progressText.text(correct + '/' + safeTotal);
     }
 
     /**
