@@ -5,13 +5,19 @@ import { MapView } from './MapView';
 import { PlayerModel } from './PlayerModel';
 import { PlayerView } from './PlayerView';
 import { PlayerController } from './PlayerController';
+import { NPC } from './NPC/NPC'
 import { NPCView } from './NPC/NPCView';
 import { NPCModel } from './NPC/NPCModel';
 import { NPCController } from './NPC/NPCController';
+import { Species } from './types'
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
     stop: () => void;
+}
+
+function populateNPCs(): NPC[]{
+    return [];
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
@@ -47,15 +53,15 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     stage.add(layer);
 
     const controller = new MapController(map_model, stage.width(), stage.height());
-    const npc_view = new NPCView(layer);
+    //const npc_view = new NPCView(layer);
     const map_view = new MapView('#8fb3d9');
 
-    const npc_controller = new NPCController(npc_model, npc_view);
+    //const npc_controller = new NPCController(npc_model, npc_view);
     const map_controller = new MapController(map_model, stage.width(), stage.height());
 
     let animationInterval: number | undefined;
 
-    const playerModel = new PlayerModel(Math.floor(map_model.getWidth() / 2), Math.floor(map_model.getHeight() / 2), 12, 800, 100, 'anteater');
+    const playerModel = new PlayerModel(Math.floor(map_model.getWidth() / 2), Math.floor(map_model.getHeight() / 2), 12, 800, 100, Species.ANTEATER);
     const playerView = new PlayerView();
     const playerController = new PlayerController(playerModel, playerView, map_model, controller);
 
@@ -66,8 +72,8 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
         layer.batchDraw();
 
         map_view.draw(layer, vp, walls);
-        npc_controller.populateNPCS(map_model, worldHeight, worldWidth);
-        npc_view.draw();
+        //npc_controller.populateNPCS(map_model, worldHeight, worldWidth);
+        //npc_view.draw();
     }
 
     // attach input handling for player
@@ -75,10 +81,10 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 
     render();
 
-    animationInterval = window.setInterval(() => {
-        npc_controller.animateNPCs();
-        npc_view.updateNPCShapes(npc_model.getNPCs());
-    }, 750);
+    // animationInterval = window.setInterval(() => {
+    //     npc_controller.animateNPCs();
+    //     npc_view.updateNPCShapes(npc_model.getNPCs());
+    // }, 750);
 
     function stop() {
         playerController.detachKeyboardListeners();

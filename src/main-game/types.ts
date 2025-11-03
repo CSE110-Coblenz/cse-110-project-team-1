@@ -63,6 +63,12 @@ export abstract class View {
         this.shapes = [];
     }
 
+    protected AddShapes(): void {
+        for (const shape of this.shapes) {
+            this.layer.add(shape);
+        }
+    }
+
     draw(): void{
         this.layer.batchDraw();
     }
@@ -78,28 +84,18 @@ export enum Direction {
 export enum Species {
     SPEC1 = "Species 1",
     SPEC2 = "Species 2",
-    SPEC3 = "Species 3",
+    ANTEATER = "Anteater",
 }
 
 export const MaptoNextSpecies = new Map<Species, Species>([
   [Species.SPEC1, Species.SPEC2],
-  [Species.SPEC2, Species.SPEC3],
-  [Species.SPEC3, Species.SPEC1],
+  [Species.SPEC2, Species.ANTEATER],
+  [Species.ANTEATER, Species.SPEC1],
 ]);
 
-export const MapToNextDirection = new Map<Direction, Direction>([
-  [Direction.Up, Direction.Left],
-  [Direction.Left, Direction.Down],
-  [Direction.Down, Direction.Right],
-  [Direction.Right, Direction.Up],
-]);
-
-export const ReverseMapToNextDirection = new Map<Direction, Direction>([
-  [Direction.Up, Direction.Right],
-  [Direction.Right, Direction.Down],
-  [Direction.Down, Direction.Left],
-  [Direction.Left, Direction.Up],
-]);
-
-
-export const DEF_PXL_ADV: number = 24;
+export const DEFAULT_ATTRIBUTES = {
+    radius: 12,
+    speed: 500,
+    health: 100,
+    species: Species.SPEC1,
+};

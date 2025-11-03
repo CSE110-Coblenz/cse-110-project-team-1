@@ -128,7 +128,7 @@ export class PlayerController {
     }
 
     public draw(target: CanvasRenderingContext2D | any, viewport: Viewport) {
-        this.view.draw(target, viewport, this.model.getPosition(), this.model.radius);
+        this.view.draw(target, viewport, this.model.getPosition(), this.model.getDirection(), this.model.radius);
     }
 
 }

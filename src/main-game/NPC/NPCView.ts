@@ -1,25 +1,29 @@
 import Konva from 'konva';
 import { View } from '../types'; // adjust path as needed
-import { NPC_RED} from '../types'; // assuming your color constant
-import { NPC } from './NPC';
+import { NPCModel } from './NPCModel';
 
-export class NPCView extends View {
+import { PlayerView } from '../PlayerView';
 
-  public updateNPCShapes(npcs: NPC[]): void {
-    this.destroyShapes();
-    npcs.forEach((npc) => {
-        const shape = new Konva.Rect({
-            x: npc.position.x,
-            y: npc.position.y,
-            width: npc.width,
-            height: npc.height,
-            fill: NPC_RED,
-            });
-        this.shapes.push(shape);
-    });
-    for (const shape of this.shapes) {
-        this.layer.add(shape);
-    }
-  }
+
+export class NPCView extends PlayerView{
 
 }
+
+// export class NPCView extends View {
+
+//   private static NPC_RED = '#FF0000'; // red box
+
+//   public changeNPCView(npc_model: NPCModel[]): void {
+//     this.destroyShapes();
+//     const shape = new Konva.Rect({
+//         x: npc_model.position.x,
+//         y: npc_model.position.y,
+//         width: npc_model.width,
+//         height: npc_model.height,
+//         fill: NPCView.NPC_RED,
+//         });
+//     this.shapes.push(shape);
+//     this.AddShapes();
+//   }
+
+// }
