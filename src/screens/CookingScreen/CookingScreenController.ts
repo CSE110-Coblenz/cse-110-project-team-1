@@ -15,7 +15,7 @@ export class CookingScreenController extends ScreenController {
     super();
     this.screenSwitcher = screenSwitcher;
     this.view = new CookingScreenView({
-      onFinish: () => this.screenSwitcher.switchToScreen({ type: "result", score: 0 }),
+      onFinish: () => this.screenSwitcher.switchToScreen({ type: "ending" }),
     });
   }
 
