@@ -4,7 +4,7 @@ import type { View } from "../../types";
 /**
  * Minimal GameScreenView implementing the project's `View` interface.
  * This is intentionally lightweight: it exposes a Konva.Group and a few
- * helper methods the controller expects (updateScore, updateTimer, randomizeLemonPosition).
+ * methods to show/hide the view.
  */
 export class GameScreenView implements View {
 	private group: Group;
