@@ -2,7 +2,7 @@ import Konva from "konva";
 import type { Group } from "konva/lib/Group";
 import type { View } from "../../types";
 
-export class ResultScreenView implements View {
+export class EndingScreenView implements View {
   private group: Group;
   private label: Konva.Text;
 
@@ -47,4 +47,4 @@ export class ResultScreenView implements View {
   }
 }
 
-export default ResultScreenView;
+export default EndingScreenView;

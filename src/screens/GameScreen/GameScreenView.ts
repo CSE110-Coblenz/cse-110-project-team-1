@@ -8,8 +8,7 @@ import type { View } from "../../types";
  */
 export class GameScreenView implements View {
 	private group: Group;
-	private score: number = 0;
-	private timer: number = 0;
+	
 
 	constructor() {
 		this.group = new Konva.Group();
@@ -45,15 +44,6 @@ export class GameScreenView implements View {
 
 	hide(): void {
 		this.group.visible(false);
-	}
-
-	updateScore(score: number): void {
-		this.score = score;
-		// In a real view we would update text nodes; keep lightweight here.
-	}
-
-	updateTimer(ms: number): void {
-		this.timer = ms;
 	}
 
 }

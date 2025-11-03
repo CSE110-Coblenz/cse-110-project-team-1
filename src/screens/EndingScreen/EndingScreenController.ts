@@ -1,17 +1,18 @@
 import { ScreenController } from "../../types";
-import { ResultScreenView } from "./ResultScreenView";
+import { EndingScreenView } from "./EndingScreenView";
 import type { Layer } from "konva/lib/Layer";
 
-export class ResultScreenController extends ScreenController {
-  private view: ResultScreenView;
+export class EndingScreenController extends ScreenController {
+  private view: EndingScreenView;
   private layer?: Layer;
 
-  constructor(score: number) {
+  constructor() {
     super();
-    this.view = new ResultScreenView(score);
+    this.view = new EndingScreenView();
+  
   }
 
-  getView(): ResultScreenView {
+  getView(): EndingScreenView {
     return this.view;
   }
 
@@ -33,4 +34,4 @@ export class ResultScreenController extends ScreenController {
   }
 }
 
-export default ResultScreenController;
+export default EndingScreenController;

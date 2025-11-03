@@ -2,7 +2,7 @@ import type { Screen, ScreenSwitcher, ScreenController } from "../types";
 import type { Layer } from "konva/lib/Layer";
 import { GameScreenController } from "./GameScreen/GameScreenController";
 import { MenuScreenController } from "./MenuScreen/MenuScreenController";
-import { ResultScreenController } from "./ResultScreen/ResultScreenController";
+import { EndingScreenController } from "./EndingScreen/EndingScreenController";
 import { IntroScreenController } from "./IntroScreen/IntroScreenController";
 import { CookingScreenController } from "./CookingScreen/CookingScreenController";
 
@@ -57,13 +57,12 @@ export class ScreenManager implements ScreenSwitcher {
         menuController.show();
         break;
       }
-      case "result": {
-        // create and show result screen (passes score)
-        const score = (screen as any).score ?? 0;
-        const resultController = new ResultScreenController(score);
-        this.current = resultController as unknown as ScreenController;
+      case "ending": {
+        // create and show ending screen (passes score)
+        const endingController = new EndingScreenController();
+        this.current = endingController as unknown as ScreenController;
         this.current.mount(this.layer);
-        resultController.show();
+        endingController.show();
         break;
       }
       case "intro": {
