@@ -11,22 +11,25 @@ export class MapModel {
     private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 
     // static defaults
+    public static DEFAULT_SPACING = 80;
     public static DEFAULT_WALL_COUNT = 40;
-    public static DEFAULT_WALL_MIN_RADIUS = 20;
-    public static DEFAULT_WALL_MAX_RADIUS = 120;
+    public static DEFAULT_WALL_MIN_WIDTH = 110;
+    public static DEFAULT_WALL_MAX_WIDTH = 120;
 
     constructor(config: MapConfig) {
         this.width = config.width;
         this.height = config.height;
 
+        const spacing = config.spacing ?? MapModel.DEFAULT_SPACING;
         const count = config.wallCount ?? MapModel.DEFAULT_WALL_COUNT;
-        const minR = config.wallMinRadius ?? MapModel.DEFAULT_WALL_MIN_RADIUS;
-        const maxR = config.wallMaxRadius ?? MapModel.DEFAULT_WALL_MAX_RADIUS;
-        this.generateWalls(count, minR, maxR);
-    }
-
-    private rand() {
-        return Math.random();
+        const minWidth = config.wallMinWidth ?? MapModel.DEFAULT_WALL_MIN_WIDTH;
+        const maxWidth = config.wallMaxWidth ?? MapModel.DEFAULT_WALL_MAX_WIDTH;
+        this.generateWalls(this.width, 
+                            this.height, 
+                            minWidth,
+                            maxWidth,
+                            count, 
+                            spacing);
     }
 
     private bboxOfPoints(points: Point[]) {
@@ -40,54 +43,58 @@ export class MapModel {
         return { minX, minY, maxX, maxY };
     }
 
-    private overlaps(a: { minX: number; minY: number; maxX: number; maxY: number },
-        b: { minX: number; minY: number; maxX: number; maxY: number }) {
-        return !(a.maxX < b.minX || a.minX > b.maxX || a.maxY < b.minY || a.minY > b.maxY);
-    }
-
-    // generate an axis-aligned rectangle centered at cx,cy with half-width hw and half-height hh
-    private generateRectPoints(cx: number, cy: number, hw: number, hh: number): Point[] {
-        return [
-            { x: cx - hw, y: cy - hh },
-            { x: cx + hw, y: cy - hh },
-            { x: cx + hw, y: cy + hh },
-            { x: cx - hw, y: cy + hh },
-        ];
-    }
-
-    private generateWalls(count: number, minR: number, maxR: number) {
+    private generateWalls(
+        width: number,
+        height: number,
+        minWidth: number,
+        maxWidth: number,
+        count: number,
+        spacing: number
+    ): void {
         const walls: Wall[] = [];
-        const maxAttempts = count * 8 + 200;
         let attempts = 0;
+        const maxAttempts = count * 20;
+
+        const randInRange = (min: number, max: number) => min + Math.random() * (max - min);
+
         while (walls.length < count && attempts < maxAttempts) {
             attempts++;
-            // pick center within world but leave room for size
-            const rectW = minR + Math.floor(this.rand() * (maxR - minR));
-            const rectH = minR + Math.floor(this.rand() * (maxR - minR));
-            const hw = Math.floor(rectW / 2);
-            const hh = Math.floor(rectH / 2);
-            const cx = Math.floor(this.rand() * (this.width - rectW)) + hw;
-            const cy = Math.floor(this.rand() * (this.height - rectH)) + hh;
+            const r = Math.random();
+            const aspect = r < 1/3 ? 2 : r < 2/3 ? 3 : 4;
+            const longSide = randInRange(minWidth, maxWidth);
+            const shortSide = longSide / aspect;
 
-            const pts = this.generateRectPoints(cx, cy, hw, hh);
+            const horizontal = Math.random() < 0.5;
 
-            // bbox
-            const bbox = this.bboxOfPoints(pts);
+            const w = horizontal ? longSide : shortSide;
+            const h = horizontal ? shortSide : longSide;
 
-            // ensure inside world bounds
-            if (bbox.minX < 0 || bbox.minY < 0 || bbox.maxX > this.width || bbox.maxY > this.height) continue;
+            const x = randInRange(spacing, width - w - spacing);
+            const y = randInRange(spacing, height - h - spacing);
 
-            // avoid player's spawn area roughly at center
-            const spawnX = Math.floor(this.width / 2);
-            const spawnY = Math.floor(this.height / 2);
-            const dist = Math.hypot(spawnX - cx, spawnY - cy);
-            if (dist < Math.max(80, minR * 2)) continue;
+            const newWall: Wall = {
+                id: `wall_${walls.length}`,
+                points: [
+                    { x, y },
+                    { x: x + w, y },
+                    { x: x + w, y: y + h },
+                    { x, y: y + h }
+                ]
+            };
 
-            walls.push({ id: `w-${walls.length}-${Date.now()}`, points: pts });
+            const bbox = { minX: x - spacing, minY: y - spacing, maxX: x + w + spacing, maxY: y + h + spacing };
+            const overlap = walls.some(wall => {
+                const b = this.bboxOfPoints(wall.points);
+                return !(bbox.maxX < b.minX || bbox.minX > b.maxX || bbox.maxY < b.minY || bbox.minY > b.maxY);
+            });
+
+            if (!overlap) walls.push(newWall);
         }
 
         this.walls = walls;
     }
+
+    public getWalls() { return this.walls; }
 
     public getViewport(): Viewport {
         return { ...this.viewport };
@@ -124,6 +131,11 @@ export class MapModel {
         if (this.viewport.y < 0) this.viewport.y = 0;
         if (this.viewport.x > maxX) this.viewport.x = maxX;
         if (this.viewport.y > maxY) this.viewport.y = maxY;
+    }
+
+    private overlaps(a: { minX: number; minY: number; maxX: number; maxY: number },
+        b: { minX: number; minY: number; maxX: number; maxY: number }) {
+        return !(a.maxX < b.minX || a.minX > b.maxX || a.maxY < b.minY || a.minY > b.maxY);
     }
 
     public getWallsInRegion(x: number, y: number, w: number, h: number): Wall[] {

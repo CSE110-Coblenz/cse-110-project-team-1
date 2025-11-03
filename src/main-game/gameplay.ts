@@ -14,9 +14,10 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     const config = {
         width: worldWidth,
         height: worldHeight,
-        wallCount: 1500,
-        wallMinRadius: 30,
-        wallMaxRadius: 160,
+        spacing: 120,
+        wallCount: 2500,
+        wallMinWidth: 80,
+        wallMaxWidth: 160,
     };
 
     const model = new MapModel(config);
