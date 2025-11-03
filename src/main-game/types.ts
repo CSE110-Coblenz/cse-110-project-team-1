@@ -67,39 +67,3 @@ export abstract class View {
         this.layer.batchDraw();
     }
 }
-
-export enum Direction {
-    Up = 0,
-    Down = 1,
-    Left = 2,
-    Right = 3,
-}
-
-export enum Species {
-    SPEC1 = "Species 1",
-    SPEC2 = "Species 2",
-    SPEC3 = "Species 3",
-}
-
-export const MaptoNextSpecies = new Map<Species, Species>([
-  [Species.SPEC1, Species.SPEC2],
-  [Species.SPEC2, Species.SPEC3],
-  [Species.SPEC3, Species.SPEC1],
-]);
-
-export const MapToNextDirection = new Map<Direction, Direction>([
-  [Direction.Up, Direction.Left],
-  [Direction.Left, Direction.Down],
-  [Direction.Down, Direction.Right],
-  [Direction.Right, Direction.Up],
-]);
-
-export const ReverseMapToNextDirection = new Map<Direction, Direction>([
-  [Direction.Up, Direction.Right],
-  [Direction.Right, Direction.Down],
-  [Direction.Down, Direction.Left],
-  [Direction.Left, Direction.Up],
-]);
-
-
-export const DEF_PXL_ADV: number = 24;
