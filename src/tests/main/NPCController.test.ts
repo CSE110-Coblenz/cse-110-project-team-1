@@ -19,7 +19,10 @@ vi.mock('../../main-game/NPC/NPCView', () => ({
 
 vi.mock('../../main-game/MapModel', () => ({
   MapModel: class {
-    walls: { points: { x: number; y: number }[] }[];
+    public walls: { points: { x: number; y: number }[] }[] = [
+      { points: [{ x: 100, y: 100 }, { x: 150, y: 100 }, { x: 150, y: 150 }, { x: 100, y: 150 }] },
+      { points: [{ x: 300, y: 300 }, { x: 400, y: 300 }, { x: 400, y: 400 }, { x: 300, y: 400 }] },
+    ];
 
     constructor(config?: any) {
       this.walls = [
@@ -63,15 +66,33 @@ describe('NPCController (simple mock test)', () => {
     const map_model = new MapModel(config);
 
     const npc_controller = new NPCController(npc_model, npc_view);
+    expect(npc_controller).toBeDefined();
 
     // Spawn an NPC (uses mocks internally)
     const spawn1 = npc_controller.spawn(map_model, []);
     expect(spawn1).toBeDefined();
-    expect(npc_controller).toBeDefined();
+    // Make sure its in bound with the map
+    expect(spawn1!.x).toBeGreaterThanOrEqual(0);
+    expect(spawn1!.x).toBeLessThanOrEqual(config.width);
+    expect(spawn1!.y).toBeGreaterThanOrEqual(0);
+    expect(spawn1!.y).toBeLessThanOrEqual(config.height);
+
+    // --- Ensure not inside a wall ---
+    const insideWall = map_model.isPointInsideWall(spawn1!.x, spawn1!.y);
+    expect(insideWall).toBe(false);
 
     // Sspawn a second NPC
     const spawn2 = npc_controller.spawn(map_model, [spawn1!]);
     expect(spawn2).toBeDefined();
+    // Make sure its in bound with the map
+    expect(spawn2!.x).toBeGreaterThanOrEqual(0);
+    expect(spawn2!.x).toBeLessThanOrEqual(config.width);
+    expect(spawn2!.y).toBeGreaterThanOrEqual(0);
+    expect(spawn2!.y).toBeLessThanOrEqual(config.height);
+
+    // --- Ensure not inside a wall ---
+    const insideWall2 = map_model.isPointInsideWall(spawn2!.x, spawn2!.y);
+    expect(insideWall2).toBe(false);
 
     // Ensure a minimum spacing between the two spawns
     const dx = spawn1!.x - spawn2!.x;
