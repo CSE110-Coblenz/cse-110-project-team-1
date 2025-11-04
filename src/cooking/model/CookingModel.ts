@@ -12,7 +12,8 @@ export class CookingModel {
     private customerIdMap: Map<Customer, string> = new Map();
     private currentLabel: Label | null = null;
     private score: number = 0;
-    private customersServed: number = 0;
+    private customersCorrect: number = 0;
+    private customersIncorrect: number = 0;
 
     constructor() {
         // Empty constructor - actual initialization happens in initialize()
@@ -41,7 +42,8 @@ export class CookingModel {
 
         // Reset score and customers served
         this.score = 0;
-        this.customersServed = 0;
+    this.customersCorrect = 0;
+        this.customersIncorrect = 0;
     }
 
     /**
@@ -100,24 +102,80 @@ export class CookingModel {
      * Returns current progress towards total correct assignments
      * correct = customersServed, total = configured NUM_CUSTOMERS
      */
-    getProgress(): { correct: number; total: number } {
+    getProgress(): { correct: number; incorrect: number; total: number } {
         return {
-            correct: this.customersServed,
+            correct: this.customersCorrect,
+            incorrect: this.customersIncorrect,
             total: CookingGameConfig.NUM_CUSTOMERS,
         };
     }
 
     /**
-     * Records a correct assignment. Increments customersServed and score.
-     * Returns updated progress for convenience.
+     * Handles a label assignment to a customer.
+     * Validates if the assignment is correct and updates state accordingly.
+     * @param customerId - The ID of the customer receiving the label
+     * @param labelType - The type of label being assigned
+     * @returns Object with updated progress and whether assignment was correct
      */
-    serveCustomerCorrect(): { correct: number; total: number } {
+    handleAssignment(customerId: string, labelType: string): { correct: number; incorrect: number; total: number; wasCorrect: boolean } {
         const total = CookingGameConfig.NUM_CUSTOMERS;
-        if (this.customersServed < total) {
-            this.customersServed += 1;
-            // Optional: basic scoring for correct assignment
-            this.score += 10;
+        const totalServed = this.customersCorrect + this.customersIncorrect;
+        
+        if (totalServed >= total) {
+            return { 
+                correct: this.customersCorrect, 
+                incorrect: this.customersIncorrect, 
+                total,
+                wasCorrect: false
+            };
         }
-        return { correct: this.customersServed, total };
+
+        // Find the customer by ID
+        let targetCustomer: Customer | null = null;
+        for (const customer of this.activeCustomers) {
+            const id = this.customerIdMap.get(customer);
+            if (id === customerId) {
+                targetCustomer = customer;
+                break;
+            }
+        }
+
+        if (!targetCustomer) {
+            return { 
+                correct: this.customersCorrect, 
+                incorrect: this.customersIncorrect, 
+                total,
+                wasCorrect: false
+            };
+        }
+
+        // Check if the assignment is correct
+        const isCorrect = this.isLabelCorrectForCustomer(targetCustomer, labelType);
+        
+        if (isCorrect) {
+            this.customersCorrect = this.customersCorrect + 1;
+            this.score = this.score + 10;
+        } else {
+            this.customersIncorrect = this.customersIncorrect + 1;
+        }
+
+        return { 
+            correct: this.customersCorrect, 
+            incorrect: this.customersIncorrect, 
+            total,
+            wasCorrect: isCorrect
+        };
+    }
+
+    /**
+     * Determines if a label is correct for a given customer.
+     * This is where the business logic for correctness lives.
+     * @param customer - The customer to check
+     * @param labelType - The label type being assigned
+     * @returns true if the label matches the customer's type
+     */
+    private isLabelCorrectForCustomer(customer: Customer, labelType: string): boolean {
+        // label is correct if it matches the customer's correctLabel.type
+        return customer.correctLabel.type === labelType;
     }
 }

@@ -26,7 +26,7 @@ export default class CookingController {
     this.view.initialize(this.model.getCustomerData(), this.model.getLabel(), this.model.getScore());
     // Initialize progress bar in the view
     const progressInit = this.model.getProgress();
-    this.view.updateProgress(progressInit.correct, progressInit.total);
+    this.view.updateProgress(progressInit.correct, progressInit.incorrect, progressInit.total);
         // TODO: Game loop
         
         // For now, just show we're working
@@ -87,8 +87,13 @@ export default class CookingController {
         
         // Progress test events
         setTimeout(() => {
-            console.log('Test 1a: handleCorrectAssignment()');
-            this.handleCorrectAssignment();
+            console.log('Test 1a: handleAssignment() - correct assignment');
+            const customerData = this.model.getCustomerData();
+            // Simpler: assume first customer exists and has correctLabel
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
+            }
         }, 1200);
 
         setTimeout(() => {
@@ -104,8 +109,12 @@ export default class CookingController {
         }, 2000);
         
         setTimeout(() => {
-            console.log('Test 2a: handleCorrectAssignment()');
-            this.handleCorrectAssignment();
+            console.log('Test 2a: handleAssignment() - correct assignment');
+            const customerData = this.model.getCustomerData();
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
+            }
         }, 2200);
 
         setTimeout(() => {
@@ -124,9 +133,21 @@ export default class CookingController {
         }, 3000);
         
         setTimeout(() => {
-            console.log('Test 3a: handleCorrectAssignment()');
-            this.handleCorrectAssignment();
+            console.log('Test 3a: handleAssignment() - correct assignment');
+            const customerData = this.model.getCustomerData();
+            const firstCustomer = this.model['activeCustomers'][0];
+            if (customerData.length > 0 && firstCustomer && firstCustomer.correctLabel) {
+                this.handleAssignment(customerData[0].customerId, firstCustomer.correctLabel.type);
+            }
         }, 3500);
+
+        setTimeout(() => {
+            console.log('Test 3b: handleAssignment() - incorrect assignment');
+            const customerData = this.model.getCustomerData();
+            if (customerData.length > 0) {
+                this.handleAssignment(customerData[0].customerId, 'wrongLabel');
+            }
+        }, 3700);
 
         setTimeout(() => {
             console.log('Test 4: showGameOver(250)');
@@ -143,13 +164,23 @@ export default class CookingController {
     }
 
     /**
-     * Called when the player correctly assigns a label.
-     * Updates model progress and refreshes view progress bar and score.
+     * Handles a label assignment to a customer.
+     * Controller simply passes the data to Model for validation and processing,
+     * then updates the View with the results.
+     * @param customerId - The ID of the customer receiving the label
+     * @param labelType - The type of label being assigned
      */
-    private handleCorrectAssignment(): void {
-        const progress = this.model.serveCustomerCorrect();
-        this.view.updateProgress(progress.correct, progress.total);
+    private handleAssignment(customerId: string, labelType: string): void {
+        const result = this.model.handleAssignment(customerId, labelType);
+        this.view.updateProgress(result.correct, result.incorrect, result.total);
         this.view.updateScore(this.model.getScore());
+        
+        // Optional: Provide feedback about whether assignment was correct
+        if (result.wasCorrect) {
+            console.log('Correct assignment!');
+        } else {
+            console.log('Incorrect assignment!');
+        }
     }
 
     // Potential Additional Methods: 
