@@ -16,3 +16,5 @@ export const MaptoNextSpecies = new Map<Species, Species>([
   [Species.ANTEATER, Species.SPEC1],
 ]);
 
+export const ALL_SPECIES = Object.values(Species);
+

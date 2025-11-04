@@ -5,8 +5,7 @@ import { MapView } from './MapView';
 import { PlayerModel } from './PlayerModel';
 import { PlayerView } from './PlayerView';
 import { PlayerController } from './PlayerController';
-import { NPC } from './NPC/NPC'
-import { NPCModel } from './NPC/NPCModel';
+import { NPC, NPCFactory } from './NPC/NPC'
 import { Species } from '../common/types/Species';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
@@ -63,14 +62,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     // attach input handling for player
     playerController.attachKeyboardListeners(render);
 
-    const allSpecies = Object.values(Species);
-
-    const species_list: Species[] = Array.from({ length: 150 }, () => 
-        allSpecies[Math.floor(Math.random() * allSpecies.length)]
-    );
-
-    let npcs: NPC[] = NPC.createNPCs(species_list);
-    console.log("NPCs: " + npcs);
+    let npcs: NPC[] = NPCFactory.createNRandomNPCs(150);
     map_controller.placeNPCs(npcs);
     render();
 
