@@ -1,4 +1,5 @@
 import { MapConfig, Wall, Point, Position, Viewport } from './types';
+import { NPC } from './NPC/NPC'
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -9,6 +10,7 @@ export class MapModel {
     private height: number;
     private walls: Wall[] = [];
     private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
+    private npcs: NPC[] = [];
 
     // static defaults
     public static DEFAULT_SPACING = 80;
@@ -32,7 +34,7 @@ export class MapModel {
                             spacing);
     }
 
-    private bboxOfPoints(points: Point[]) {
+    public bboxOfPoints(points: Point[]) {
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         for (const p of points) {
             if (p.x < minX) minX = p.x;
@@ -94,7 +96,15 @@ export class MapModel {
         this.walls = walls;
     }
 
-    public getWalls() { return this.walls; }
+    public setNCPs(npcs: NPC[]){
+        this.npcs = npcs;
+    }
+
+    public getNPCs(): NPC[]{
+        return this.npcs;
+    }
+
+    public getWalls(): Wall[] { return this.walls; }
 
     public getViewport(): Viewport {
         return { ...this.viewport };

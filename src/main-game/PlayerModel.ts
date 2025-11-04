@@ -1,25 +1,26 @@
-import { Position } from './types';
-
-const DEFAULT_ATTRIBUTES = {
-    radius: 12,
-    speed: 500,
-    health: 100,
-    species: 'none',
-};
+import { Position,  Direction, DEFAULT_ATTRIBUTES } from './types';
+import { Species } from '../common/types/Species';
 
 export class PlayerModel {
-    private pos: Position;
-    public radius: number;
-    private speed: number;
-    private health: number;
-    private species: string;
 
-    constructor(x = 0, y = 0, radius = DEFAULT_ATTRIBUTES.radius, speed = DEFAULT_ATTRIBUTES.speed, health = DEFAULT_ATTRIBUTES.health, species = DEFAULT_ATTRIBUTES.species) {
+    protected static DEFAULT_ADVANCE = 24;
+    protected direction: Direction;
+    protected pos: Position;
+    public radius: number;
+    protected speed: number;
+    protected health: number;
+    protected species: Species;
+
+    constructor(x = 0, y = 0, radius = DEFAULT_ATTRIBUTES.radius, 
+                                speed = DEFAULT_ATTRIBUTES.speed, 
+                                health = DEFAULT_ATTRIBUTES.health, 
+                                species = DEFAULT_ATTRIBUTES.species) {
         this.pos = { x, y };
         this.radius = radius;
         this.speed = speed;
         this.health = health;
         this.species = species;
+        this.direction = Direction.Up;
     }
 
     public getPosition(): Position {
@@ -34,7 +35,7 @@ export class PlayerModel {
         return this.health;
     }
 
-    public getSpecies(): string {
+    public getSpecies(): Species {
         return this.species;
     }
 
@@ -54,5 +55,13 @@ export class PlayerModel {
     public moveBy(dx: number, dy: number) {
         this.pos.x += dx;
         this.pos.y += dy;
+    }
+
+    public getDirection(){
+        return this.direction;
+    }
+
+    public setDirection(direction: Direction){
+        this.direction = direction;
     }
 }
