@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { Species } from '../../common/types/Species';
-import { PlayerModel } from '../../main-game/PlayerModel';
+import { NPCModel } from '../../main-game/NPC/NPCModel';
 
-describe('PlayerModel', () => {
+describe('NPCModel', () => {
   it('initializes with defaults and returns position/copy', () => {
-    const p = new PlayerModel(10, 15);
+    const p = new NPCModel(10, 15);
     expect(p.getPosition()).toEqual({ x: 10, y: 15 });
     // modifying returned object should not change internal state
     const pos = p.getPosition();
@@ -13,7 +13,7 @@ describe('PlayerModel', () => {
   });
 
   it('moves and sets position correctly', () => {
-    const p = new PlayerModel(0, 0);
+    const p = new NPCModel(0, 0);
     p.moveBy(5, -3);
     expect(p.getPosition()).toEqual({ x: 5, y: -3 });
     p.setPosition(100, 200);
@@ -21,7 +21,7 @@ describe('PlayerModel', () => {
   });
 
   it('gets and sets speed and health', () => {
-    const p = new PlayerModel(0, 0, 12, 250, 80, Species.CAT);
+    const p = new NPCModel(0, 0, 12, 250, 80, Species.CAT);
     expect(p.getSpeed()).toBe(250);
     expect(p.getHealth()).toBe(80);
     p.setSpeed(300);
