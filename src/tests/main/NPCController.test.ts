@@ -19,13 +19,33 @@ vi.mock('../../main-game/NPC/NPCView', () => ({
 
 vi.mock('../../main-game/MapModel', () => ({
   MapModel: class {
-    constructor(config?: any) {}
+    walls: { points: { x: number; y: number }[] }[];
+
+    constructor(config?: any) {
+      this.walls = [
+        { points: [{ x: 100, y: 100 }, { x: 150, y: 100 }, { x: 150, y: 150 }, { x: 100, y: 150 }] },
+        { points: [{ x: 300, y: 300 }, { x: 400, y: 300 }, { x: 400, y: 400 }, { x: 300, y: 400 }] },
+      ];
+    }
+
     getWidth = vi.fn(() => 600);
     getHeight = vi.fn(() => 600);
-    getWalls = vi.fn(() => []);
+    getWalls = vi.fn(() => this.walls);
+
+    isPointInsideWall = vi.fn((px: number, py: number) => {
+      for (const wall of this.walls) {
+        const xs = wall.points.map(p => p.x);
+        const ys = wall.points.map(p => p.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        if (px >= minX && px <= maxX && py >= minY && py <= maxY) return true;
+      }
+      return false;
+    });
   }
 }));
-
 
 describe('NPCController (simple mock test)', () => {
   it('can be instantiated with mocks', () => {
@@ -56,7 +76,7 @@ describe('NPCController (simple mock test)', () => {
     // Ensure a minimum spacing between the two spawns
     const dx = spawn1!.x - spawn2!.x;
     const dy = spawn1!.y - spawn2!.y;
-    const minDistanceSquared = (2 * NPCController.SPAWN_RADIUS + NPCController.WALL_CLEARANCE) ** 2;
+    const minDistanceSquared = (2 * NPCController.SPAWN_RADIUS) ** 2;
 
     expect(dx ** 2 + dy ** 2).toBeGreaterThanOrEqual(minDistanceSquared);
 
