@@ -1,10 +1,18 @@
 /**
  * Valid species types in the game
  */
-export type Species = 'rabbit' | 'mushroom' | 'sunflower';
 
-export const ALL_SPECIES: readonly Species[] = ['rabbit', 'mushroom', 'sunflower'] as const;
-
-export function isSpecies(value: string): value is Species {
-    return ALL_SPECIES.includes(value as Species);
+export enum Species {
+    SPEC1 = "Species 1",
+    SPEC2 = "Species 2",
+    ANTEATER = "Anteater",
+    CAT = "Cat",
+    TEST = "Test"
 }
+
+export const MaptoNextSpecies = new Map<Species, Species>([
+  [Species.SPEC1, Species.SPEC2],
+  [Species.SPEC2, Species.ANTEATER],
+  [Species.ANTEATER, Species.SPEC1],
+]);
+

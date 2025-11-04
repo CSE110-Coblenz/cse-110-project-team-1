@@ -2,7 +2,8 @@
 import { NPCView } from './NPCView';
 import { NPCModel } from './NPCModel';
 import { NPCController } from './NPCController';
-import { Species } from '../types';
+import { Species } from '../../../src/common/types/Species';
+
 
 
 export class NPC {
@@ -16,8 +17,12 @@ export class NPC {
         this.controller = new NPCController(this.model, this.view);
     }
 
-    static create(species: Species): NPC {
-        return new NPC(species);
+    static createNPCs(list_species: Species[]): NPC[] {
+        let npcs: NPC[] = [];
+        for (const species of list_species) {
+            npcs.push(new NPC(species));
+        }
+        return npcs;
     }
 
     public getController(): NPCController {

@@ -1,5 +1,6 @@
 import { NPCModel } from './NPCModel';
 import { NPCView } from './NPCView';
+
 import { MapModel } from '../MapModel';
 
 import { Point, Position, Viewport } from '../types'
@@ -20,7 +21,7 @@ export class NPCController {
         this.view = view;
     }
 
-    public spawn(map: MapModel, existingNPCPositions: Position[]): Position | void {
+    public spawn(map_model: MapModel, existingNPCPositions: Position[]): Position | void {
         const NPC_RADIUS = NPCController.SPAWN_RADIUS;
         const MAX_SPAWN_ATTEMPTS = 2000;
         const WALL_CLEARANCE = NPCController.WALL_CLEARANCE; // distance from walls
@@ -57,7 +58,7 @@ export class NPCController {
         // Check if candidate position collides with walls or other NPCs
         const isPositionInvalid = (candidateX: number, candidateY: number) => {
             // --- Check walls ---
-            for (const wall of map.getWalls()) {
+            for (const wall of map_model.getWalls()) {
                 const wallPolygon: Point[] = (wall as any).points;
                 const xValues = wallPolygon.map(p => p.x);
                 const yValues = wallPolygon.map(p => p.y);
@@ -95,8 +96,8 @@ export class NPCController {
 
         // --- Main spawn loop ---
         for (let attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
-            const candidateX = NPC_RADIUS + Math.random() * (map.getWidth() - 2 * NPC_RADIUS);
-            const candidateY = NPC_RADIUS + Math.random() * (map.getHeight() - 2 * NPC_RADIUS);
+            const candidateX = NPC_RADIUS + Math.random() * (map_model.getWidth() - 2 * NPC_RADIUS);
+            const candidateY = NPC_RADIUS + Math.random() * (map_model.getHeight() - 2 * NPC_RADIUS);
 
             if (!isPositionInvalid(candidateX, candidateY)) {
                 this.model.setPosition(candidateX, candidateY);
@@ -106,9 +107,20 @@ export class NPCController {
         }
     }
 
+    // public pointTooCloseToOtherNPC(){
+    //     const minDistanceToOtherNPCsSquared = (2 * NPC_RADIUS + WALL_CLEARANCE)**2;
+    //         for (const otherNPC of existingNPCPositions) {
+    //             const deltaX = otherNPC.x - candidateX;
+    //             const deltaY = otherNPC.y - candidateY;
+    //             if ((deltaX**2 + deltaY**2) < minDistanceToOtherNPCsSquared) return true;
+    //         }
 
-    public animate(): void {
-        this.model.animate();
+    //     return false;
+    // }
+
+
+    public update(map_model: MapModel, deltaSec: number): void {
+        this.model.update(map_model, deltaSec);
     }
 
     public draw(target: CanvasRenderingContext2D | any, viewport: Viewport) {

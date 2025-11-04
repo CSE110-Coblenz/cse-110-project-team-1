@@ -1,4 +1,5 @@
-import { Position, Species, Direction, DEFAULT_ATTRIBUTES } from './types';
+import { Position,  Direction, DEFAULT_ATTRIBUTES } from './types';
+import { Species } from '../common/types/Species';
 
 export class PlayerModel {
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Species } from '../../main-game/types';
+import { Species } from '../../common/types/Species';
 import { PlayerModel } from '../../main-game/PlayerModel';
 
 describe('PlayerModel', () => {

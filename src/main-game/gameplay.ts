@@ -7,19 +7,11 @@ import { PlayerView } from './PlayerView';
 import { PlayerController } from './PlayerController';
 import { NPC } from './NPC/NPC'
 import { NPCModel } from './NPC/NPCModel';
-import { Species } from './types'
+import { Species } from '../common/types/Species';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
     stop: () => void;
-}
-
-export function populateNPCs(npc_count: number): NPC[]{
-    let npcs = [];
-    for (let i: number = 0; i < npc_count; i++) {
-        npcs.push(NPC.create(Species.ANTEATER));
-    }
-    return npcs;
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
@@ -34,7 +26,6 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
         wallMaxWidth: 160,
     };
 
-    const npc_model = new NPCModel();
     const map_model = new MapModel(config);
 
     const div = document.createElement('div');
@@ -72,7 +63,14 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
     // attach input handling for player
     playerController.attachKeyboardListeners(render);
 
-    let npcs: NPC[] = populateNPCs(200);
+    const allSpecies = Object.values(Species);
+
+    const species_list: Species[] = Array.from({ length: 150 }, () => 
+        allSpecies[Math.floor(Math.random() * allSpecies.length)]
+    );
+
+    let npcs: NPC[] = NPC.createNPCs(species_list);
+    console.log("NPCs: " + npcs);
     map_controller.placeNPCs(npcs);
     render();
 
@@ -82,7 +80,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
         if (lastTimestamp == null) lastTimestamp = timestamp;
         const deltaSec = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
         lastTimestamp = timestamp;
-        map_controller.animateNPCs(timestamp);
+        map_controller.animateNPCs(deltaSec);
         playerController.updateFromInput(deltaSec);
         render();
         animationInterval = requestAnimationFrame(gameLoop);

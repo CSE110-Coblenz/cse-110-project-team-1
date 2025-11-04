@@ -8,10 +8,7 @@ import { Viewport, Position } from './types';
  * the viewport state lives in the model itself.
  */
 export class MapController {
-    private npcs: NPC[] = [];
     private model: MapModel;
-    private lastMoveTime: number = 0;
-    private moveInterval: number = 250;
     private static DEFAULT_STEP_SIZE = 64; // pixels
 
     constructor(model: MapModel, viewportWidth: number, viewportHeight: number) {
@@ -54,36 +51,31 @@ export class MapController {
         this.model.centerViewportOn(position);
     }
 
-    public getNPCs(){
-        return this.npcs;
-    }
-
     public placeNPCs(npcs: NPC[]){
         let placedNPCs: Position[] = []
-        npcs.forEach((npc: NPC) => {
-            let spawn_position: Position | void = npc.getController().spawn(this.model, placedNPCs);
+        for (const npc of npcs) {
+            let spawn_position: Position | void = npc.getController().spawn(this.model,placedNPCs);
             if(spawn_position){
                 placedNPCs.push(spawn_position);
-                this.npcs.push(npc);
             }
-        });
+        }
+        this.model.setNCPs(npcs);
+        console.log("this.model.getNPCs(): " + this.model.getNPCs());
     }
 
     public drawNPCs(target: CanvasRenderingContext2D | any, viewport: Viewport): void{
-        if(this.npcs.length == 0){
+        if(this.model.getNPCs().length == 0){
+            console.log("The length is 0, there are no NPCS");
             return;
         }
-        this.npcs.forEach((npc: NPC) => {
+        for (const npc of this.model.getNPCs()) {
             npc.getController().draw(target, viewport);
-        });
+        }
     }
 
-    public animateNPCs(currentTime: number){
-        if (currentTime - this.lastMoveTime >= this.moveInterval) {
-            this.npcs.forEach((npc: NPC) => {
-                npc.getController().animate();
-            });
-            this.lastMoveTime = currentTime;
+    public animateNPCs(deltaSec: number) {
+        for (const npc of this.model.getNPCs()) {
+            npc.getController().update(this.model, deltaSec);
         }
     }
 }

@@ -1,3 +1,5 @@
+import { Species } from '../common/types/Species';
+
 // Continuous-world types: walls are polygons in pixel coordinates.
 export interface Point {
     x: number;
@@ -39,20 +41,6 @@ export enum Direction {
     Left = 2,
     Right = 3,
 }
-
-export enum Species {
-    SPEC1 = "Species 1",
-    SPEC2 = "Species 2",
-    ANTEATER = "Anteater",
-    CAT = "Cat",
-    TEST = "Test"
-}
-
-export const MaptoNextSpecies = new Map<Species, Species>([
-  [Species.SPEC1, Species.SPEC2],
-  [Species.SPEC2, Species.ANTEATER],
-  [Species.ANTEATER, Species.SPEC1],
-]);
 
 export const DEFAULT_ATTRIBUTES = {
     radius: 12,

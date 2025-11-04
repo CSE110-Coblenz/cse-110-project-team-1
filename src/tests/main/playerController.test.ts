@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { PlayerModel } from '../../main-game/PlayerModel';
 import { PlayerView } from '../../main-game/PlayerView';
-import { Species } from '../../main-game/types';
+import { Species } from '../../common/types/Species';
 import { PlayerController } from '../../main-game/PlayerController';
 import { MapModel } from '../../main-game/MapModel';
 import { MapController } from '../../main-game/MapController';
