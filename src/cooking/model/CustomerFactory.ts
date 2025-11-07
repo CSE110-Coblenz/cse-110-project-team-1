@@ -6,9 +6,9 @@ export class CustomerFactory {
   private static readonly customerToLabelMap: Record<Species, LabelType> = {
     // Define your customer type to label mappings here
     // Example:
-    mushroom: 'decomposer',
-    rabbit: 'consumer',
-    sunflower: 'producer',
+    'mushroom': 'decomposer',
+    'rabbit': 'consumer',
+    'sunflower': 'producer',
   };
 
   static createCustomer(customerType: Species): Customer {
