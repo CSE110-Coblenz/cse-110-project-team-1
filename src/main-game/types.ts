@@ -1,3 +1,5 @@
+import { Species } from '../common/types/Species';
+
 // Continuous-world types: walls are polygons in pixel coordinates.
 export interface Point {
     x: number;
@@ -13,10 +15,11 @@ export interface MapConfig {
     width: number; // world width in pixels
     height: number; // world height in pixels
     wallCount?: number; // number of random polygonal walls
-    wallMinRadius?: number; // min size of wall polys
-    wallMaxRadius?: number; // max size of wall polys
+    wallMinWidth?: number; // min size of wall polys
+    wallMaxWidth?: number; // max size of wall polys
     backgroundImageKey?: string;
     wallImageKey?: string;
+    spacing?: number; // min spacing between walls
     seed?: number; // optional seed for deterministic generation
 }
 
@@ -31,3 +34,17 @@ export interface Position {
     x: number;
     y: number;
 }
+
+export enum Direction {
+    Up = 0,
+    Down = 1,
+    Left = 2,
+    Right = 3,
+}
+
+export const DEFAULT_ATTRIBUTES = {
+    radius: 12,
+    speed: 500,
+    health: 100,
+    species: Species.SPEC1,
+};
