@@ -3,12 +3,11 @@ import { Label, LabelType } from '../model/Label';
 import { Species } from '../../common/types/Species';
 
 export class CustomerFactory {
-  private static readonly customerToLabelMap: Record<Species, LabelType> = {
+  private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> = {
     // Define your customer type to label mappings here
-    // Example:
-    'mushroom': 'decomposer',
-    'rabbit': 'consumer',
-    'sunflower': 'producer',
+    [Species.MUSHROOM]: 'decomposer',
+    [Species.RABBIT]: 'consumer',
+    [Species.SUNFLOWER]: 'producer',
   };
 
   static createCustomer(customerType: Species): Customer {

@@ -17,9 +17,9 @@ export default class MockGameCoordinator {
         
         // Mock customer data (normally comes from main game)
         const mockCustomerTypes: Species[] = [
-            'mushroom' as Species,
-            'rabbit' as Species,
-            'sunflower' as Species
+            Species.MUSHROOM,
+            Species.RABBIT,
+            Species.SUNFLOWER
         ];
         
         console.log('Starting cooking game with customers:', mockCustomerTypes);
