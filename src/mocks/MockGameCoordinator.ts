@@ -1,4 +1,5 @@
 import CookingController from '../cooking/controller/CookingController';
+import { Species } from '../common/types/Species';
 
 export default class MockGameCoordinator {
     private cookingController: CookingController;
@@ -15,10 +16,10 @@ export default class MockGameCoordinator {
         console.log('Transitioning to cooking game...');
         
         // Mock customer data (normally comes from main game)
-        const mockCustomerTypes = [
-            'mushroom',
-            'rabbit', 
-            'sunflower'
+        const mockCustomerTypes: Species[] = [
+            Species.MUSHROOM,
+            Species.RABBIT,
+            Species.SUNFLOWER
         ];
         
         console.log('Starting cooking game with customers:', mockCustomerTypes);
