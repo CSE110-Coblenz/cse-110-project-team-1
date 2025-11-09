@@ -1,11 +1,14 @@
 name: CI
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main, develop]
 
 jobs:
-  lint:
+  # ----------------- Formatting Job -----------------
+  format:
+    name: Prettier Formatting Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,9 +16,12 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci
-      - run: npm run lint:check
+      - name: Check Prettier formatting
+        run: npx prettier --check 'src/**/*.ts'
 
-  tests:
+  # ----------------- ESLint Job -----------------
+  lint:
+    name: ESLint Unused Variables & JS/TS Rules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,4 +29,31 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci
-      - run: npm test
+      - name: Run ESLint
+        run: npx eslint 'src/**/*.ts'
+
+  # ----------------- Type Checking Job -----------------
+  types:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Run TypeScript
+        run: npx tsc --noEmit
+
+  # ----------------- Unit Tests Job -----------------
+  tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - name: Run Tests
+        run: npm test
