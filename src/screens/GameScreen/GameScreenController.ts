@@ -1,8 +1,8 @@
-import { ScreenController } from "../../types";
-import type { ScreenSwitcher } from "../../types";
-import type { Layer } from "konva/lib/Layer";
-import { GameScreenModel } from "./GameScreenModel";
-import { GameScreenView } from "./GameScreenView";
+import { ScreenController } from '../../types';
+import type { ScreenSwitcher } from '../../types';
+import type { Layer } from 'konva/lib/Layer';
+import { GameScreenModel } from './GameScreenModel';
+import { GameScreenView } from './GameScreenView';
 /**
  * GameScreenController - Minimal structure for new game logic
  */
