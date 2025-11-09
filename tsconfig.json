@@ -4,7 +4,9 @@
         "esModuleInterop": true,
         "strict": true,
         "baseUrl": ".",
-        "paths": {"*": ["*"]},
+        "paths": {
+        "src/*": ["src/*"]
+        },
         "jsx": "preserve",
         "target": "es2020",
         "module": "esnext",
