@@ -3,6 +3,10 @@
         "moduleResolution": "Node",
         "esModuleInterop": true,
         "strict": true,
+        "baseUrl": ".",
+        "paths": {
+        "*": ["*"]            // <- allow imports relative to src
+        },
         "jsx": "preserve",
         "target": "es2020",
         "module": "esnext",
