@@ -1,10 +1,12 @@
+// eslint.config.js
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
-import boundariesPlugin from 'eslint-plugin-boundaries';
 
 export default [
   {
+    // Lint only TS/JS files in your repo
     files: ['src/**/*.{ts,tsx,js,jsx}'],
+
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -12,23 +14,12 @@ export default [
         sourceType: 'module'
       }
     },
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-      boundaries: boundariesPlugin
-    },
-    rules: {
-      // Enforce absolute imports from 'src/'
-      // 'no-restricted-imports': [
-      //   'error',
-      //   {
-      //     patterns: [
-      //       '../*',
-      //       '../../*',
-      //       '../../../*', // add more if needed
-      //     ]
-      //   }
-      // ],
 
+    plugins: {
+      '@typescript-eslint': tsPlugin
+    },
+
+    rules: {
       'no-restricted-syntax': [
         'error',
         {
