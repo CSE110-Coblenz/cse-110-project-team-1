@@ -1,4 +1,4 @@
-import { Label } from './Label';
+import { Label } from 'src/cooking/model/Label';
 
 export class DeckLogic {
 	/**

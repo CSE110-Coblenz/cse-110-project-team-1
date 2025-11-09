@@ -1,5 +1,5 @@
-import { ScreenController } from '../../types';
-import { MenuScreenView } from './MenuScreenView';
+import { ScreenController } from 'src/types';
+import { MenuScreenView } from 'src/screens/MenuScreen/MenuScreenView';
 import type { Layer } from 'konva/lib/Layer';
 
 export class MenuScreenController extends ScreenController {

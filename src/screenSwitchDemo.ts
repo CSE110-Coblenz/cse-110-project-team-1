@@ -1,6 +1,6 @@
 import Konva from 'konva';
-import ScreenManager from './screens/ScreenManager';
-import type { Screen } from './types';
+import ScreenManager from 'src/screens/ScreenManager';
+import type { Screen } from 'src/types';
 
 const stage = new Konva.Stage({
 	container: 'container',

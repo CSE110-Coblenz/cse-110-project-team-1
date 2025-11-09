@@ -1,4 +1,4 @@
-import { startGame, GameHandle } from './main-game/gameplay';
+import { startGame, GameHandle } from 'src/main-game/gameplay';
 
 // Simple single-page main menu
 const app = document.getElementById('app') || document.body;

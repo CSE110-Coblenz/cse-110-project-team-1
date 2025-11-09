@@ -1,9 +1,9 @@
-import { NPCModel } from './NPCModel';
-import { NPCView } from './NPCView';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
+import { NPCView } from 'src/main-game/NPC/NPCView';
 
-import { MapModel } from '../MapModel';
+import { MapModel } from 'src/main-game/MapModel';
 
-import { Point, Position, Viewport } from '../types';
+import { Point, Position, Viewport } from 'src/main-game/types';
 
 /**
  * NPCController manages the locations, animations, and interactions between NPCs

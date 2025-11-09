@@ -1,10 +1,10 @@
-import type { Screen, ScreenSwitcher, ScreenController } from '../types';
+import type { Screen, ScreenSwitcher, ScreenController } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
-import { GameScreenController } from './GameScreen/GameScreenController';
-import { MenuScreenController } from './MenuScreen/MenuScreenController';
-import { EndingScreenController } from './EndingScreen/EndingScreenController';
-import { IntroScreenController } from './IntroScreen/IntroScreenController';
-import { CookingScreenController } from './CookingScreen/CookingScreenController';
+import { GameScreenController } from 'src/screens/GameScreen/GameScreenController';
+import { MenuScreenController } from 'src/screens/MenuScreen/MenuScreenController';
+import { EndingScreenController } from 'src/screens/EndingScreen/EndingScreenController';
+import { IntroScreenController } from 'src/screens/IntroScreen/IntroScreenController';
+import { CookingScreenController } from 'src/screens/CookingScreen/CookingScreenController';
 
 /**
  * ScreenManager: simple manager that switches between screens.
