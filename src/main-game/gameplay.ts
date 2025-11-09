@@ -52,7 +52,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		12,
 		800,
 		100,
-		Species.ANTEATER,
+		Species.TEST,
 	);
 	const playerView = new PlayerView();
 	const playerController = new PlayerController(
