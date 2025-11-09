@@ -9,5 +9,5 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci
-      - run: npx tsc --noEmit
+      - run: npx run lint:check
       - run: npm test

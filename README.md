@@ -3,6 +3,8 @@
 
 use `npm run dev` to run the code starting in `main.ts`
 use `npm test` to run the tests
+use `npm run lint:check` to run formatting, linting, and typing checks
+use `npm run lint:fix` to fix formatting and linting issues. (Typing cannot be fixed automatically)
 
 Copyright (c) <year> <copyright holders>
 
