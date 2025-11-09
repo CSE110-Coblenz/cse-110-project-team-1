@@ -1,5 +1,5 @@
-import type { Group } from "konva/lib/Group";
-import type { Layer } from "konva/lib/Layer";
+import type { Group } from 'konva/lib/Group';
+import type { Layer } from 'konva/lib/Layer';
 
 export interface View {
 	getGroup(): Group;
@@ -17,15 +17,15 @@ export interface View {
  * - "result": Results screen with final score (score: number)
  */
 export type Screen =
-	| { type: "menu" }
-	| { type: "intro" }
-	| { type: "game" }
-	| { type: "cooking" }
-	| { type: "ending";};
+	| { type: 'menu' }
+	| { type: 'intro' }
+	| { type: 'game' }
+	| { type: 'cooking' }
+	| { type: 'ending' };
 
 export abstract class ScreenController {
 	abstract getView(): View;
-    
+
 	/** Optional lifecycle hook called when the screen is mounted.
 	 * Receives a Konva Layer that the screen can attach its view Group to.
 	 * Default implementation is a no-op; subclasses can override. */
