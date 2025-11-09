@@ -3,10 +3,9 @@
  */
 
 export enum Species {
+	TEST = 'Test', // Left for testing purposes, not included in foodchain chart
 
-  TEST = "Test", // Left for testing purposes, not included in foodchain chart
-
-  // Yellowstone Type Environment 
+	// Yellowstone Type Environment
 
 	// Producers
 	GRASS = 'Grass',
