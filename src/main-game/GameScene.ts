@@ -1,0 +1,124 @@
+import Konva from 'konva';
+import { MapModel } from './MapModel';
+import { MapController } from './MapController';
+import { MapView } from './MapView';
+import { PlayerModel } from './PlayerModel';
+import { PlayerView } from './PlayerView';
+import { PlayerController } from './PlayerController';
+import { NPCFactory } from './NPC/NPC';
+import { Species } from '../common/types/Species';
+import type { Layer } from 'konva/lib/Layer';
+
+export type GameSceneOptions = {
+    width?: number;
+    height?: number;
+    spacing?: number;
+    wallCount?: number;
+    wallMinWidth?: number;
+    wallMaxWidth?: number;
+    npcCount?: number;
+};
+
+export class GameScene {
+    private layer: Layer;
+    private mapModel: MapModel;
+    private mapController: MapController;
+    private mapView: MapView;
+    private playerModel: PlayerModel;
+    private playerView: PlayerView;
+    private playerController: PlayerController;
+    private animationFrameId: number | null = null;
+    private lastTimestamp: number | null = null;
+    private started = false;
+    private options: GameSceneOptions;
+
+    constructor(layer: Layer, options: GameSceneOptions = {}) {
+        this.layer = layer;
+        this.options = options;
+
+        const worldWidth = options.width ?? Math.max(800, window.innerWidth * 5);
+        const worldHeight = options.height ?? Math.max(600, window.innerHeight * 5);
+
+        const config = {
+            width: worldWidth,
+            height: worldHeight,
+            spacing: options.spacing ?? 120,
+            wallCount: options.wallCount ?? 2500,
+            wallMinWidth: options.wallMinWidth ?? 80,
+            wallMaxWidth: options.wallMaxWidth ?? 160,
+        };
+
+        this.mapModel = new MapModel(config);
+
+        // determine viewport size from layer's stage if available
+        const stage = this.layer.getStage();
+        const vpW = window.innerWidth || document.documentElement.clientWidth ||
+            document.body.clientWidth;
+        const vpH = window.innerHeight || document.documentElement.clientHeight ||
+            document.body.clientHeight;
+
+
+        this.mapController = new MapController(this.mapModel, vpW, vpH);
+        this.mapView = new MapView();
+
+        this.playerModel = new PlayerModel(Math.floor(this.mapModel.getWidth() / 2), Math.floor(this.mapModel.getHeight() / 2), 12, 800, 100, Species.ANTEATER);
+        this.playerView = new PlayerView();
+        this.playerController = new PlayerController(this.playerModel, this.playerView, this.mapModel, this.mapController);
+
+        // place NPCs
+        const npcCount = options.npcCount ?? 150;
+        const npcs = NPCFactory.createNRandomNPCs(npcCount);
+        this.mapController.placeNPCs(npcs);
+    }
+
+    private renderOnce() {
+        const vp = this.mapController.getViewport();
+        const walls = this.mapController.getVisibleWalls();
+        this.mapView.draw(this.layer, vp, walls);
+        this.playerController.draw(this.layer, vp);
+        this.mapController.drawNPCs(this.layer, vp);
+    }
+
+    public start() {
+        if (this.started) return;
+        this.started = true;
+
+        // attach input handling
+        this.playerController.attachKeyboardListeners(() => this.renderOnce());
+
+        // initial render
+        this.renderOnce();
+
+        const loop = (timestamp: number) => {
+            if (this.lastTimestamp == null) this.lastTimestamp = timestamp;
+            const deltaSec = Math.min(0.1, (timestamp - this.lastTimestamp) / 1000);
+            this.lastTimestamp = timestamp;
+            this.mapController.animateNPCs(deltaSec);
+            this.playerController.updateFromInput(deltaSec);
+            this.renderOnce();
+            this.animationFrameId = requestAnimationFrame(loop);
+        };
+
+        this.animationFrameId = requestAnimationFrame(loop);
+    }
+
+    public stop() {
+        if (!this.started) return;
+        this.started = false;
+        this.playerController.detachKeyboardListeners();
+        if (this.animationFrameId != null) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+            this.lastTimestamp = null;
+        }
+        // clear children we added to the layer
+        try {
+            this.layer.destroyChildren();
+            this.layer.draw();
+        } catch (e) {
+            // ignore
+        }
+    }
+}
+
+export default GameScene;

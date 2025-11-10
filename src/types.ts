@@ -21,11 +21,14 @@ export type Screen =
 	| { type: "intro" }
 	| { type: "game" }
 	| { type: "cooking" }
-	| { type: "ending";};
+	| { type: "defeat" }
+	| { type: "ending" }
+	| { type: "victory"; score?: number }
+	| { type: "death"; score?: number };
 
 export abstract class ScreenController {
 	abstract getView(): View;
-    
+
 	/** Optional lifecycle hook called when the screen is mounted.
 	 * Receives a Konva Layer that the screen can attach its view Group to.
 	 * Default implementation is a no-op; subclasses can override. */

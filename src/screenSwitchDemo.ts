@@ -27,12 +27,12 @@ buttons.forEach((button) => {
       target === "ending"
         ? { type: "ending" }
         : target === "game"
-        ? { type: "game" }
-        : target === "menu"
-        ? { type: "menu" }
-        : target === "cooking"
-        ? { type: "cooking" }
-        : { type: "intro" };
+          ? { type: "game" }
+          : target === "menu"
+            ? { type: "menu" }
+            : target === "cooking"
+              ? { type: "cooking" }
+              : { type: "intro" };
 
     screenManager.switchToScreen(screen);
   });

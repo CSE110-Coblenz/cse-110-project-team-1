@@ -1,14 +1,19 @@
 import { ScreenController } from "../../types";
+import type { ScreenSwitcher } from "../../types";
 import { MenuScreenView } from "./MenuScreenView";
 import type { Layer } from "konva/lib/Layer";
 
 export class MenuScreenController extends ScreenController {
   private view: MenuScreenView;
   private layer?: Layer;
+  private screenSwitcher: ScreenSwitcher;
 
-  constructor() {
+  constructor(screenSwitcher: ScreenSwitcher) {
     super();
-    this.view = new MenuScreenView();
+    this.screenSwitcher = screenSwitcher;
+    this.view = new MenuScreenView({
+      onStart: () => this.screenSwitcher.switchToScreen({ type: "intro" }),
+    });
   }
 
   getView(): MenuScreenView {
@@ -28,7 +33,7 @@ export class MenuScreenController extends ScreenController {
       try {
         this.view.getGroup().remove();
         this.layer.draw();
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 }
