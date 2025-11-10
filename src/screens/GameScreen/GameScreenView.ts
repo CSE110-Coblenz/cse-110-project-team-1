@@ -40,20 +40,7 @@ export class GameScreenView implements View {
 	this.stageWidth = stageWidth;
 	this.stageHeight = stageHeight;
 
-	// Add a larger, more visible backdrop
-	const hudBackdrop = new Konva.Rect({
-	  x: 10,
-	  y: 10,
-	  width: 400,
-	  height: 150,
-	  fill: 'rgba(0,0,0,0.8)',
-	  cornerRadius: 8,
-	  stroke: '#ffffff',
-	  strokeWidth: 1,
-	});
 	
-	console.log('Creating HUD with size:', stageWidth, stageHeight);
-
 	// create HUD shapes with initial placeholder sizes; layout() will update
 	this.healthBg = new Konva.Rect({ x: 0, y: 0, width: 200, height: 30, fill: '#000000', cornerRadius: 6 });
 	this.healthFill = new Konva.Rect({ x: 0, y: 0, width: 200, height: 30, fill: '#ff0000', cornerRadius: 6 });
@@ -63,7 +50,6 @@ export class GameScreenView implements View {
 	this.progressFill = new Konva.Rect({ x: 0, y: 0, width: 0, height: 10, fill: '#1e88e5', cornerRadius: 6 });
 	this.progressLabel = new Konva.Text({ x: 0, y: 0, text: `Progress: 0%`, fontSize: 12, fill: '#ffffff' });
 
-	this.group.add(hudBackdrop);
 	this.group.add(this.healthBg);
 	this.group.add(this.healthFill);
 	this.group.add(this.healthLabel);
