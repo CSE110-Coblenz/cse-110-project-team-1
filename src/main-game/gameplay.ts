@@ -38,9 +38,12 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		width: window.innerWidth,
 		height: window.innerHeight,
 	});
-	// Create a single layer for all elements
-	const layer = new Konva.Layer();
-	stage.add(layer);
+	// Create two layers: one for game world, one for UI
+	const gameLayer = new Konva.Layer();  // for map, player, NPCs
+	const uiLayer = new Konva.Layer();    // for HUD and other UI elements
+	// Add layers in order (game first, UI on top)
+	stage.add(gameLayer);
+	stage.add(uiLayer);
 
 	const map_controller = new MapController(map_model, stage.width(), stage.height());
 	const map_view = new MapView('#8fb3d9');
@@ -63,11 +66,19 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		map_controller,
 	);
 
-	// create HUD and add it to the layer
+	// create HUD and add it to the UI layer
 	const gameHud = new GameScreenView(stage.width(), stage.height());
-	layer.add(gameHud.getGroup());
+	uiLayer.add(gameHud.getGroup());
 	gameHud.show(); // Explicitly make sure HUD is visible
-	layer.draw(); // Force immediate draw
+	console.log('HUD Debug - Initial state:', {
+		visible: gameHud.getGroup().visible(),
+		zIndex: gameHud.getGroup().zIndex(),
+		position: {
+			x: gameHud.getGroup().x(),
+			y: gameHud.getGroup().y()
+		}
+	});
+	uiLayer.draw(); // Force immediate draw
 
 	// respond to window resize: update stage and recompute HUD layout
 	const resizeHandler = () => {
@@ -84,19 +95,36 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 
 	function render() {
 		const vp = map_controller.getViewport();
+		console.log('Viewport state:', {
+			viewport: vp,
+			layerOffset: {
+				x: gameLayer.x(),
+				y: gameLayer.y()
+			}
+		});
+
 		const walls = map_controller.getVisibleWalls();
-		map_view.draw(layer, vp, walls);
-		playerController.draw(layer, vp);
-		map_controller.drawNPCs(layer, vp);
-		// Draw HUD last so it's always on top
+		map_view.draw(gameLayer, vp, walls);
+		playerController.draw(gameLayer, vp);
+		map_controller.drawNPCs(gameLayer, vp);
+
+		console.log('MapView transforms:', {
+			x: gameLayer.x(),
+			y: gameLayer.y(),
+			scale: gameLayer.scale(),
+			offset: gameLayer.offset()
+		});
+
+		// Update HUD on UI layer (no viewport offset needed)
 		try {
 			const health = playerModel.getHealth();
 			console.log('Setting HUD health:', health);
 			gameHud.setHealth(health);
+			uiLayer.batchDraw();
 		} catch (e) {
 			console.error('HUD error:', e);
 		}
-		layer.batchDraw();
+		gameLayer.batchDraw();
 	}
 
 	// attach input handling for player
