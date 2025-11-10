@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import type { Screen } from '../types';
+import type { Screen } from 'src/types';
 
 const mockViewInstances: any[] = [];
 
@@ -30,7 +30,7 @@ vi.mock('../screens/IntroScreen/IntroScreenView', () => {
 	};
 });
 
-import { IntroScreenController } from '../screens/IntroScreen/IntroScreenController';
+import { IntroScreenController } from 'src/screens/IntroScreen/IntroScreenController';
 
 describe('IntroScreenController', () => {
 	afterEach(() => {

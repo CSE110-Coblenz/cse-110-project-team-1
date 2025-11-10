@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Direction, Position, Viewport } from './types';
+import { Direction, Position, Viewport } from 'src/main-game/types';
 
 // Later we can accept an image and draw that instead.
 export class PlayerView {

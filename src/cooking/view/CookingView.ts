@@ -1,4 +1,4 @@
-import { CustomerDisplayData } from '../types/CustomerDisplayData';
+import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
 
 export class CookingView {

@@ -1,12 +1,12 @@
 import Konva from 'konva';
-import { MapModel } from './MapModel';
-import { MapController } from './MapController';
-import { MapView } from './MapView';
-import { PlayerModel } from './PlayerModel';
-import { PlayerView } from './PlayerView';
-import { PlayerController } from './PlayerController';
-import { NPC, NPCFactory } from './NPC/NPC';
-import { Species } from '../common/types/Species';
+import { MapModel } from 'src/main-game/MapModel';
+import { MapController } from 'src/main-game/MapController';
+import { MapView } from 'src/main-game/MapView';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { PlayerView } from 'src/main-game/PlayerView';
+import { PlayerController } from 'src/main-game/PlayerController';
+import { NPC, NPCFactory } from 'src/main-game/NPC/NPC';
+import { Species } from 'src/common/types/Species';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {

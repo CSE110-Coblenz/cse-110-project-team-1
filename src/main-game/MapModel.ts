@@ -1,5 +1,5 @@
-import { MapConfig, Wall, Point, Position, Viewport } from './types';
-import { NPC } from './NPC/NPC';
+import { MapConfig, Wall, Point, Position, Viewport } from 'src/main-game/types';
+import { NPC } from 'src/main-game/NPC/NPC';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.

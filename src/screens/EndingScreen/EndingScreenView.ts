@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import type { Group } from 'konva/lib/Group';
-import type { View } from '../../types';
+import type { View } from 'src/types';
 
 export class EndingScreenView implements View {
 	private group: Group;

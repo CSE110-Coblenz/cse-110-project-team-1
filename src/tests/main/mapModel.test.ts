@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MapModel } from '../../main-game/MapModel';
+import { MapModel } from 'src/main-game/MapModel';
 
 describe('MapModel (rectangles)', () => {
 	it('isPointInsideWall returns true for points inside rectangle bbox and false otherwise', () => {

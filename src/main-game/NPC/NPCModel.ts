@@ -1,6 +1,6 @@
-import { Direction } from '../types';
-import { MapModel } from '../MapModel';
-import { PlayerModel } from '../PlayerModel';
+import { Direction } from 'src/main-game/types';
+import { MapModel } from 'src/main-game/MapModel';
+import { PlayerModel } from 'src/main-game/PlayerModel';
 
 export class NPCModel extends PlayerModel {
 	private is_alone = true;

@@ -1,7 +1,7 @@
-import { CookingModel } from '../model/CookingModel';
-import { Label } from '../model/Label';
-import { CookingView } from '../view/CookingView';
-import { Species } from '../../common/types/Species';
+import { CookingModel } from 'src/cooking/model/CookingModel';
+import { Label } from 'src/cooking/model/Label';
+import { CookingView } from 'src/cooking/view/CookingView';
+import { Species } from 'src/common/types/Species';
 
 export default class CookingController {
 	private model: CookingModel;

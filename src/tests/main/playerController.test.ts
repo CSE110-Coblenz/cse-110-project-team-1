@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { PlayerModel } from '../../main-game/PlayerModel';
-import { PlayerView } from '../../main-game/PlayerView';
-import { Species } from '../../common/types/Species';
-import { PlayerController } from '../../main-game/PlayerController';
-import { MapModel } from '../../main-game/MapModel';
-import { MapController } from '../../main-game/MapController';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { PlayerView } from 'src/main-game/PlayerView';
+import { Species } from 'src/common/types/Species';
+import { PlayerController } from 'src/main-game/PlayerController';
+import { MapModel } from 'src/main-game/MapModel';
+import { MapController } from 'src/main-game/MapController';
 
 describe('PlayerController (movement & collision)', () => {
 	it('moves when destination is clear and within bounds', () => {

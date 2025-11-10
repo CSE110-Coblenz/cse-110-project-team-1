@@ -1,4 +1,4 @@
-import { Species } from '../common/types/Species';
+import { Species } from 'src/common/types/Species';
 
 // Continuous-world types: walls are polygons in pixel coordinates.
 export interface Point {
