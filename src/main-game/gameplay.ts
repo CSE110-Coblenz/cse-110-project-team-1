@@ -5,6 +5,7 @@ import { MapView } from 'src/main-game/MapView';
 import { PlayerModel } from 'src/main-game/PlayerModel';
 import { PlayerView } from 'src/main-game/PlayerView';
 import { PlayerController } from 'src/main-game/PlayerController';
+import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
 import { NPC, NPCFactory } from 'src/main-game/NPC/NPC';
 import { Species } from 'src/common/types/Species';
 
