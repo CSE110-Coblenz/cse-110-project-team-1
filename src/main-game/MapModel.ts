@@ -1,5 +1,11 @@
 import { MapConfig, Wall, Point, Position, Viewport } from './types';
+
+import { EntityModel } from './EntityModel';
+
+import { PlayerModel } from './PlayerModel';
+
 import { NPC } from './NPC/NPC';
+import { NPCModel } from './NPC/NPCModel';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -11,6 +17,7 @@ export class MapModel {
 	private walls: Wall[] = [];
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
+	private entities: EntityModel[] = [];
 
 	// static defaults
 	public static DEFAULT_SPACING = 80;
@@ -104,8 +111,14 @@ export class MapModel {
 		this.walls = walls;
 	}
 
-	public setNCPs(npcs: NPC[]) {
+	public setMainPlayer(player_model: PlayerModel) {
+		this.entities.push(player_model);
+	}
+
+	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
+		// let entity_models = npcs.map(npc => npc.getModel());
+		// this.entities.concat(entity_models);
 	}
 
 	public getNPCs(): NPC[] {
@@ -182,5 +195,29 @@ export class MapModel {
 			if (px >= b.minX && px <= b.maxX && py >= b.minY && py <= b.maxY) return true;
 		}
 		return false;
+	}
+
+	public getEntitiesInArea(npc_model: NPCModel) {
+		const radius = npc_model.getPOVRadius();
+		const entitiesInArea: EntityModel[] = [];
+
+		let px: number = npc_model.getPosition().x;
+		let py: number = npc_model.getPosition().y;
+		let id: string = npc_model.getID();
+
+		for (const entity_model of this.entities) {
+			if (entity_model.getID() == id) {
+				//console.log("This is the NPC in question");
+				continue;
+			}
+			//console.log("It's a different nPC")
+			const dx = entity_model.getPosition().x - px;
+			const dy = entity_model.getPosition().y - py;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			if (distance <= radius) {
+				entitiesInArea.push(entity_model);
+			}
+		}
+		return entitiesInArea;
 	}
 }

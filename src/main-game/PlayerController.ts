@@ -104,7 +104,7 @@ export class PlayerController {
 		const ny = pos.y + dy;
 		const mapW = this.mapModel.getWidth();
 		const mapH = this.mapModel.getHeight();
-		const r = this.model.radius;
+		const r = this.model.getViewRadius();
 		// prevent moving so that the player circle goes out of world bounds
 		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
 
@@ -130,7 +130,7 @@ export class PlayerController {
 			viewport,
 			this.model.getPosition(),
 			this.model.getDirection(),
-			this.model.radius,
+			this.model.getViewRadius(),
 		);
 	}
 }

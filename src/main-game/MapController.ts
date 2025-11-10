@@ -59,7 +59,7 @@ export class MapController {
 				placedNPCs.push(spawn_position);
 			}
 		}
-		this.model.setNCPs(npcs);
+		this.model.setNPCs(npcs);
 		console.log('this.model.getNPCs(): ' + this.model.getNPCs());
 	}
 

@@ -57,7 +57,7 @@ export class NPCController {
 			viewport,
 			this.model.getPosition(),
 			this.model.getDirection(),
-			this.model.radius,
+			this.model.getViewRadius(),
 		);
 	}
 }

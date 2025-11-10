@@ -44,7 +44,8 @@ export enum Direction {
 
 export const DEFAULT_ATTRIBUTES = {
 	radius: 12,
-	speed: 500,
+	speed: 200,
 	health: 100,
+	damage: 20,
 	species: Species.TEST,
 };
