@@ -38,6 +38,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		width: window.innerWidth,
 		height: window.innerHeight,
 	});
+	// Create a single layer for all elements
 	const layer = new Konva.Layer();
 	stage.add(layer);
 
@@ -62,23 +63,39 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		map_controller,
 	);
 
-    // create and mount HUD (health/progress) to the same layer so it is
-    // drawn on top of the game
-    const gameHud = new GameScreenView();
-    layer.add(gameHud.getGroup());
+	// create HUD and add it to the layer
+	const gameHud = new GameScreenView(stage.width(), stage.height());
+	layer.add(gameHud.getGroup());
+	gameHud.show(); // Explicitly make sure HUD is visible
+	layer.draw(); // Force immediate draw
+
+	// respond to window resize: update stage and recompute HUD layout
+	const resizeHandler = () => {
+		try {
+			stage.width(window.innerWidth);
+			stage.height(window.innerHeight);
+			gameHud.resize(stage.width(), stage.height());
+			render();
+		} catch (e) {
+			// swallow
+		}
+	};
+	window.addEventListener('resize', resizeHandler);
 
 	function render() {
 		const vp = map_controller.getViewport();
 		const walls = map_controller.getVisibleWalls();
 		map_view.draw(layer, vp, walls);
 		playerController.draw(layer, vp);
-		// update HUD health from playerModel each frame
-		try {
-			gameHud.setHealth(playerModel.getHealth());
-		} catch (e) {
-			// ignore HUD update errors
-		}
 		map_controller.drawNPCs(layer, vp);
+		// Draw HUD last so it's always on top
+		try {
+			const health = playerModel.getHealth();
+			console.log('Setting HUD health:', health);
+			gameHud.setHealth(health);
+		} catch (e) {
+			console.error('HUD error:', e);
+		}
 		layer.batchDraw();
 	}
 
@@ -107,6 +124,12 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		if (animationInterval !== undefined) {
 			clearInterval(animationInterval);
 			animationInterval = undefined;
+		}
+		// remove resize listener
+		try {
+			window.removeEventListener('resize', resizeHandler);
+		} catch (e) {
+			/* ignore */
 		}
 		try {
 			stage.destroy();

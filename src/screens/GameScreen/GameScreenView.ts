@@ -7,113 +7,73 @@ import type { View } from 'src/types';
  * so controllers or external systems can update the HUD from the PlayerModel.
  */
 export class GameScreenView implements View {
-	private group: Group;
+  private group: Group;
 
-	// HUD elements
-	private healthBg: Konva.Rect;
-	private healthFill: Konva.Rect;
-	private healthLabel: Konva.Text;
+  // HUD elements
+  private healthBg: Konva.Rect;
+  private healthFill: Konva.Rect;
+  private healthLabel: Konva.Text;
 
-	private progressBg: Konva.Rect;
-	private progressFill: Konva.Rect;
-	private progressLabel: Konva.Text;
+  private progressBg: Konva.Rect;
+  private progressFill: Konva.Rect;
+  private progressLabel: Konva.Text;
 
-	// layout constants
-	private hudX = 20;
-	private hudY = 20;
-	private barW = 220;
-	private barH = 18;
+  // dynamic layout fields (updated on resize)
+  private stageWidth: number;
+  private stageHeight: number;
 
-	constructor() {
-		this.group = new Konva.Group();
+  private hudX = 20;
+  private hudY = 20;
+  private barW = 220;
+  private barH = 18;
 
-		const background = new Konva.Rect({
-			x: 0,
-			y: 0,
-			width: 800,
-			height: 600,
-			fill: '#002b36',
-			opacity: 0.9,
-		});
+  // keep current values so layout can reapply them
+  private currentHealth = 100;
+  private currentProgress = 0;
 
-		const label = new Konva.Text({
-			x: 120,
-			y: 120,
-			text: 'Game Screen',
-			fontSize: 36,
-			fill: '#ffffff',
-		});
+  constructor(stageWidth = 800, stageHeight = 600) {
+	this.group = new Konva.Group({
+		// Force the HUD to be on top
+		zIndex: 999
+	});
+	this.stageWidth = stageWidth;
+	this.stageHeight = stageHeight;
 
-		// Health bar
-		this.healthBg = new Konva.Rect({
-			x: this.hudX,
-			y: this.hudY,
-			width: this.barW,
-			height: this.barH,
-			fill: '#333',
-			cornerRadius: 6,
-		});
+	// Add a larger, more visible backdrop
+	const hudBackdrop = new Konva.Rect({
+	  x: 10,
+	  y: 10,
+	  width: 400,
+	  height: 150,
+	  fill: 'rgba(0,0,0,0.8)',
+	  cornerRadius: 8,
+	  stroke: '#ffffff',
+	  strokeWidth: 1,
+	});
+	
+	console.log('Creating HUD with size:', stageWidth, stageHeight);
 
-		this.healthFill = new Konva.Rect({
-			x: this.hudX,
-			y: this.hudY,
-			width: this.barW,
-			height: this.barH,
-			fill: '#e53935',
-			cornerRadius: 6,
-		});
+	// create HUD shapes with initial placeholder sizes; layout() will update
+	this.healthBg = new Konva.Rect({ x: 0, y: 0, width: 200, height: 30, fill: '#000000', cornerRadius: 6 });
+	this.healthFill = new Konva.Rect({ x: 0, y: 0, width: 200, height: 30, fill: '#ff0000', cornerRadius: 6 });
+	this.healthLabel = new Konva.Text({ x: 0, y: 0, text: `HP: 100%`, fontSize: 24, fill: '#ffffff', fontStyle: 'bold' });
 
-		this.healthLabel = new Konva.Text({
-			x: this.hudX + 8,
-			y: this.hudY - 2,
-			text: `HP: 100%`,
-			fontSize: 12,
-			fill: '#ffffff',
-		});
+	this.progressBg = new Konva.Rect({ x: 0, y: 0, width: 10, height: 10, fill: '#333', cornerRadius: 6 });
+	this.progressFill = new Konva.Rect({ x: 0, y: 0, width: 0, height: 10, fill: '#1e88e5', cornerRadius: 6 });
+	this.progressLabel = new Konva.Text({ x: 0, y: 0, text: `Progress: 0%`, fontSize: 12, fill: '#ffffff' });
 
-		// Progress bar (below health)
-		const progressY = this.hudY + this.barH + 12;
-		this.progressBg = new Konva.Rect({
-			x: this.hudX,
-			y: progressY,
-			width: this.barW,
-			height: 12,
-			fill: '#333',
-			cornerRadius: 6,
-		});
+	this.group.add(hudBackdrop);
+	this.group.add(this.healthBg);
+	this.group.add(this.healthFill);
+	this.group.add(this.healthLabel);
 
-		this.progressFill = new Konva.Rect({
-			x: this.hudX,
-			y: progressY,
-			width: 0,
-			height: 12,
-			fill: '#1e88e5',
-			cornerRadius: 6,
-		});
+	this.group.add(this.progressBg);
+	this.group.add(this.progressFill);
+	this.group.add(this.progressLabel);
 
-		this.progressLabel = new Konva.Text({
-			x: this.hudX + 8,
-			y: progressY - 2,
-			text: `Progress: 0%`,
-			fontSize: 12,
-			fill: '#ffffff',
-		});
-
-		this.group.add(background);
-		this.group.add(label);
-
-		this.group.add(this.healthBg);
-		this.group.add(this.healthFill);
-		this.group.add(this.healthLabel);
-
-		this.group.add(this.progressBg);
-		this.group.add(this.progressFill);
-		this.group.add(this.progressLabel);
-
-		// initialize
-		this.setHealth(100);
-		this.setProgress(0);
-	}
+	// compute initial layout using the provided stage size
+	this.resize(this.stageWidth, this.stageHeight);
+  }
 
 	getGroup(): Group {
 		return this.group;
@@ -127,21 +87,79 @@ export class GameScreenView implements View {
 		this.group.visible(false);
 	}
 
-	/** Set health as percentage 0..100 */
-	setHealth(pct: number): void {
-		const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-		const w = (clamped / 100) * this.barW;
-		this.healthFill.width(w);
-		this.healthLabel.text(`HP: ${clamped}%`);
-	}
+		/** Recompute HUD layout for a given stage width/height. */
+		resize(stageWidth: number, stageHeight: number): void {
+			this.stageWidth = stageWidth;
+			this.stageHeight = stageHeight;
 
-	/** Set progress as percentage 0..100 */
-	setProgress(pct: number): void {
-		const clamped = Math.max(0, Math.min(100, Math.round(pct)));
-		const w = (clamped / 100) * this.barW;
-		this.progressFill.width(w);
-		this.progressLabel.text(`Progress: ${clamped}%`);
-	}
+			// compute responsive sizes: margins and bar widths scale with stage size
+			const margin = Math.max(12, Math.round(this.stageWidth * 0.02));
+			this.hudX = margin;
+			this.hudY = margin;
+			this.barW = Math.max(120, Math.min(360, Math.round(this.stageWidth * 0.22)));
+			this.barH = Math.max(12, Math.round(this.stageHeight * 0.025));
+
+			// background should cover the stage (keep existing visual)
+			const bg = this.group.findOne('Rect');
+			if (bg && (bg as Konva.Rect).width) {
+				try {
+					(bg as Konva.Rect).width(this.stageWidth);
+					(bg as Konva.Rect).height(this.stageHeight);
+				} catch (e) {
+					// ignore
+				}
+			}
+
+			// position health
+			this.healthBg.x(this.hudX);
+			this.healthBg.y(this.hudY);
+			this.healthBg.width(this.barW);
+			this.healthBg.height(this.barH);
+
+			this.healthFill.x(this.hudX);
+			this.healthFill.y(this.hudY);
+			this.healthFill.height(this.barH);
+			// apply current health value to width
+			const healthW = (Math.max(0, Math.min(100, this.currentHealth)) / 100) * this.barW;
+			this.healthFill.width(healthW);
+
+			this.healthLabel.x(this.hudX + 8);
+			this.healthLabel.y(this.hudY - 2);
+
+			// progress below health
+			const progressY = this.hudY + this.barH + Math.round(this.barH * 0.6);
+			this.progressBg.x(this.hudX);
+			this.progressBg.y(progressY);
+			this.progressBg.width(this.barW);
+			this.progressBg.height(Math.max(10, Math.round(this.barH * 0.75)));
+
+			this.progressFill.x(this.hudX);
+			this.progressFill.y(progressY);
+			this.progressFill.height(Math.max(10, Math.round(this.barH * 0.75)));
+			const progressW = (Math.max(0, Math.min(100, this.currentProgress)) / 100) * this.barW;
+			this.progressFill.width(progressW);
+
+			this.progressLabel.x(this.hudX + 8);
+			this.progressLabel.y(progressY - 2);
+		}
+
+		/** Set health as percentage 0..100 */
+		setHealth(pct: number): void {
+			const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+			this.currentHealth = clamped;
+			const w = (clamped / 100) * this.barW;
+			this.healthFill.width(w);
+			this.healthLabel.text(`HP: ${clamped}%`);
+		}
+
+		/** Set progress as percentage 0..100 */
+		setProgress(pct: number): void {
+			const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+			this.currentProgress = clamped;
+			const w = (clamped / 100) * this.barW;
+			this.progressFill.width(w);
+			this.progressLabel.text(`Progress: ${clamped}%`);
+		}
 }
 
 export default GameScreenView;
