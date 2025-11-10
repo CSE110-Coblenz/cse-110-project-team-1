@@ -41,4 +41,20 @@ export class GameScreenController extends ScreenController {
 	getView(): GameScreenView {
 		return this.view;
 	}
+
+	/**
+	 * External systems can call this to update the HUD health value (0..100).
+	 */
+	setHealth(pct: number): void {
+		this.view.setHealth(pct);
+		if (this.layer) this.layer.batchDraw();
+	}
+
+	/**
+	 * External systems can call this to update the HUD progress value (0..100).
+	 */
+	setProgress(pct: number): void {
+		this.view.setProgress(pct);
+		if (this.layer) this.layer.batchDraw();
+	}
 }

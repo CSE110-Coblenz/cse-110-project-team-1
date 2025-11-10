@@ -62,11 +62,22 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		map_controller,
 	);
 
+    // create and mount HUD (health/progress) to the same layer so it is
+    // drawn on top of the game
+    const gameHud = new GameScreenView();
+    layer.add(gameHud.getGroup());
+
 	function render() {
 		const vp = map_controller.getViewport();
 		const walls = map_controller.getVisibleWalls();
 		map_view.draw(layer, vp, walls);
 		playerController.draw(layer, vp);
+		// update HUD health from playerModel each frame
+		try {
+			gameHud.setHealth(playerModel.getHealth());
+		} catch (e) {
+			// ignore HUD update errors
+		}
 		map_controller.drawNPCs(layer, vp);
 		layer.batchDraw();
 	}
