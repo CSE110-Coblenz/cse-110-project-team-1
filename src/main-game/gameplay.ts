@@ -104,7 +104,36 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 			}
 		});
 
+		console.log('Viewport state:', {
+			viewport: vp,
+			layerOffset: {
+				x: gameLayer.x(),
+				y: gameLayer.y()
+			}
+		});
+
 		const walls = map_controller.getVisibleWalls();
+		map_view.draw(gameLayer, vp, walls);
+		playerController.draw(gameLayer, vp);
+		map_controller.drawNPCs(gameLayer, vp);
+
+		console.log('MapView transforms:', {
+			x: gameLayer.x(),
+			y: gameLayer.y(),
+			scale: gameLayer.scale(),
+			offset: gameLayer.offset()
+		});
+
+		// Update HUD on UI layer (no viewport offset needed)
+		try {
+			const health = playerModel.getHealth();
+			console.log('Setting HUD health:', health);
+			gameHud.setHealth(health);
+			uiLayer.batchDraw();
+		} catch (e) {
+			console.error('HUD error:', e);
+		}
+		gameLayer.batchDraw();
 		map_view.draw(gameLayer, vp, walls);
 		playerController.draw(gameLayer, vp);
 		map_controller.drawNPCs(gameLayer, vp);
@@ -153,6 +182,12 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		if (animationInterval !== undefined) {
 			clearInterval(animationInterval);
 			animationInterval = undefined;
+		}
+		// remove resize listener
+		try {
+			window.removeEventListener('resize', resizeHandler);
+		} catch (e) {
+			/* ignore */
 		}
 		// remove resize listener
 		try {

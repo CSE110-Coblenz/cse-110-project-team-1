@@ -1,8 +1,13 @@
 // src/views/GameScreenView.ts
+// src/views/GameScreenView.ts
 import Konva from 'konva';
 import type { Group } from 'konva/lib/Group';
 import type { View } from 'src/types';
 /**
+ * GameScreenView: draws the main game HUD (health + progress).
+ * Provides `setHealth` and `setProgress` for external updates.
+ *
+ * The HUD has a semi-transparent background panel that auto-resizes with the HUD.
  * GameScreenView: draws the main game HUD (health + progress).
  * Provides `setHealth` and `setProgress` for external updates.
  *
@@ -88,7 +93,6 @@ export class GameScreenView implements View {
   getGroup(): Group {
     return this.group;
   }
-
   show(): void {
     this.group.visible(true);
   }
