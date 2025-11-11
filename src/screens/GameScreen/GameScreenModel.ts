@@ -1,11 +1,9 @@
 export class GameScreenModel {
-
 	constructor() {
 		this.reset();
 	}
 
-	reset(): void {
-	}
+	reset(): void {}
 }
 
 export default GameScreenModel;

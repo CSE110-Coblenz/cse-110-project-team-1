@@ -46,8 +46,12 @@ function showMainMenu() {
         app.appendChild(next);
     });
 
-    const mini1 = createButton('MiniGame A (placeholder)', () => alert('MiniGame A not implemented'));
-    const mini2 = createButton('MiniGame B (placeholder)', () => alert('MiniGame B not implemented'));
+    const mini1 = createButton('MiniGame A (placeholder)', () =>
+        alert('MiniGame A not implemented'),
+    );
+    const mini2 = createButton('MiniGame B (placeholder)', () =>
+        alert('MiniGame B not implemented'),
+    );
 
     app.appendChild(playBtn);
     // quick access to the new game-engine flow (future primary option)

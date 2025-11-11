@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { Group } from "konva/lib/Group";
-import type { View } from "../../types";
+import Konva from 'konva';
+import type { Group } from 'konva/lib/Group';
+import type { View } from 'src/types';
 /**
  * Minimal GameScreenView implementing the project's `View` interface.
  * This is intentionally lightweight: it exposes a Konva.Group and a few
@@ -8,7 +8,6 @@ import type { View } from "../../types";
  */
 export class GameScreenView implements View {
 	private group: Group;
-	
 
 	constructor() {
 		this.group = new Konva.Group();
@@ -18,16 +17,16 @@ export class GameScreenView implements View {
 			y: 0,
 			width: 800,
 			height: 600,
-			fill: "#002b36",
+			fill: '#002b36',
 			opacity: 0.9,
 		});
 
 		const label = new Konva.Text({
 			x: 120,
 			y: 120,
-			text: "Game Screen Placeholder",
+			text: 'Game Screen Placeholder',
 			fontSize: 36,
-			fill: "#ffffff",
+			fill: '#ffffff',
 		});
 
 		this.group.add(background);
@@ -45,7 +44,6 @@ export class GameScreenView implements View {
 	hide(): void {
 		this.group.visible(false);
 	}
-
 }
 
 export default GameScreenView;

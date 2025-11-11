@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { Group } from "konva/lib/Group";
-import type { View } from "../../types";
+import Konva from 'konva';
+import type { Group } from 'konva/lib/Group';
+import type { View } from 'src/types';
 
 type IntroScreenOptions = {
   onContinue: () => void;
@@ -42,17 +42,17 @@ export class IntroScreenView implements View {
     const title = new Konva.Text({
       x: 120,
       y: 120,
-      text: "Welcome to the Tutorial",
+      text: 'Welcome to the Tutorial',
       fontSize: 36,
-      fill: "#ffffff",
+      fill: '#ffffff',
     });
 
     const instructions = new Konva.Text({
       x: 120,
       y: 200,
-      text: "Quick overview of the gameplay goes here.",
+      text: 'Quick overview of the gameplay goes here.',
       fontSize: 24,
-      fill: "#dddddd",
+      fill: '#dddddd',
     });
 
     const continueButton = new Konva.Rect({
@@ -61,21 +61,21 @@ export class IntroScreenView implements View {
       width: 260,
       height: 60,
       cornerRadius: 8,
-      fill: "#4caf50",
+      fill: '#4caf50',
     });
 
     const continueLabel = new Konva.Text({
       x: 120,
       y: 340,
       width: 260,
-      align: "center",
-      text: "Start Game",
+      align: 'center',
+      text: 'Start Game',
       fontSize: 24,
-      fill: "#ffffff",
+      fill: '#ffffff',
     });
 
-    continueButton.on("click tap", () => this.onContinue());
-    continueLabel.on("click tap", () => this.onContinue());
+    continueButton.on('click tap', () => this.onContinue());
+    continueLabel.on('click tap', () => this.onContinue());
 
     this.group.add(backdrop);
     this.group.add(title);

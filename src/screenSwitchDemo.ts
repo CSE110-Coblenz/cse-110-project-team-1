@@ -1,6 +1,6 @@
-import Konva from "konva";
-import ScreenManager from "./screens/ScreenManager";
-import type { Screen } from "./types";
+import Konva from 'konva';
+import ScreenManager from 'src/screens/ScreenManager';
+import type { Screen } from 'src/types';
 
 const stage = new Konva.Stage({
   container: "container",
@@ -12,9 +12,9 @@ const layer = new Konva.Layer();
 stage.add(layer);
 
 const screenManager = new ScreenManager(layer);
-screenManager.switchToScreen({ type: "intro" });
+screenManager.switchToScreen({ type: 'intro' });
 
-const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-screen]");
+const buttons = document.querySelectorAll<HTMLButtonElement>('button[data-screen]');
 
 buttons.forEach((button) => {
   button.addEventListener("click", () => {

@@ -1,5 +1,5 @@
-import type { Group } from "konva/lib/Group";
-import type { Layer } from "konva/lib/Layer";
+import type { Group } from 'konva/lib/Group';
+import type { Layer } from 'konva/lib/Layer';
 
 export interface View {
 	getGroup(): Group;

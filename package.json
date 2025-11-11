@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "cse-110-project-team-1",
   "version": "1.0.0",
   "description": "Copyright (c) <year> <copyright holders>",
@@ -24,6 +25,8 @@
     "konva": "^10.0.8"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
     "@vitest/ui": "^4.0.3",
     "eslint": "^9.38.0",
     "jsdom": "^27.1.0",

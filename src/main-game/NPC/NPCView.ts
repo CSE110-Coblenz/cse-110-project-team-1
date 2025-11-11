@@ -1,11 +1,8 @@
-import { PlayerView } from '../PlayerView';
+import { PlayerView } from 'src/main-game/PlayerView';
 
-
-export class NPCView extends PlayerView{
-
-  constructor(color: string = '#ffcc00') {
-    super();
-    this.color = "#ff0000"
-  }
-
+export class NPCView extends PlayerView {
+	constructor(color: string = '#ffcc00') {
+		super();
+		this.color = '#ff0000';
+	}
 }
