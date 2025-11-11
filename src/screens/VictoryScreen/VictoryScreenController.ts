@@ -1,7 +1,7 @@
-import { ScreenController } from "../../types";
-import type { ScreenSwitcher } from "../../types";
-import type { Layer } from "konva/lib/Layer";
-import { VictoryScreenView } from "./VictoryScreenView";
+import { ScreenController } from 'src/types';
+import type { ScreenSwitcher } from 'src/types';
+import type { Layer } from 'konva/lib/Layer';
+import { VictoryScreenView } from 'src/screens/VictoryScreen/VictoryScreenView';
 
 export class VictoryScreenController extends ScreenController {
     private view: VictoryScreenView;
@@ -12,7 +12,7 @@ export class VictoryScreenController extends ScreenController {
         super();
         this.screenSwitcher = screenSwitcher;
         this.view = new VictoryScreenView(score, {
-            onPlayAgain: () => this.screenSwitcher.switchToScreen({ type: "menu" }),
+            onPlayAgain: () => this.screenSwitcher.switchToScreen({ type: 'menu' }),
         });
     }
 

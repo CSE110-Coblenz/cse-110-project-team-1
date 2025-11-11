@@ -1,5 +1,5 @@
-import { startGame, GameHandle } from './main-game/gameplay';
-import { Game } from './game-engine';
+import { startGame, GameHandle } from 'src/main-game/gameplay';
+import { Game } from 'src/game-engine';
 
 // Simple single-page main menu
 const app = document.getElementById('app') || document.body;

@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { Group } from "konva/lib/Group";
-import type { View } from "../../types";
+import Konva from 'konva';
+import type { Group } from 'konva/lib/Group';
+import type { View } from 'src/types';
 
 export class VictoryScreenView implements View {
     private group: Group;
@@ -12,7 +12,7 @@ export class VictoryScreenView implements View {
         this.group = new Konva.Group();
 
         const img = new Image();
-        img.src = "victory_bg.png";
+        img.src = 'victory_bg.png';
         const bg = new Konva.Image({
             x: 0,
             y: 0,
@@ -29,25 +29,25 @@ export class VictoryScreenView implements View {
         };
 
         this.title = new Konva.Text({
-            x: window.innerWidth * 0.95 / 2,
+            x: (window.innerWidth * 0.95) / 2,
             y: 100,
             text: `Congratulations! You've Survived!`,
             fontSize: 48,
-            fill: "black",
-            align: "center",
-            fontFamily: "bold",
+            fill: 'black',
+            align: 'center',
+            fontFamily: 'bold',
         });
         this.title.offsetX(this.title.width() / 2);
 
         // play again button (view positions and renders it)
-        const centerX = window.innerWidth * 0.95 / 2;
+        const centerX = (window.innerWidth * 0.95) / 2;
         this.playAgainButton = new Konva.Rect({
             x: centerX,
             y: 220,
             width: 240,
             height: 56,
             cornerRadius: 8,
-            fill: "#1976d2",
+            fill: '#1976d2',
         });
         this.playAgainButton.offsetX(this.playAgainButton.width() / 2);
 
@@ -55,17 +55,20 @@ export class VictoryScreenView implements View {
             x: centerX,
             y: 236,
             width: 240,
-            align: "center",
-            text: "Play Again",
+            align: 'center',
+            text: 'Play Again',
             fontSize: 24,
-            fill: "#ffffff",
+            fill: '#ffffff',
         });
         this.playAgainLabel.offsetX(this.playAgainLabel.width() / 2);
 
         // If an onPlayAgain handler is provided, wire the button to call it.
         if (options?.onPlayAgain) {
-            this.playAgainButton.on("click tap", () => options.onPlayAgain && options.onPlayAgain());
-            this.playAgainLabel.on("click tap", () => options.onPlayAgain && options.onPlayAgain());
+            this.playAgainButton.on(
+                'click tap',
+                () => options.onPlayAgain && options.onPlayAgain(),
+            );
+            this.playAgainLabel.on('click tap', () => options.onPlayAgain && options.onPlayAgain());
         }
 
         this.group.add(bg);
@@ -81,13 +84,13 @@ export class VictoryScreenView implements View {
     setOnPlayAgain(handler: () => void) {
         // remove any previous listeners to avoid duplicates
         try {
-            this.playAgainButton.off("click tap");
-            this.playAgainLabel.off("click tap");
+            this.playAgainButton.off('click tap');
+            this.playAgainLabel.off('click tap');
         } catch (e) {
             // ignore if not yet attached
         }
-        this.playAgainButton.on("click tap", handler);
-        this.playAgainLabel.on("click tap", handler);
+        this.playAgainButton.on('click tap', handler);
+        this.playAgainLabel.on('click tap', handler);
     }
 
     getGroup(): Group {

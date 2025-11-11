@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { GameScene } from './GameScene';
+import { GameScene } from 'src/main-game/GameScene';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
@@ -26,7 +26,11 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 
     function stop() {
         scene.stop();
-        try { stage.destroy(); } catch (e) { /* ignore */ }
+        try {
+            stage.destroy();
+        } catch (e) {
+            /* ignore */
+        }
         if (div.parentElement) div.parentElement.removeChild(div);
     }
 

@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { Group } from "konva/lib/Group";
-import type { View } from "../../types";
+import Konva from 'konva';
+import type { Group } from 'konva/lib/Group';
+import type { View } from 'src/types';
 
 type MenuScreenOptions = {
   onStart: () => void;
@@ -16,7 +16,7 @@ export class MenuScreenView implements View {
 
     // background image (title screen)
     const bgImgEl = new Image();
-    bgImgEl.src = "background.png";
+    bgImgEl.src = 'background.png';
     const bg = new Konva.Image({
       x: 0,
       y: 0,
@@ -34,15 +34,15 @@ export class MenuScreenView implements View {
       }
     };
 
-    const centerX = window.innerWidth * 0.95 / 2;
+    const centerX = (window.innerWidth * 0.95) / 2;
     const label = new Konva.Text({
       x: centerX,
       y: 100,
-      text: "An Oddesy of Change",
+      text: 'An Oddesy of Change',
       fontSize: 64,
-      fill: "blue",
-      align: "center",
-      fontFamily: "bold",
+      fill: 'blue',
+      align: 'center',
+      fontFamily: 'bold',
     });
     // center the label so x,y is its center
     label.offsetX(label.width() / 2);
@@ -54,7 +54,7 @@ export class MenuScreenView implements View {
       width: 240,
       height: 56,
       cornerRadius: 8,
-      fill: "#1976d2",
+      fill: '#1976d2',
     });
     startBtn.offsetX(startBtn.width() / 2);
 
@@ -62,15 +62,15 @@ export class MenuScreenView implements View {
       x: centerX,
       y: 236,
       width: 240,
-      align: "center",
-      text: "Start",
+      align: 'center',
+      text: 'Start',
       fontSize: 28,
-      fill: "#fff",
+      fill: '#fff',
     });
     startLabel.offsetX(startLabel.width() / 2);
 
-    startBtn.on("click tap", () => this.onStart());
-    startLabel.on("click tap", () => this.onStart());
+    startBtn.on('click tap', () => this.onStart());
+    startLabel.on('click tap', () => this.onStart());
 
     this.group.add(bg);
     this.group.add(label);

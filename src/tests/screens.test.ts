@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { MenuScreenController } from '../screens/MenuScreen/MenuScreenController';
-import { VictoryScreenController } from '../screens/VictoryScreen/VictoryScreenController';
-import { DeathScreenController } from '../screens/DeathScreen/DeathScreenController';
+import { MenuScreenController } from 'src/screens/MenuScreen/MenuScreenController';
+import { VictoryScreenController } from 'src/screens/VictoryScreen/VictoryScreenController';
+import { DeathScreenController } from 'src/screens/DeathScreen/DeathScreenController';
 
 describe('Screen controllers (simplified behavior tests)', () => {
     it('MenuScreenController triggers intro on Start', () => {

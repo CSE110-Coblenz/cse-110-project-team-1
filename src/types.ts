@@ -17,14 +17,14 @@ export interface View {
  * - "result": Results screen with final score (score: number)
  */
 export type Screen =
-	| { type: "menu" }
-	| { type: "intro" }
-	| { type: "game" }
-	| { type: "cooking" }
-	| { type: "defeat" }
-	| { type: "ending" }
-	| { type: "victory"; score?: number }
-	| { type: "death"; score?: number };
+	| { type: 'menu' }
+	| { type: 'intro' }
+	| { type: 'game' }
+	| { type: 'cooking' }
+	| { type: 'defeat' }
+	| { type: 'ending' }
+	| { type: 'victory'; score?: number }
+	| { type: 'death'; score?: number };
 
 export abstract class ScreenController {
 	abstract getView(): View;

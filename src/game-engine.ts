@@ -1,13 +1,13 @@
-import Konva from "konva";
-import ScreenManager from "./screens/ScreenManager";
+import Konva from 'konva';
+import ScreenManager from 'src/screens/ScreenManager';
 
-type difficulty = "easy" | "medium" | "hard";
-type ecosystem = "forest" | "desert" | "ocean";
+type difficulty = 'easy' | 'medium' | 'hard';
+type ecosystem = 'forest' | 'desert' | 'ocean';
 function loadAnimalsForEcosystem(ecosystem: ecosystem): string[] {
     const animalDatabase: { [key in ecosystem]: string[] } = {
-        forest: ["deer", "fox", "bear"],
-        desert: ["camel", "scorpion", "lizard"],
-        ocean: ["fish", "shark", "dolphin"],
+        forest: ['deer', 'fox', 'bear'],
+        desert: ['camel', 'scorpion', 'lizard'],
+        ocean: ['fish', 'shark', 'dolphin'],
     };
     return animalDatabase[ecosystem];
 }
@@ -16,11 +16,11 @@ export class Game {
     screenManager: ScreenManager;
 
     constructor(num_organisms: number, difficulty_level: difficulty, ecosystem: ecosystem) {
-        console.log("Game initialized");
-        const width = window.innerWidth * 0.95
-        const height = window.innerHeight * 0.95
+        console.log('Game initialized');
+        const width = window.innerWidth * 0.95;
+        const height = window.innerHeight * 0.95;
         const stage = new Konva.Stage({
-            container: "container",
+            container: 'container',
             width: width,
             height: height,
         });
@@ -33,12 +33,11 @@ export class Game {
     }
 
     start(num_organisms: number, difficulty_level: difficulty, ecosystem: ecosystem) {
-        console.log("Game started");
+        console.log('Game started');
         const levels = num_organisms;
         const animals = loadAnimalsForEcosystem(ecosystem);
 
         this.runGameLoop(this.screenManager);
-
     }
     /* 
     ===Standard Game Loop Definition===
@@ -63,21 +62,21 @@ export class Game {
         - Return to Main Menu
     */
     runGameLoop(screenManager: ScreenManager) {
-        console.log("Game loop running");
-        screenManager.switchToScreen({ type: "menu" });
+        console.log('Game loop running');
+        screenManager.switchToScreen({ type: 'menu' });
     }
 
     victory() {
-        console.log("Player has won the game!");
-        this.screenManager.switchToScreen({ type: "victory" });
+        console.log('Player has won the game!');
+        this.screenManager.switchToScreen({ type: 'victory' });
     }
 
     gameOver() {
-        console.log("Game Over!");
-        this.screenManager.switchToScreen({ type: "death" });
+        console.log('Game Over!');
+        this.screenManager.switchToScreen({ type: 'death' });
     }
 
     end() {
-        console.log("Game ended");
+        console.log('Game ended');
     }
 }

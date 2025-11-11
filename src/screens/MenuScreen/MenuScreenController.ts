@@ -1,7 +1,7 @@
-import { ScreenController } from "../../types";
-import type { ScreenSwitcher } from "../../types";
-import { MenuScreenView } from "./MenuScreenView";
-import type { Layer } from "konva/lib/Layer";
+import { ScreenController } from 'src/types';
+import type { ScreenSwitcher } from 'src/types';
+import { MenuScreenView } from 'src/screens/MenuScreen/MenuScreenView';
+import type { Layer } from 'konva/lib/Layer';
 
 export class MenuScreenController extends ScreenController {
   private view: MenuScreenView;
@@ -12,7 +12,7 @@ export class MenuScreenController extends ScreenController {
     super();
     this.screenSwitcher = screenSwitcher;
     this.view = new MenuScreenView({
-      onStart: () => this.screenSwitcher.switchToScreen({ type: "intro" }),
+      onStart: () => this.screenSwitcher.switchToScreen({ type: 'intro' }),
     });
   }
 

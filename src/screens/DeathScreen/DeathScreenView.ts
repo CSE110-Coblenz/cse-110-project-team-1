@@ -1,6 +1,6 @@
-import Konva from "konva";
-import type { Group } from "konva/lib/Group";
-import type { View } from "../../types";
+import Konva from 'konva';
+import type { Group } from 'konva/lib/Group';
+import type { View } from 'src/types';
 
 export class DeathScreenView implements View {
     private group: Group;
@@ -12,7 +12,7 @@ export class DeathScreenView implements View {
         this.group = new Konva.Group();
 
         const img = new Image();
-        img.src = "loss_background.png";
+        img.src = 'loss_background.png';
         const bg = new Konva.Image({
             x: 0,
             y: 0,
@@ -29,25 +29,25 @@ export class DeathScreenView implements View {
         };
 
         this.label = new Konva.Text({
-            x: window.innerWidth * 0.95 / 2,
+            x: (window.innerWidth * 0.95) / 2,
             y: 100,
             text: `GAME OVER`,
             fontSize: 48,
-            fill: "red",
-            align: "center",
-            fontFamily: "bold",
+            fill: 'red',
+            align: 'center',
+            fontFamily: 'bold',
         });
         this.label.offsetX(this.label.width() / 2);
 
         // play again button
-        const centerX = window.innerWidth * 0.95 / 2;
+        const centerX = (window.innerWidth * 0.95) / 2;
         this.playAgainButton = new Konva.Rect({
             x: centerX,
             y: 220,
             width: 240,
             height: 56,
             cornerRadius: 8,
-            fill: "#d32f2f",
+            fill: '#d32f2f',
         });
         this.playAgainButton.offsetX(this.playAgainButton.width() / 2);
 
@@ -55,16 +55,19 @@ export class DeathScreenView implements View {
             x: centerX,
             y: 236,
             width: 240,
-            align: "center",
-            text: "Play Again",
+            align: 'center',
+            text: 'Play Again',
             fontSize: 24,
-            fill: "#ffffff",
+            fill: '#ffffff',
         });
         this.playAgainLabel.offsetX(this.playAgainLabel.width() / 2);
 
         if (options?.onPlayAgain) {
-            this.playAgainButton.on("click tap", () => options.onPlayAgain && options.onPlayAgain());
-            this.playAgainLabel.on("click tap", () => options.onPlayAgain && options.onPlayAgain());
+            this.playAgainButton.on(
+                'click tap',
+                () => options.onPlayAgain && options.onPlayAgain(),
+            );
+            this.playAgainLabel.on('click tap', () => options.onPlayAgain && options.onPlayAgain());
         }
 
         this.group.add(bg);

@@ -1,12 +1,12 @@
 import Konva from 'konva';
-import { MapModel } from './MapModel';
-import { MapController } from './MapController';
-import { MapView } from './MapView';
-import { PlayerModel } from './PlayerModel';
-import { PlayerView } from './PlayerView';
-import { PlayerController } from './PlayerController';
-import { NPCFactory } from './NPC/NPC';
-import { Species } from '../common/types/Species';
+import { MapModel } from 'src/main-game/MapModel';
+import { MapController } from 'src/main-game/MapController';
+import { MapView } from 'src/main-game/MapView';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { PlayerView } from 'src/main-game/PlayerView';
+import { PlayerController } from 'src/main-game/PlayerController';
+import { NPCFactory } from 'src/main-game/NPC/NPC';
+import { Species } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
 
 export type GameSceneOptions = {
@@ -52,18 +52,31 @@ export class GameScene {
 
         // determine viewport size from layer's stage if available
         const stage = this.layer.getStage();
-        const vpW = window.innerWidth || document.documentElement.clientWidth ||
-            document.body.clientWidth;
-        const vpH = window.innerHeight || document.documentElement.clientHeight ||
+        const vpW =
+            window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const vpH =
+            window.innerHeight ||
+            document.documentElement.clientHeight ||
             document.body.clientHeight;
-
 
         this.mapController = new MapController(this.mapModel, vpW, vpH);
         this.mapView = new MapView();
 
-        this.playerModel = new PlayerModel(Math.floor(this.mapModel.getWidth() / 2), Math.floor(this.mapModel.getHeight() / 2), 12, 800, 100, Species.ANTEATER);
+        this.playerModel = new PlayerModel(
+            Math.floor(this.mapModel.getWidth() / 2),
+            Math.floor(this.mapModel.getHeight() / 2),
+            12,
+            800,
+            100,
+            Species.ANTEATER,
+        );
         this.playerView = new PlayerView();
-        this.playerController = new PlayerController(this.playerModel, this.playerView, this.mapModel, this.mapController);
+        this.playerController = new PlayerController(
+            this.playerModel,
+            this.playerView,
+            this.mapModel,
+            this.mapController,
+        );
 
         // place NPCs
         const npcCount = options.npcCount ?? 150;
