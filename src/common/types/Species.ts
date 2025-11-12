@@ -50,6 +50,12 @@ const RODENTS = [Species.MOUSE, Species.SQUIRREL];
 const UNGULATES = [Species.BISON, Species.DEER, Species.ELK, Species.MOOSE];
 const BIRDS = [Species.ROBIN, Species.SPARROW];
 
+export interface SpeciesAttributes {
+	damage: number;
+	speed: number;
+	health: number;
+}
+
 export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
 
 export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS];
@@ -110,6 +116,32 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[Species.COUGAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
+]);
+
+export interface SpeciesAttributes {
+	damage: number;
+	speed: number;
+	health: number;
+}
+
+function makeAttributesForGroup(
+	speciesList: Species[],
+	attrs: SpeciesAttributes,
+): [Species, SpeciesAttributes][] {
+	return speciesList.map((s) => [s, attrs]);
+}
+
+export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
+	// Producers
+	...makeAttributesForGroup(PRODUCERS, { damage: 0, speed: 0, health: 50 }),
+	// Primary Consumers
+	...makeAttributesForGroup(PRIMARY_CONSUMERS, { damage: 10, speed: 50, health: 50 }),
+	// Secondary Consumers
+	...makeAttributesForGroup(SECONDARY_CONSUMERS, { damage: 20, speed: 30, health: 80 }),
+	// Tertiary Consumers
+	...makeAttributesForGroup(TERTIARY_CONSUMERS, { damage: 30, speed: 30, health: 80 }),
+	// Apex Predators
+	...makeAttributesForGroup(APEX_PREDATORS, { damage: 30, speed: 30, health: 80 }),
 ]);
 
 export const ALL_SPECIES = Object.values(Species);
