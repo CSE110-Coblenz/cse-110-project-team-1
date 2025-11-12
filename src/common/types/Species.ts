@@ -30,8 +30,8 @@ export enum Species {
 	SPARROW = 'Sparrow', // eats bugs, grass
 	SKUNK = 'Skunk', // eats rodents, grasshopper
 	RACCOON = 'Raccoon', // eats rodents, insects, eaten by cougar, wolf, bear, eagle
-	PORCUPINE = 'Porcupine', // eats grass, leaves, eaten by cougar, lynx,
-	SNAKE = 'Snake', // eats rodents
+	WEASEL = 'Weasel', // eats grass, leaves, eaten by cougar, lynx,
+	GARTER_SNAKE = 'GarterSnake', // eats rodents
 
 	// Tertiary Consumers
 	FOX = 'Fox', // eats snake, rabbits, squirrel,
@@ -50,6 +50,12 @@ const RODENTS = [Species.MOUSE, Species.SQUIRREL];
 const UNGULATES = [Species.BISON, Species.DEER, Species.ELK, Species.MOOSE];
 const BIRDS = [Species.ROBIN, Species.SPARROW];
 
+export interface SpeciesAttributes {
+	damage: number;
+	speed: number;
+	health: number;
+}
+
 export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
 
 export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS];
@@ -58,8 +64,8 @@ export const SECONDARY_CONSUMERS = [
 	...BIRDS,
 	Species.SKUNK,
 	Species.RACCOON,
-	Species.PORCUPINE,
-	Species.SNAKE,
+	Species.WEASEL,
+	Species.GARTER_SNAKE,
 ];
 
 export const TERTIARY_CONSUMERS = [Species.FOX, Species.COYOTE, Species.LYNX];
@@ -77,26 +83,32 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	// -------- Level 1 - Primary Consumers
 
 	[Species.RABBIT, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	// Ungulates
 	[Species.DEER, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.ELK, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.MOOSE, { prey: PRODUCERS, predators: APEX_PREDATORS }],
+	// Insects
 	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
-	[Species.MOUSE, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	[Species.ANT, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
+	// Rodents
+	[Species.MOUSE, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	[Species.SQUIRREL, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 
 	// -------- Level 2 - Secondary Consumers
 
-	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: SECONDARY_CONSUMERS }],
-	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: SECONDARY_CONSUMERS }],
-	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: SECONDARY_CONSUMERS }],
-	[Species.PORCUPINE, { prey: [...INSECTS, ...RODENTS], predators: SECONDARY_CONSUMERS }],
-	[Species.SNAKE, { prey: RODENTS, predators: SECONDARY_CONSUMERS }],
+	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
+	// birds
+	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
+	[Species.SPARROW, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 
 	// -------- Level 3 - Tertiary Consumers
 
-	[Species.FOX, { prey: SECONDARY_CONSUMERS, predators: APEX_PREDATORS }],
-	[Species.COYOTE, { prey: SECONDARY_CONSUMERS, predators: APEX_PREDATORS }],
-	[Species.LYNX, { prey: SECONDARY_CONSUMERS, predators: APEX_PREDATORS }],
+	[Species.FOX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
+	[Species.COYOTE, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
+	[Species.LYNX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
 
 	// -------- Level 4 - Apex Predators
 
@@ -104,6 +116,32 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[Species.COUGAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
+]);
+
+export interface SpeciesAttributes {
+	damage: number;
+	speed: number;
+	health: number;
+}
+
+function makeAttributesForGroup(
+	speciesList: Species[],
+	attrs: SpeciesAttributes,
+): [Species, SpeciesAttributes][] {
+	return speciesList.map((s) => [s, attrs]);
+}
+
+export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
+	// Producers
+	...makeAttributesForGroup(PRODUCERS, { damage: 0, speed: 0, health: 50 }),
+	// Primary Consumers
+	...makeAttributesForGroup(PRIMARY_CONSUMERS, { damage: 10, speed: 50, health: 50 }),
+	// Secondary Consumers
+	...makeAttributesForGroup(SECONDARY_CONSUMERS, { damage: 20, speed: 30, health: 80 }),
+	// Tertiary Consumers
+	...makeAttributesForGroup(TERTIARY_CONSUMERS, { damage: 30, speed: 30, health: 80 }),
+	// Apex Predators
+	...makeAttributesForGroup(APEX_PREDATORS, { damage: 30, speed: 30, health: 80 }),
 ]);
 
 export const ALL_SPECIES = Object.values(Species);
