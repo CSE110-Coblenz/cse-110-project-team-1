@@ -8,6 +8,7 @@ import { PlayerController } from 'src/main-game/PlayerController';
 import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
 import { NPC, NPCFactory } from 'src/main-game/NPC/NPC';
 import { Species } from 'src/common/types/Species';
+import { GameScene } from 'src/main-game/GameScene';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
@@ -15,19 +16,6 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-	const worldWidth = Math.max(800, window.innerWidth * 5);
-	const worldHeight = Math.max(600, window.innerHeight * 5);
-	const config = {
-		width: worldWidth,
-		height: worldHeight,
-		spacing: 120,
-		wallCount: 2500,
-		wallMinWidth: 80,
-		wallMaxWidth: 160,
-	};
-
-	const map_model = new MapModel(config);
-
 	const div = document.createElement('div');
 	div.id = 'main-game-konva-container';
 	div.style.width = '100%';
@@ -195,6 +183,11 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		} catch (e) {
 			/* ignore */
 		}
+	const scene = new GameScene(layer);
+	scene.start();
+
+	function stop() {
+		scene.stop();
 		try {
 			stage.destroy();
 		} catch (e) {

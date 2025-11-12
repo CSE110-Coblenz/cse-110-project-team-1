@@ -1,22 +1,22 @@
 import { ScreenController } from 'src/types';
 import type { ScreenSwitcher } from 'src/types';
-import { MenuScreenView } from 'src/screens/MenuScreen/MenuScreenView';
 import type { Layer } from 'konva/lib/Layer';
+import { DeathScreenView } from 'src/screens/DeathScreen/DeathScreenView';
 
-export class MenuScreenController extends ScreenController {
-	private view: MenuScreenView;
+export class DeathScreenController extends ScreenController {
+	private view: DeathScreenView;
 	private layer?: Layer;
 	private screenSwitcher: ScreenSwitcher;
 
-	constructor(screenSwitcher: ScreenSwitcher) {
+	constructor(screenSwitcher: ScreenSwitcher, score?: number) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new MenuScreenView({
-			onStart: () => this.screenSwitcher.switchToScreen({ type: 'intro' }),
+		this.view = new DeathScreenView(score, {
+			onPlayAgain: () => this.screenSwitcher.switchToScreen({ type: 'menu' }),
 		});
 	}
 
-	getView(): MenuScreenView {
+	getView(): DeathScreenView {
 		return this.view;
 	}
 
@@ -38,4 +38,4 @@ export class MenuScreenController extends ScreenController {
 	}
 }
 
-export default MenuScreenController;
+export default DeathScreenController;
