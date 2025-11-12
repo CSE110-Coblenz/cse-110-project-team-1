@@ -1,45 +1,38 @@
-import { Position, Direction, DEFAULT_ATTRIBUTES } from './types';
-import { Species } from '../common/types/Species';
+import { Position, Direction } from './types';
+import { Species, SpeciesAttributesMap } from '../common/types/Species';
 import { IDGenerator } from './IDGenerator';
 
+import { MapModel } from './MapModel';
+
 export class EntityModel {
-	protected static DEFAULT_ADVANCE = 24;
 	protected direction: Direction;
 	protected pos: Position;
 	protected view_radius: number;
 	protected speed: number;
 	protected health: number;
+	protected color: string;
 	public predator: EntityModel | null;
 	public prey: EntityModel | null;
 	protected damage: number;
 	protected species: Species;
 	protected id: string;
-	public dirX: number;
-	public dirY: number;
 
 	public attackRange = 5;
 	private attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
 
-	constructor(
-		x = 0,
-		y = 0,
-		view_radius = DEFAULT_ATTRIBUTES.radius,
-		speed = DEFAULT_ATTRIBUTES.speed,
-		health = DEFAULT_ATTRIBUTES.health,
-		damage = DEFAULT_ATTRIBUTES.damage,
-		species = DEFAULT_ATTRIBUTES.species,
-	) {
+	constructor(species: Species = Species.TEST, x: number = 0, y: number = 0) {
+		const attrs = SpeciesAttributesMap.get(species) ?? SpeciesAttributesMap.get(Species.TEST)!;
 		this.pos = { x, y };
-		this.speed = speed;
-		this.health = health;
-		this.damage = damage;
 		this.species = species;
-		this.view_radius = view_radius;
+		this.speed = attrs.speed;
+		this.health = attrs.health;
+		this.damage = attrs.damage;
+		this.color = attrs.color;
+		console.log('this.color: ' + this.color);
+		this.view_radius = attrs!.view_radius;
 		this.direction = Direction.Up;
 		this.id = IDGenerator.createUniqueHash();
-		this.dirX = 0;
-		this.dirY = 0;
 		this.predator = null;
 		this.prey = null;
 	}
@@ -62,10 +55,6 @@ export class EntityModel {
 
 	public getSpecies(): Species {
 		return this.species;
-	}
-
-	public setSpeed(speed: number) {
-		this.speed = speed;
 	}
 
 	public setHealth(health: number) {
@@ -94,21 +83,28 @@ export class EntityModel {
 		return this.view_radius;
 	}
 
+	protected isFree(): boolean {
+		return !this.predator && !this.prey;
+	}
+
 	public tryAttack(prey_model: EntityModel, deltaSec: number): void {
 		if (this.attackCooldown <= 0) {
-			console.log('We are attackking a prey');
 			prey_model.takeDamage(this.damage);
 			this.attackCooldown = this.attackCooldownMax;
 		}
 		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 
-	public isPrey(other_entity_model: EntityModel): boolean {
+	public isPreyOf(other_entity_model: EntityModel): boolean {
+		return false;
+	}
+
+	public isPredatorOf(other_entity_model: EntityModel): boolean {
 		return true;
 	}
 
-	public isPredator(other_entity_model: EntityModel): boolean {
-		return true;
+	public getColor(): string {
+		return this.color;
 	}
 
 	public takeDamage(damage: number): void {
@@ -118,5 +114,29 @@ export class EntityModel {
 
 	public die(): void {
 		return;
+	}
+
+	public tryMove(map_model: MapModel, dx: number, dy: number) {
+		const nx = this.pos.x + dx;
+		const ny = this.pos.y + dy;
+		const mapW = map_model.getWidth();
+		const mapH = map_model.getHeight();
+		const r = this.getViewRadius();
+		// prevent moving so that the player circle goes out of world bounds
+		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
+
+		// simple collision: ask mapModel whether the new point or nearby points intersect a wall
+		const offsets = [
+			[0, 0],
+			[r * 0.7, 0],
+			[-r * 0.7, 0],
+			[0, r * 0.7],
+			[0, -r * 0.7],
+		];
+		for (const [ox, oy] of offsets) {
+			if (map_model.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy))) return false;
+		}
+		this.setPosition(nx, ny);
+		return true;
 	}
 }

@@ -54,6 +54,7 @@ export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
+	color: string;
 }
 
 export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
@@ -122,6 +123,7 @@ export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
+	view_radius: number;
 }
 
 function makeAttributesForGroup(
@@ -131,17 +133,60 @@ function makeAttributesForGroup(
 	return speciesList.map((s) => [s, attrs]);
 }
 
+const PRODUCER_GREEN: string = '#33cc33';
+const PRIMARY_CONSUMER_YELLOW: string = '#ffcc00';
+const SECONDARY_CONSUMER_ORANGE: string = '#ff9933';
+const TERTIARY_CONSUMER_RED: string = '#ff3333';
+const APEX_PREDATOR_PURPLE: string = '#9933ff';
+
+const MAIN_PLAYER_BLUE: string = '#3399ff';
+
 export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Producers
-	...makeAttributesForGroup(PRODUCERS, { damage: 0, speed: 0, health: 50 }),
+	...makeAttributesForGroup(PRODUCERS, {
+		damage: 0,
+		speed: 100,
+		health: 50,
+		view_radius: 0,
+		color: PRODUCER_GREEN,
+	}),
 	// Primary Consumers
-	...makeAttributesForGroup(PRIMARY_CONSUMERS, { damage: 10, speed: 50, health: 50 }),
+	...makeAttributesForGroup(PRIMARY_CONSUMERS, {
+		damage: 10,
+		speed: 150,
+		health: 50,
+		view_radius: 12,
+		color: PRIMARY_CONSUMER_YELLOW,
+	}),
 	// Secondary Consumers
-	...makeAttributesForGroup(SECONDARY_CONSUMERS, { damage: 20, speed: 30, health: 80 }),
+	...makeAttributesForGroup(SECONDARY_CONSUMERS, {
+		damage: 20,
+		speed: 120,
+		health: 80,
+		view_radius: 12,
+		color: SECONDARY_CONSUMER_ORANGE,
+	}),
 	// Tertiary Consumers
-	...makeAttributesForGroup(TERTIARY_CONSUMERS, { damage: 30, speed: 30, health: 80 }),
+	...makeAttributesForGroup(TERTIARY_CONSUMERS, {
+		damage: 30,
+		speed: 120,
+		health: 80,
+		view_radius: 12,
+		color: TERTIARY_CONSUMER_RED,
+	}),
 	// Apex Predators
-	...makeAttributesForGroup(APEX_PREDATORS, { damage: 30, speed: 30, health: 80 }),
+	...makeAttributesForGroup(APEX_PREDATORS, {
+		damage: 30,
+		speed: 30,
+		health: 80,
+		view_radius: 12,
+		color: APEX_PREDATOR_PURPLE,
+	}),
+
+	[
+		Species.TEST,
+		{ damage: 30, speed: 300, health: 80, view_radius: 12, color: MAIN_PLAYER_BLUE },
+	],
 ]);
 
 export const ALL_SPECIES = Object.values(Species);

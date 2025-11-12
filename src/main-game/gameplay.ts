@@ -49,13 +49,9 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	let animationInterval: number | undefined;
 
 	const playerModel = new PlayerModel(
+		Species.TEST,
 		Math.floor(map_model.getWidth() / 2),
 		Math.floor(map_model.getHeight() / 2),
-		12,
-		300,
-		50,
-		100,
-		Species.TEST,
 	);
 	const playerView = new PlayerView();
 	const playerController = new PlayerController(
@@ -79,7 +75,8 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	// attach input handling for player
 	playerController.attachKeyboardListeners(render);
 
-	let npcs: NPC[] = NPCFactory.createNRandomNPCs(20);
+	//let npcs: NPC[] = NPCFactory.createNRandomNPCs(20);
+	let npcs: NPC[] = NPCFactory.createFairSpreadNPCs(25);
 	map_controller.placeNPCs(npcs);
 	render();
 

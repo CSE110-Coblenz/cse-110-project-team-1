@@ -1,4 +1,4 @@
-import { MapConfig, Wall, Point, Position, Viewport } from './types';
+import { MapConfig, Wall, Point, Position, Viewport, distance } from './types';
 
 import { EntityModel } from './EntityModel';
 
@@ -6,6 +6,7 @@ import { PlayerModel } from './PlayerModel';
 
 import { NPC } from './NPC/NPC';
 import { NPCModel } from './NPC/NPCModel';
+import { SpeciesAttributesMap } from '../common/types/Species';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -17,7 +18,8 @@ export class MapModel {
 	private walls: Wall[] = [];
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
-	private entities: EntityModel[] = [];
+	private movableNPCs: EntityModel[] = [];
+	private main_player: EntityModel | null = null;
 
 	// static defaults
 	public static DEFAULT_SPACING = 80;
@@ -112,13 +114,18 @@ export class MapModel {
 	}
 
 	public setMainPlayer(player_model: PlayerModel) {
-		this.entities.push(player_model);
+		this.main_player = player_model;
 	}
 
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
-		// let entity_models = npcs.map(npc => npc.getModel());
-		// this.entities.concat(entity_models);
+		let npc_models = npcs.map((npc) => npc.getModel());
+		npc_models = npc_models.concat(npc_models);
+		this.movableNPCs = npc_models.filter((npc) => {
+			const species = npc.getSpecies();
+			const attrs = SpeciesAttributesMap.get(species);
+			return attrs!.speed > 0;
+		});
 	}
 
 	public getNPCs(): NPC[] {
@@ -198,23 +205,15 @@ export class MapModel {
 	}
 
 	public getEntitiesInArea(npc_model: NPCModel) {
-		const radius = npc_model.getPOVRadius();
 		const entitiesInArea: EntityModel[] = [];
-
-		let px: number = npc_model.getPosition().x;
-		let py: number = npc_model.getPosition().y;
-		let id: string = npc_model.getID();
-
-		for (const entity_model of this.entities) {
-			if (entity_model.getID() == id) {
-				//console.log("This is the NPC in question");
+		for (const entity_model of [...this.movableNPCs, this.main_player!]) {
+			if (entity_model.getID() == npc_model.getID()) {
 				continue;
 			}
-			//console.log("It's a different nPC")
-			const dx = entity_model.getPosition().x - px;
-			const dy = entity_model.getPosition().y - py;
-			const distance = Math.sqrt(dx * dx + dy * dy);
-			if (distance <= radius) {
+			if (
+				distance(entity_model.getPosition(), npc_model.getPosition()) <=
+				npc_model.getPOVRadius()
+			) {
 				entitiesInArea.push(entity_model);
 			}
 		}

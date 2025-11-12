@@ -1,7 +1,15 @@
 import { NPCView } from './NPCView';
 import { NPCModel } from './NPCModel';
 import { NPCController } from './NPCController';
-import { ALL_SPECIES, Species } from '../../../src/common/types/Species';
+import {
+	ALL_SPECIES,
+	Species,
+	PRODUCERS,
+	PRIMARY_CONSUMERS,
+	SECONDARY_CONSUMERS,
+	TERTIARY_CONSUMERS,
+	APEX_PREDATORS,
+} from '../../../src/common/types/Species';
 
 export class NPC {
 	private readonly model: NPCModel;
@@ -37,6 +45,41 @@ export class NPCFactory {
 		for (const species of species_list) {
 			npcs.push(new NPC(species));
 		}
+		return npcs;
+	}
+
+	// Create a fair, realistic ecosystem of NCPs
+	// Fewer NPCs of each group as we go up trophic chain
+	static createFairSpreadNPCs(num_npcs: number): NPC[] {
+		if (num_npcs % 5 !== 0) {
+			throw new Error('Number of NPCs must be divisible by 5');
+		}
+
+		// Define all groups in ascending order of the food chain
+		const groups = [
+			PRODUCERS,
+			PRIMARY_CONSUMERS,
+			SECONDARY_CONSUMERS,
+			TERTIARY_CONSUMERS,
+			APEX_PREDATORS,
+		];
+		const distribution = [10, 6, 4, 3, 2];
+		const scale = num_npcs / 25;
+
+		let npcs: NPC[] = [];
+
+		for (let i = 0; i < groups.length; i++) {
+			const group = groups[i];
+			const count = Math.round(distribution[i] * scale); // scaled count per group
+
+			for (let j = 0; j < count; j++) {
+				// Pick a random species within the group
+				const species = group[Math.floor(Math.random() * group.length)];
+				console.log('species: ' + species);
+				npcs.push(new NPC(species));
+			}
+		}
+
 		return npcs;
 	}
 }

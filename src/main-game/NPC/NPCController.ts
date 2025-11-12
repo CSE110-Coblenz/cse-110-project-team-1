@@ -55,8 +55,8 @@ export class NPCController {
 		this.view.draw(
 			target,
 			viewport,
+			this.model.getColor(),
 			this.model.getPosition(),
-			this.model.getDirection(),
 			this.model.getViewRadius(),
 		);
 	}
