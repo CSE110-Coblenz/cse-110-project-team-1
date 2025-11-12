@@ -1,204 +1,75 @@
 import Konva from 'konva';
-import { MapModel } from 'src/main-game/MapModel';
-import { MapController } from 'src/main-game/MapController';
-import { MapView } from 'src/main-game/MapView';
-import { PlayerModel } from 'src/main-game/PlayerModel';
-import { PlayerView } from 'src/main-game/PlayerView';
-import { PlayerController } from 'src/main-game/PlayerController';
 import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
-import { NPC, NPCFactory } from 'src/main-game/NPC/NPC';
-import { Species } from 'src/common/types/Species';
-import { GameScene } from 'src/main-game/GameScene';
+import GameScene, { GameSceneOptions } from 'src/main-game/GameScene';
 
-// expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
-	stop: () => void;
+  stop: () => void;
 }
 
-export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-	const div = document.createElement('div');
-	div.id = 'main-game-konva-container';
-	div.style.width = '100%';
-	div.style.height = '100%';
-	(container || document.body).appendChild(div);
+export async function startGame(
+  container: HTMLElement | null,
+  sceneOptions: GameSceneOptions = {}
+): Promise<GameHandle> {
+  // Mount container
+  const div = document.createElement('div');
+  div.id = 'main-game-konva-container';
+  div.style.width = '100%';
+  div.style.height = '100%';
+  (container || document.body).appendChild(div);
 
-	const stage = new Konva.Stage({
-		container: div,
-		width: window.innerWidth,
-		height: window.innerHeight,
-	});
-	// Create two layers: one for game world, one for UI
-	const gameLayer = new Konva.Layer();  // for map, player, NPCs
-	const uiLayer = new Konva.Layer();    // for HUD and other UI elements
-	// Add layers in order (game first, UI on top)
-	stage.add(gameLayer);
-	stage.add(uiLayer);
+  // Stage
+  const stage = new Konva.Stage({
+    container: div,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
-	const map_controller = new MapController(map_model, stage.width(), stage.height());
-	const map_view = new MapView('#8fb3d9');
+  // Layers: world under HUD
+  const gameLayer = new Konva.Layer();
+  const uiLayer = new Konva.Layer();
+  stage.add(gameLayer);
+  stage.add(uiLayer);
 
-	let animationInterval: number | undefined;
+  // HUD
+  const hud = new GameScreenView(stage.width(), stage.height());
+  uiLayer.add(hud.getGroup());
+  hud.show();
+  uiLayer.draw();
 
-	const playerModel = new PlayerModel(
-		Math.floor(map_model.getWidth() / 2),
-		Math.floor(map_model.getHeight() / 2),
-		12,
-		800,
-		100,
-		Species.ANTEATER,
-	);
-	const playerView = new PlayerView();
-	const playerController = new PlayerController(
-		playerModel,
-		playerView,
-		map_model,
-		map_controller,
-	);
+  // GameScene (owns world); HUD updates flow via callback
+  const scene = new GameScene(gameLayer, {
+    ...sceneOptions,
+    onHudUpdate: ({ health }) => {
+      hud.setHealth(health);
+      uiLayer.batchDraw();
+    },
+  });
+  scene.start();
 
-	// create HUD and add it to the UI layer
-	const gameHud = new GameScreenView(stage.width(), stage.height());
-	uiLayer.add(gameHud.getGroup());
-	gameHud.show(); // Explicitly make sure HUD is visible
-	console.log('HUD Debug - Initial state:', {
-		visible: gameHud.getGroup().visible(),
-		zIndex: gameHud.getGroup().zIndex(),
-		position: {
-			x: gameHud.getGroup().x(),
-			y: gameHud.getGroup().y()
-		}
-	});
-	uiLayer.draw(); // Force immediate draw
+  // Resize stage + HUD + scene viewport
+  const resizeHandler = () => {
+    stage.width(window.innerWidth);
+    stage.height(window.innerHeight);
+    hud.resize(stage.width(), stage.height());
+  };
+  window.addEventListener('resize', resizeHandler);
 
-	// respond to window resize: update stage and recompute HUD layout
-	const resizeHandler = () => {
-		try {
-			stage.width(window.innerWidth);
-			stage.height(window.innerHeight);
-			gameHud.resize(stage.width(), stage.height());
-			render();
-		} catch (e) {
-			// swallow
-		}
-	};
-	window.addEventListener('resize', resizeHandler);
+  function stop() {
+    try {
+      window.removeEventListener('resize', resizeHandler);
+    } catch {}
+    try {
+      scene.stop();
+    } catch {}
+    try {
+      stage.destroy();
+    } catch {}
+    if (div.parentElement) div.parentElement.removeChild(div);
+  }
 
-	function render() {
-		const vp = map_controller.getViewport();
-		console.log('Viewport state:', {
-			viewport: vp,
-			layerOffset: {
-				x: gameLayer.x(),
-				y: gameLayer.y()
-			}
-		});
-
-		console.log('Viewport state:', {
-			viewport: vp,
-			layerOffset: {
-				x: gameLayer.x(),
-				y: gameLayer.y()
-			}
-		});
-
-		const walls = map_controller.getVisibleWalls();
-		map_view.draw(gameLayer, vp, walls);
-		playerController.draw(gameLayer, vp);
-		map_controller.drawNPCs(gameLayer, vp);
-
-		console.log('MapView transforms:', {
-			x: gameLayer.x(),
-			y: gameLayer.y(),
-			scale: gameLayer.scale(),
-			offset: gameLayer.offset()
-		});
-
-		// Update HUD on UI layer (no viewport offset needed)
-		try {
-			const health = playerModel.getHealth();
-			console.log('Setting HUD health:', health);
-			gameHud.setHealth(health);
-			uiLayer.batchDraw();
-		} catch (e) {
-			console.error('HUD error:', e);
-		}
-		gameLayer.batchDraw();
-		map_view.draw(gameLayer, vp, walls);
-		playerController.draw(gameLayer, vp);
-		map_controller.drawNPCs(gameLayer, vp);
-
-		console.log('MapView transforms:', {
-			x: gameLayer.x(),
-			y: gameLayer.y(),
-			scale: gameLayer.scale(),
-			offset: gameLayer.offset()
-		});
-
-		// Update HUD on UI layer (no viewport offset needed)
-		try {
-			const health = playerModel.getHealth();
-			console.log('Setting HUD health:', health);
-			gameHud.setHealth(health);
-			uiLayer.batchDraw();
-		} catch (e) {
-			console.error('HUD error:', e);
-		}
-		gameLayer.batchDraw();
-	}
-
-	// attach input handling for player
-	playerController.attachKeyboardListeners(render);
-
-	let npcs: NPC[] = NPCFactory.createNRandomNPCs(150);
-	map_controller.placeNPCs(npcs);
-	render();
-
-	let lastTimestamp: number | null = null;
-
-	function gameLoop(timestamp: number) {
-		if (lastTimestamp == null) lastTimestamp = timestamp;
-		const deltaSec = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
-		lastTimestamp = timestamp;
-		map_controller.animateNPCs(deltaSec);
-		playerController.updateFromInput(deltaSec);
-		render();
-		animationInterval = requestAnimationFrame(gameLoop);
-	}
-	animationInterval = requestAnimationFrame(gameLoop);
-
-	function stop() {
-		playerController.detachKeyboardListeners();
-		if (animationInterval !== undefined) {
-			clearInterval(animationInterval);
-			animationInterval = undefined;
-		}
-		// remove resize listener
-		try {
-			window.removeEventListener('resize', resizeHandler);
-		} catch (e) {
-			/* ignore */
-		}
-		// remove resize listener
-		try {
-			window.removeEventListener('resize', resizeHandler);
-		} catch (e) {
-			/* ignore */
-		}
-	const scene = new GameScene(layer);
-	scene.start();
-
-	function stop() {
-		scene.stop();
-		try {
-			stage.destroy();
-		} catch (e) {
-			/* ignore */
-		}
-		if (div.parentElement) div.parentElement.removeChild(div);
-	}
-
-	return { stop };
+  return { stop };
 }
 
 export function stopGame(handle: GameHandle) {
-	handle.stop();
+  handle.stop();
 }
