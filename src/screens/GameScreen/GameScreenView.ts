@@ -7,11 +7,10 @@ import type { View } from 'src/types';
  * GameScreenView: draws the main game HUD (health + progress).
  * Provides `setHealth` and `setProgress` for external updates.
  *
- * The HUD has a semi-transparent background panel that auto-resizes with the HUD.
+ * The HUD auto-resizes with the screen.
  * GameScreenView: draws the main game HUD (health + progress).
  * Provides `setHealth` and `setProgress` for external updates.
  *
- * The HUD has a semi-transparent background panel that auto-resizes with the HUD.
  */
 export class GameScreenView implements View {
   private group: Group;
