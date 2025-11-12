@@ -1,4 +1,5 @@
 import { startGame, GameHandle } from 'src/main-game/gameplay';
+import { Game } from 'src/game-engine';
 
 // Simple single-page main menu
 const app = document.getElementById('app') || document.body;
@@ -12,6 +13,7 @@ function createButton(text: string, onClick: () => void) {
 }
 
 let activeHandle: GameHandle | null = null;
+let activeEngine: Game | null = null;
 
 function showMainMenu() {
 	if (app instanceof HTMLBodyElement) app.innerHTML = '';
@@ -52,6 +54,49 @@ function showMainMenu() {
 	);
 
 	app.appendChild(playBtn);
+	// quick access to the new game-engine flow (future primary option)
+	const engineBtn = createButton('Start Engine (dev)', () => {
+		// mount engine container and start engine
+		app.innerHTML = '';
+		const container = document.createElement('div');
+		container.id = 'container';
+		container.style.width = '100%';
+		container.style.height = '100%';
+		app.appendChild(container);
+
+		// create and start the engine with placeholder params
+		activeEngine = new Game(3, 'easy', 'forest');
+
+		const back = createButton('Back to Menu', () => {
+			try {
+				activeEngine?.end();
+			} catch (e) {
+				/* ignore */
+			}
+			activeEngine = null;
+			showMainMenu();
+		});
+		const gameOver = createButton('Trigger Game Over', () => {
+			try {
+				activeEngine?.end();
+			} catch (e) {
+				/* ignore */
+			}
+			activeEngine?.gameOver();
+		});
+		const victory = createButton('Trigger Victory', () => {
+			try {
+				activeEngine?.end();
+			} catch (e) {
+				/* ignore */
+			}
+			activeEngine?.victory();
+		});
+		app.appendChild(back);
+		app.appendChild(gameOver);
+		app.appendChild(victory);
+	});
+	app.appendChild(engineBtn);
 	app.appendChild(document.createElement('br'));
 	app.appendChild(mini1);
 	app.appendChild(mini2);

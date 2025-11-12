@@ -3,6 +3,7 @@ import type { ScreenSwitcher } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
 import { GameScreenModel } from 'src/screens/GameScreen/GameScreenModel';
 import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
+import { GameScene } from 'src/main-game/GameScene';
 /**
  * GameScreenController - Minimal structure for new game logic
  */
@@ -11,6 +12,7 @@ export class GameScreenController extends ScreenController {
 	private model: GameScreenModel;
 	private view: GameScreenView;
 	private screenSwitcher: ScreenSwitcher;
+	private scene?: GameScene;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
@@ -23,6 +25,9 @@ export class GameScreenController extends ScreenController {
 		this.layer = layer;
 		if (this.layer) {
 			this.layer.add(this.view.getGroup());
+			// start the main-game scene on the provided layer
+			this.scene = new GameScene(this.layer);
+			this.scene.start();
 			this.layer.draw();
 		}
 	}
@@ -30,6 +35,11 @@ export class GameScreenController extends ScreenController {
 	dispose(): void {
 		if (this.layer) {
 			try {
+				// stop scene if running and remove view group
+				if (this.scene) {
+					this.scene.stop();
+					this.scene = undefined;
+				}
 				this.view.getGroup().remove();
 				this.layer.draw();
 			} catch (e) {
