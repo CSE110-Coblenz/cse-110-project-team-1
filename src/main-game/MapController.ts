@@ -1,6 +1,6 @@
-import { MapModel } from './MapModel';
-import { NPC } from './NPC/NPC';
-import { Viewport, Position } from './types';
+import { MapModel } from 'src/main-game/MapModel';
+import { NPC } from 'src/main-game/NPC/NPC';
+import { Viewport, Position } from 'src/main-game/types';
 
 /**
  * MapController manages the camera/viewport stored inside the MapModel.

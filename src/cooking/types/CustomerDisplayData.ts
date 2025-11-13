@@ -1,4 +1,4 @@
-import { Species } from '../../common/types/Species';
+import { Species } from 'src/common/types/Species';
 
 /**
  * Data structure for displaying a customer in the view

@@ -1,6 +1,6 @@
-import { ScreenController, type ScreenSwitcher } from '../../types';
+import { ScreenController, type ScreenSwitcher } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
-import { CookingScreenView } from './CookingScreenView';
+import { CookingScreenView } from 'src/screens/CookingScreen/CookingScreenView';
 
 /**
  * Basic Cooking screen controller that plugs into ScreenManager.

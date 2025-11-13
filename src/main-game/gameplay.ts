@@ -1,12 +1,5 @@
 import Konva from 'konva';
-import { MapModel } from './MapModel';
-import { MapController } from './MapController';
-import { MapView } from './MapView';
-import { PlayerModel } from './PlayerModel';
-import { PlayerView } from './PlayerView';
-import { PlayerController } from './PlayerController';
-import { NPC, NPCFactory } from './NPC/NPC';
-import { Species } from '../common/types/Species';
+import { GameScene } from 'src/main-game/GameScene';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
@@ -14,19 +7,6 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-	const worldWidth = Math.max(800, window.innerWidth * 5);
-	const worldHeight = Math.max(600, window.innerHeight * 5);
-	const config = {
-		width: worldWidth,
-		height: worldHeight,
-		spacing: 120,
-		wallCount: 2500,
-		wallMinWidth: 80,
-		wallMaxWidth: 160,
-	};
-
-	const map_model = new MapModel(config);
-
 	const div = document.createElement('div');
 	div.id = 'main-game-konva-container';
 	div.style.width = '100%';
@@ -41,62 +21,11 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	const layer = new Konva.Layer();
 	stage.add(layer);
 
-	const map_controller = new MapController(map_model, stage.width(), stage.height());
-	const map_view = new MapView('#8fb3d9');
-
-	let animationInterval: number | undefined;
-
-	const playerModel = new PlayerModel(
-		Species.MOUSE,
-		Math.floor(map_model.getWidth() / 2),
-		Math.floor(map_model.getHeight() / 2),
-		true,
-	);
-	const playerView = new PlayerView();
-	const playerController = new PlayerController(
-		playerModel,
-		playerView,
-		map_model,
-		map_controller,
-	);
-
-	map_model.setMainPlayer(playerModel);
-
-	function render() {
-		const vp = map_controller.getViewport();
-		const walls = map_controller.getVisibleWalls();
-		map_view.draw(layer, vp, walls);
-		playerController.draw(layer, vp);
-		map_controller.drawNPCs(layer, vp);
-		layer.batchDraw();
-	}
-
-	// attach input handling for player
-	playerController.attachKeyboardListeners(render);
-
-	let npcs: NPC[] = NPCFactory.createFairSpreadNPCs(100);
-	map_controller.placeNPCs(npcs);
-	render();
-
-	let lastTimestamp: number | null = null;
-
-	function gameLoop(timestamp: number) {
-		if (lastTimestamp == null) lastTimestamp = timestamp;
-		const deltaSec = Math.min(0.1, (timestamp - lastTimestamp) / 1000);
-		lastTimestamp = timestamp;
-		map_controller.animateNPCs(deltaSec);
-		playerController.updateFromInput(deltaSec);
-		render();
-		animationInterval = requestAnimationFrame(gameLoop);
-	}
-	animationInterval = requestAnimationFrame(gameLoop);
+	const scene = new GameScene(layer);
+	scene.start();
 
 	function stop() {
-		playerController.detachKeyboardListeners();
-		if (animationInterval !== undefined) {
-			clearInterval(animationInterval);
-			animationInterval = undefined;
-		}
+		scene.stop();
 		try {
 			stage.destroy();
 		} catch (e) {

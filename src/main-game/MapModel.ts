@@ -1,12 +1,8 @@
-import { MapConfig, Wall, Point, Position, Viewport, distance } from './types';
-
-import { EntityModel } from './EntityModel';
-
-import { PlayerModel } from './PlayerModel';
-
-import { NPC } from './NPC/NPC';
-import { NPCModel } from './NPC/NPCModel';
-import { SpeciesAttributesMap } from '../common/types/Species';
+import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-game/types';
+import { NPC } from 'src/main-game/NPC/NPC';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { EntityModel } from 'src/main-game/EntityModel';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.

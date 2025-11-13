@@ -1,7 +1,7 @@
-import { ScreenController } from '../../types';
-import type { ScreenSwitcher } from '../../types';
+import { ScreenController } from 'src/types';
+import type { ScreenSwitcher } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
-import { IntroScreenView } from './IntroScreenView';
+import { IntroScreenView } from 'src/screens/IntroScreen/IntroScreenView';
 
 /**
  * IntroScreenController - handles tutorial/intro flow before gameplay.

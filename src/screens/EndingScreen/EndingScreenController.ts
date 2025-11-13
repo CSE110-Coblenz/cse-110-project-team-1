@@ -1,5 +1,5 @@
-import { ScreenController } from '../../types';
-import { EndingScreenView } from './EndingScreenView';
+import { ScreenController } from 'src/types';
+import { EndingScreenView } from 'src/screens/EndingScreen/EndingScreenView';
 import type { Layer } from 'konva/lib/Layer';
 
 export class EndingScreenController extends ScreenController {

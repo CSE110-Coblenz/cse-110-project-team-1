@@ -1,8 +1,8 @@
-import { PlayerModel } from './PlayerModel';
-import { PlayerView } from './PlayerView';
-import { MapModel } from './MapModel';
-import { MapController } from './MapController';
-import { Viewport } from './types';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { PlayerView } from 'src/main-game/PlayerView';
+import { MapModel } from 'src/main-game/MapModel';
+import { MapController } from 'src/main-game/MapController';
+import { Viewport } from 'src/main-game/types';
 
 // key sets used for input handling
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);

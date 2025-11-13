@@ -1,10 +1,10 @@
-import { Customer } from './Customer';
-import { Label } from './Label';
-import { CustomerFactory } from './CustomerFactory';
-import { DeckLogic } from './DeckLogic';
-import { CookingGameConfig } from '../config/CookingGameConfig';
-import { CustomerDisplayData } from '../types/CustomerDisplayData';
-import { Species } from '../../common/types/Species';
+import { Customer } from 'src/cooking/model/Customer';
+import { Label } from 'src/cooking/model/Label';
+import { CustomerFactory } from 'src/cooking/model/CustomerFactory';
+import { DeckLogic } from 'src/cooking/model/DeckLogic';
+import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
+import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
+import { Species } from 'src/common/types/Species';
 
 export class CookingModel {
 	private customerQueue: Customer[] = [];

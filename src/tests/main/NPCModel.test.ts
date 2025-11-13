@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Species } from '../../common/types/Species';
-import { NPCModel } from '../../main-game/NPC/NPCModel';
+import { Species } from 'src/common/types/Species';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 describe('NPCModel', () => {
 	it('initializes with defaults and returns position/copy', () => {

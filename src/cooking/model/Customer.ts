@@ -1,6 +1,6 @@
-import { CookingGameConfig } from '../config/CookingGameConfig';
-import { Label } from './Label';
-import { Species } from '../../common/types/Species';
+import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
+import { Label } from 'src/cooking/model/Label';
+import { Species } from 'src/common/types/Species';
 
 export class Customer {
 	type: Species;
