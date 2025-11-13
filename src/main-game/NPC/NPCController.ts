@@ -3,7 +3,7 @@ import { NPCView } from 'src/main-game/NPC/NPCView';
 
 import { MapModel } from 'src/main-game/MapModel';
 
-import { Point, Position, Viewport } from 'src/main-game/types';
+import { Position, Viewport, distance } from '../types';
 
 /**
  * NPCController manages the locations, animations, and interactions between NPCs
@@ -24,14 +24,10 @@ export class NPCController {
 		const NPC_RADIUS = NPCController.SPAWN_RADIUS;
 		const MAX_SPAWN_ATTEMPTS = 2000;
 
-		const isPositionInvalid = (x: number, y: number) => {
-			if (map_model.isPointInsideWall(x, y)) return true;
-			// Ensure a proper distance between NPCs
-			const minNpcDistSq = (2 * NPC_RADIUS) ** 2;
-			for (const other of existingNPCPositions) {
-				const dx = other.x - x;
-				const dy = other.y - y;
-				if (dx * dx + dy * dy < minNpcDistSq) return true;
+		const isPositionInvalid = (position: Position) => {
+			if (map_model.isPointInsideWall(position.x, position.y)) return true;
+			for (const npcPosition of existingNPCPositions) {
+				if (distance(npcPosition, position) < 2 * NPC_RADIUS) return true;
 			}
 			return false;
 		};
@@ -39,7 +35,7 @@ export class NPCController {
 		for (let attempt = 0; attempt < MAX_SPAWN_ATTEMPTS; attempt++) {
 			const x = NPC_RADIUS + Math.random() * (map_model.getWidth() - 2 * NPC_RADIUS);
 			const y = NPC_RADIUS + Math.random() * (map_model.getHeight() - 2 * NPC_RADIUS);
-			if (!isPositionInvalid(x, y)) {
+			if (!isPositionInvalid({ x, y })) {
 				this.model.setPosition(x, y);
 				existingNPCPositions.push({ x, y });
 				return { x, y };
@@ -55,9 +51,9 @@ export class NPCController {
 		this.view.draw(
 			target,
 			viewport,
+			this.model.getColor(),
 			this.model.getPosition(),
-			this.model.getDirection(),
-			this.model.radius,
+			this.model.getViewRadius(),
 		);
 	}
 }

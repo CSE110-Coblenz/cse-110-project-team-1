@@ -3,8 +3,6 @@
  */
 
 export enum Species {
-	TEST = 'Test', // Left for testing purposes, not included in foodchain chart
-
 	// Yellowstone Type Environment
 
 	// Producers
@@ -54,11 +52,12 @@ export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
+	color: string;
 }
 
 export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
 
-export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS];
+export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS, Species.RABBIT];
 
 export const SECONDARY_CONSUMERS = [
 	...BIRDS,
@@ -87,7 +86,9 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.DEER, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.ELK, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.MOOSE, { prey: PRODUCERS, predators: APEX_PREDATORS }],
+	[Species.BISON, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	// Insects
+	[Species.CATERPILLAR, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	[Species.ANT, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	// Rodents
@@ -99,29 +100,45 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
+	[Species.GARTER_SNAKE, { prey: [...RODENTS], predators: TERTIARY_CONSUMERS }],
 	// birds
 	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 	[Species.SPARROW, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 
 	// -------- Level 3 - Tertiary Consumers
 
-	[Species.FOX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
-	[Species.COYOTE, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
-	[Species.LYNX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
+	[
+		Species.FOX,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
+	[
+		Species.COYOTE,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
+	[
+		Species.LYNX,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
 
 	// -------- Level 4 - Apex Predators
 
-	[Species.HAWK, { prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.COUGAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
+	[
+		Species.HAWK,
+		{ prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+	],
+	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[
+		Species.COUGAR,
+		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+	],
+	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
 ]);
 
 export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
+	view_radius: number;
 }
 
 function makeAttributesForGroup(
@@ -131,17 +148,53 @@ function makeAttributesForGroup(
 	return speciesList.map((s) => [s, attrs]);
 }
 
+const PRODUCER_GREEN: string = '#33cc33';
+const PRIMARY_CONSUMER_YELLOW: string = '#ffcc00';
+const SECONDARY_CONSUMER_ORANGE: string = '#ff9933';
+const TERTIARY_CONSUMER_RED: string = '#ff3333';
+const APEX_PREDATOR_PURPLE: string = '#9933ff';
+
 export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Producers
-	...makeAttributesForGroup(PRODUCERS, { damage: 0, speed: 0, health: 50 }),
+	...makeAttributesForGroup(PRODUCERS, {
+		damage: 0,
+		speed: 0,
+		health: 50,
+		view_radius: 0,
+		color: PRODUCER_GREEN,
+	}),
 	// Primary Consumers
-	...makeAttributesForGroup(PRIMARY_CONSUMERS, { damage: 10, speed: 50, health: 50 }),
+	...makeAttributesForGroup(PRIMARY_CONSUMERS, {
+		damage: 10,
+		speed: 150,
+		health: 50,
+		view_radius: 12,
+		color: PRIMARY_CONSUMER_YELLOW,
+	}),
 	// Secondary Consumers
-	...makeAttributesForGroup(SECONDARY_CONSUMERS, { damage: 20, speed: 30, health: 80 }),
+	...makeAttributesForGroup(SECONDARY_CONSUMERS, {
+		damage: 20,
+		speed: 120,
+		health: 80,
+		view_radius: 12,
+		color: SECONDARY_CONSUMER_ORANGE,
+	}),
 	// Tertiary Consumers
-	...makeAttributesForGroup(TERTIARY_CONSUMERS, { damage: 30, speed: 30, health: 80 }),
+	...makeAttributesForGroup(TERTIARY_CONSUMERS, {
+		damage: 30,
+		speed: 120,
+		health: 80,
+		view_radius: 12,
+		color: TERTIARY_CONSUMER_RED,
+	}),
 	// Apex Predators
-	...makeAttributesForGroup(APEX_PREDATORS, { damage: 30, speed: 30, health: 80 }),
+	...makeAttributesForGroup(APEX_PREDATORS, {
+		damage: 30,
+		speed: 30,
+		health: 80,
+		view_radius: 12,
+		color: APEX_PREDATOR_PURPLE,
+	}),
 ]);
 
 export const ALL_SPECIES = Object.values(Species);

@@ -63,12 +63,9 @@ export class GameScene {
 		this.mapView = new MapView();
 
 		this.playerModel = new PlayerModel(
+			Species.MOUSE,
 			Math.floor(this.mapModel.getWidth() / 2),
 			Math.floor(this.mapModel.getHeight() / 2),
-			12,
-			800,
-			100,
-			Species.MOUSE,
 		);
 		this.playerView = new PlayerView();
 		this.playerController = new PlayerController(
@@ -77,6 +74,8 @@ export class GameScene {
 			this.mapModel,
 			this.mapController,
 		);
+
+		this.mapModel.setMainPlayer(this.playerModel);
 
 		// place NPCs
 		const npcCount = options.npcCount ?? 150;

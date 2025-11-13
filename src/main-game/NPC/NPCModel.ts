@@ -1,13 +1,20 @@
-import { Direction } from 'src/main-game/types';
-import { MapModel } from 'src/main-game/MapModel';
-import { PlayerModel } from 'src/main-game/PlayerModel';
+import { Direction, Position } from '../types';
+import { MapModel } from '../MapModel';
+import { EntityModel } from '../EntityModel';
 
-export class NPCModel extends PlayerModel {
-	private is_alone = true;
+import { Species } from '../../common/types/Species';
+
+export class NPCModel extends EntityModel {
+	private pov_radius: number = 100;
+
 	private timeInSegment = 0;
 	private readonly segmentDuration = 2;
 	private readonly targetDistance = 40 + Math.random() * 40;
 	private distanceTraveled = 0;
+
+	constructor(species: Species) {
+		super(species);
+	}
 
 	private static NextDirection = new Map<Direction, Direction>([
 		[Direction.Up, Direction.Left],
@@ -33,65 +40,86 @@ export class NPCModel extends PlayerModel {
 	private animation_map =
 		Math.random() < 0.5 ? NPCModel.NextDirection : NPCModel.ReverseNextDirection;
 
-	public circle() {
-		this.direction = this.animation_map.get(this.direction)!;
-		const [dx, dy] = NPCModel.DirectionToDelta.get(this.direction)!;
-		this.moveBy(dx * this.speed, dy * this.speed);
+	public getPOVRadius(): number {
+		return this.pov_radius;
 	}
 
-	public update(map_model: MapModel, deltaSec: number) {
-		if (!this.is_alone) return;
+	private getDirVector(pos1: Position, pos2: Position): [number, number, number] {
+		let dx = pos1.x - pos2.x;
+		let dy = pos1.y - pos2.y;
+		const dist = Math.hypot(dx, dy);
+		if (dist < 1e-3) return [dist, 0, 0]; // already at the target
+		return [dist, dx / dist, dy / dist];
+	}
 
-		this.timeInSegment += deltaSec;
-
-		if (this.timeInSegment >= this.segmentDuration) {
-			this.direction = this.animation_map.get(this.direction)!;
-			this.timeInSegment = 0;
-			this.distanceTraveled = 0;
-			return;
+	public handleSurroundings(surrounding_npcs: any[]): void {
+		if (this.isFree()) {
+			for (const npc of surrounding_npcs) {
+				if (npc.isPreyOf(this)) {
+					if (Math.random() < 0.5 && npc.isFree()) {
+						this.prey = npc;
+						npc.predator = this;
+						return;
+					}
+				} else if (npc.isPredatorOf(this)) {
+					if (Math.random() < 0.5 && npc.isFree()) {
+						this.predator = npc;
+						npc.prey = this;
+						return;
+					}
+				}
+			}
 		}
+	}
 
-		const [dx, dy] = NPCModel.DirectionToDelta.get(this.direction)!;
-		const moveDist = this.speed * deltaSec;
+	private clearRelations() {
+		if (this.prey) this.prey.predator = null;
+		this.prey = null;
+		if (this.predator) this.predator.prey = null;
+		this.predator = null;
+	}
 
-		// stop early if target reached
-		if (this.distanceTraveled >= this.targetDistance) return;
-
-		const step = Math.min(moveDist, this.targetDistance - this.distanceTraveled);
-		const success = this.tryMove(map_model, dx * step, dy * step);
-
-		if (success) {
-			this.distanceTraveled += step;
+	public update(map_model: MapModel, deltaSec: number): void {
+		const surrounding = map_model.getEntitiesInArea(this);
+		// 1. Determine behavior
+		if (surrounding.length > 0) this.handleSurroundings(surrounding);
+		else {
+			this.clearRelations();
+		}
+		const step = this.speed * deltaSec;
+		let dirX = 0,
+			dirY = 0,
+			dist = 0;
+		if (this.prey) {
+			[dist, dirX, dirY] = this.getDirVector(this.prey.getPosition(), this.pos);
+			if (dist < this.attackRange) return this.tryAttack(this.prey, deltaSec);
+		} else if (this.predator) {
+			[dist, dirX, dirY] = this.getDirVector(this.pos, this.predator.getPosition());
 		} else {
-			// collision → change direction immediately
-			this.direction = this.animation_map.get(this.direction)!;
-			this.timeInSegment = 0;
-			this.distanceTraveled = 0;
+			this.timeInSegment += deltaSec;
+			if (this.timeInSegment >= this.segmentDuration) {
+				this.direction = this.animation_map.get(this.direction)!;
+				this.timeInSegment = 0;
+				this.distanceTraveled = 0;
+			}
+			if (this.distanceTraveled < this.targetDistance) {
+				[dirX, dirY] = NPCModel.DirectionToDelta.get(this.direction)!;
+			} else return;
 		}
-	}
+		const success = this.tryMove(map_model, dirX * step, dirY * step);
 
-	private tryMove(map_model: MapModel, dx: number, dy: number): boolean {
-		const pos = this.getPosition();
-		const nx = pos.x + dx;
-		const ny = pos.y + dy;
-		const mapW = map_model.getWidth();
-		const mapH = map_model.getHeight();
-		const r = this.radius;
+		if (!success && this.predator) {
+			const angle = (Math.random() - 0.5) * Math.PI;
+			const cos = Math.cos(angle);
+			const sin = Math.sin(angle);
+			dirX = dirX * cos - dirY * sin;
+			dirX = dirX * sin + dirY * cos;
 
-		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-
-		const offsets = [
-			[0, 0],
-			[r * 0.7, 0],
-			[-r * 0.7, 0],
-			[0, r * 0.7],
-			[0, -r * 0.7],
-		];
-		for (const [ox, oy] of offsets) {
-			if (map_model.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy))) return false;
+			if (this.tryMove(map_model, dirX * step, dirX * step)) return;
 		}
 
-		this.setPosition(nx, ny);
-		return true;
+		if (success && this.isFree()) {
+			this.distanceTraveled += step;
+		}
 	}
 }

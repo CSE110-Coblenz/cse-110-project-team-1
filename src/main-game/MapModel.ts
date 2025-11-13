@@ -1,5 +1,8 @@
-import { MapConfig, Wall, Point, Position, Viewport } from 'src/main-game/types';
+import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-game/types';
 import { NPC } from 'src/main-game/NPC/NPC';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { EntityModel } from 'src/main-game/EntityModel';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 /**
  * MapModel for a continuous open world where walls are polygonal shapes.
@@ -11,6 +14,8 @@ export class MapModel {
 	private walls: Wall[] = [];
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
+	private npc_models: EntityModel[] = [];
+	private main_player: EntityModel | null = null;
 
 	// static defaults
 	public static DEFAULT_SPACING = 80;
@@ -104,8 +109,14 @@ export class MapModel {
 		this.walls = walls;
 	}
 
-	public setNCPs(npcs: NPC[]) {
+	public setMainPlayer(player_model: PlayerModel) {
+		this.main_player = player_model;
+	}
+
+	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
+		let new_npc_models = npcs.map((npc) => npc.getModel());
+		this.npc_models = this.npc_models.concat(new_npc_models);
 	}
 
 	public getNPCs(): NPC[] {
@@ -176,11 +187,32 @@ export class MapModel {
 	}
 
 	public isPointInsideWall(px: number, py: number) {
-		// since walls are axis-aligned rectangles, test against bbox of each wall
+		let r = 10;
 		for (const wall of this.walls) {
-			const b = this.bboxOfPoints(wall.points);
-			if (px >= b.minX && px <= b.maxX && py >= b.minY && py <= b.maxY) return true;
+			const minX = wall.points[0].x - r;
+			const maxX = wall.points[2].x + r;
+			const minY = wall.points[0].y - r;
+			const maxY = wall.points[2].y + r;
+
+			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
+				return true;
+			}
 		}
 		return false;
+	}
+	public getEntitiesInArea(npc_model: NPCModel) {
+		const entitiesInArea: EntityModel[] = [];
+		for (const entity_model of [...this.npc_models, this.main_player!]) {
+			if (entity_model.getID() == npc_model.getID()) {
+				continue;
+			}
+			if (
+				distance(entity_model.getPosition(), npc_model.getPosition()) <=
+				npc_model.getPOVRadius()
+			) {
+				entitiesInArea.push(entity_model);
+			}
+		}
+		return entitiesInArea;
 	}
 }

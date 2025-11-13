@@ -78,7 +78,7 @@ export class PlayerController {
 		const deltaX = dirX * effectiveSpeed * deltaSec;
 		const deltaY = dirY * effectiveSpeed * deltaSec;
 
-		if (this.tryMove(deltaX, deltaY)) {
+		if (this.model.tryMove(this.mapModel, deltaX, deltaY)) {
 			this.mapController.centerOn(this.model.getPosition());
 		}
 	}
@@ -98,39 +98,13 @@ export class PlayerController {
 		this.renderCallback = null;
 	}
 
-	private tryMove(dx: number, dy: number) {
-		const pos = this.model.getPosition();
-		const nx = pos.x + dx;
-		const ny = pos.y + dy;
-		const mapW = this.mapModel.getWidth();
-		const mapH = this.mapModel.getHeight();
-		const r = this.model.radius;
-		// prevent moving so that the player circle goes out of world bounds
-		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-
-		// simple collision: ask mapModel whether the new point or nearby points intersect a wall
-		const offsets = [
-			[0, 0],
-			[r * 0.7, 0],
-			[-r * 0.7, 0],
-			[0, r * 0.7],
-			[0, -r * 0.7],
-		];
-		for (const [ox, oy] of offsets) {
-			if (this.mapModel.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy)))
-				return false;
-		}
-		this.model.setPosition(nx, ny);
-		return true;
-	}
-
 	public draw(target: CanvasRenderingContext2D | any, viewport: Viewport) {
 		this.view.draw(
 			target,
 			viewport,
+			this.model.getColor(),
 			this.model.getPosition(),
-			this.model.getDirection(),
-			this.model.radius,
+			this.model.getViewRadius(),
 		);
 	}
 }
