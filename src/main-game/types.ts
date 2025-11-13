@@ -46,5 +46,5 @@ export const DEFAULT_ATTRIBUTES = {
 	radius: 12,
 	speed: 500,
 	health: 100,
-	species: Species.SPEC1,
+	species: Species.TEST,
 };

@@ -21,7 +21,7 @@ describe('PlayerModel', () => {
 	});
 
 	it('gets and sets speed and health', () => {
-		const p = new PlayerModel(0, 0, 12, 250, 80, Species.CAT);
+		const p = new PlayerModel(0, 0, 12, 250, 80, Species.TEST);
 		expect(p.getSpeed()).toBe(250);
 		expect(p.getHealth()).toBe(80);
 		p.setSpeed(300);

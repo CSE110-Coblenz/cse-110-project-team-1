@@ -68,7 +68,7 @@ export class GameScene {
 			12,
 			800,
 			100,
-			Species.ANTEATER,
+			Species.MOUSE,
 		);
 		this.playerView = new PlayerView();
 		this.playerController = new PlayerController(
