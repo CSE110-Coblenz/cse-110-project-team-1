@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import type { Group } from 'konva/lib/Group';
-import type { View } from '../../types';
+import type { View } from 'src/types';
 
 type IntroScreenOptions = {
 	onContinue: () => void;
@@ -19,14 +19,25 @@ export class IntroScreenView implements View {
 		this.onContinue = options.onContinue;
 		this.group = new Konva.Group();
 
-		const backdrop = new Konva.Rect({
+		// background image for story/intro
+		const bgImgEl = new Image();
+		bgImgEl.src = 'background.png';
+		const backdrop = new Konva.Image({
 			x: 0,
 			y: 0,
-			width: 800,
-			height: 600,
-			fill: '#001122',
-			opacity: 0.7,
+			height: window.innerHeight * 0.95,
+			width: window.innerWidth * 0.95,
+			image: undefined as unknown as HTMLImageElement,
 		});
+		bgImgEl.onload = () => {
+			try {
+				backdrop.image(bgImgEl);
+				const layer = backdrop.getLayer();
+				if (layer) layer.batchDraw();
+			} catch (e) {
+				// ignore
+			}
+		};
 
 		const title = new Konva.Text({
 			x: 120,

@@ -1,5 +1,5 @@
-import { Position, Direction, DEFAULT_ATTRIBUTES } from './types';
-import { Species } from '../common/types/Species';
+import { Position, Direction, DEFAULT_ATTRIBUTES } from 'src/main-game/types';
+import { Species } from 'src/common/types/Species';
 
 export class PlayerModel {
 	protected static DEFAULT_ADVANCE = 24;

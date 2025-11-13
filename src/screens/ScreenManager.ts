@@ -1,10 +1,11 @@
-import type { Screen, ScreenSwitcher, ScreenController } from '../types';
+import type { Screen, ScreenSwitcher, ScreenController } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
-import { GameScreenController } from './GameScreen/GameScreenController';
-import { MenuScreenController } from './MenuScreen/MenuScreenController';
-import { EndingScreenController } from './EndingScreen/EndingScreenController';
-import { IntroScreenController } from './IntroScreen/IntroScreenController';
-import { CookingScreenController } from './CookingScreen/CookingScreenController';
+import { GameScreenController } from 'src/screens/GameScreen/GameScreenController';
+import { MenuScreenController } from 'src/screens/MenuScreen/MenuScreenController';
+import { VictoryScreenController } from 'src/screens/VictoryScreen/VictoryScreenController';
+import { DeathScreenController } from 'src/screens/DeathScreen/DeathScreenController';
+import { IntroScreenController } from 'src/screens/IntroScreen/IntroScreenController';
+import { CookingScreenController } from 'src/screens/CookingScreen/CookingScreenController';
 
 /**
  * ScreenManager: simple manager that switches between screens.
@@ -51,18 +52,27 @@ export class ScreenManager implements ScreenSwitcher {
 			}
 			case 'menu': {
 				// create and show menu
-				const menuController = new MenuScreenController();
+				const menuController = new MenuScreenController(this);
 				this.current = menuController as unknown as ScreenController;
 				this.current.mount(this.layer);
 				menuController.show();
 				break;
 			}
-			case 'ending': {
-				// create and show ending screen (passes score)
-				const endingController = new EndingScreenController();
-				this.current = endingController as unknown as ScreenController;
+			case 'victory': {
+				// create and show victory screen (passes optional score)
+				const score = (screen as any).score as number | undefined;
+				const victoryController = new VictoryScreenController(this, score);
+				this.current = victoryController as unknown as ScreenController;
 				this.current.mount(this.layer);
-				endingController.show();
+				victoryController.show();
+				break;
+			}
+			case 'death': {
+				const score = (screen as any).score as number | undefined;
+				const deathController = new DeathScreenController(this, score);
+				this.current = deathController as unknown as ScreenController;
+				this.current.mount(this.layer);
+				deathController.show();
 				break;
 			}
 			case 'intro': {

@@ -1,5 +1,5 @@
-import CookingController from '../cooking/controller/CookingController';
-import { Species } from '../common/types/Species';
+import CookingController from 'src/cooking/controller/CookingController';
+import { Species } from 'src/common/types/Species';
 
 export default class MockGameCoordinator {
 	private cookingController: CookingController;

@@ -1,7 +1,7 @@
-import { NPCView } from './NPCView';
-import { NPCModel } from './NPCModel';
-import { NPCController } from './NPCController';
-import { ALL_SPECIES, Species } from '../../../src/common/types/Species';
+import { NPCView } from 'src/main-game/NPC/NPCView';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
+import { NPCController } from 'src/main-game/NPC/NPCController';
+import { ALL_SPECIES, Species } from 'src/common/types/Species';
 
 export class NPC {
 	private readonly model: NPCModel;

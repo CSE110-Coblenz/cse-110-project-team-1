@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { NPCController } from '../../main-game/NPC/NPCController';
-import { NPCModel } from '../../main-game/NPC/NPCModel';
-import { NPCView } from '../../main-game/NPC/NPCView';
-import { MapModel } from '../../main-game/MapModel';
+import { NPCController } from 'src/main-game/NPC/NPCController';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
+import { NPCView } from 'src/main-game/NPC/NPCView';
+import { MapModel } from 'src/main-game/MapModel';
 
 vi.mock('../../main-game/NPC/NPCModel', () => ({
 	NPCModel: class {

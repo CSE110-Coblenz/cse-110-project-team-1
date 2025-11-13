@@ -1,6 +1,6 @@
-import { Customer } from '../model/Customer';
-import { Label, LabelType } from '../model/Label';
-import { Species } from '../../common/types/Species';
+import { Customer } from 'src/cooking/model/Customer';
+import { Label, LabelType } from 'src/cooking/model/Label';
+import { Species } from 'src/common/types/Species';
 
 export class CustomerFactory {
 	private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> = {
