@@ -121,12 +121,6 @@ export class MapModel {
 		this.npcs = npcs;
 		let new_npc_models = npcs.map((npc) => npc.getModel());
 		this.npc_models = this.npc_models.concat(new_npc_models);
-		// this.movableNPCs = npc_models.filter((npc) => {
-		// 	const species = npc.getSpecies();
-		// 	const attrs = SpeciesAttributesMap.get(species);
-		// 	return attrs!.speed > 0;
-		// });
-		//this.movableNPCs = this.npcs;
 	}
 
 	public getNPCs(): NPC[] {

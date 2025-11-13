@@ -3,8 +3,6 @@
  */
 
 export enum Species {
-	//TEST = 'Test', // Left for testing purposes, not included in foodchain chart
-
 	// Yellowstone Type Environment
 
 	// Producers
@@ -156,8 +154,6 @@ const SECONDARY_CONSUMER_ORANGE: string = '#ff9933';
 const TERTIARY_CONSUMER_RED: string = '#ff3333';
 const APEX_PREDATOR_PURPLE: string = '#9933ff';
 
-const MAIN_PLAYER_BLUE: string = '#3399ff';
-
 export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Producers
 	...makeAttributesForGroup(PRODUCERS, {
@@ -199,11 +195,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		view_radius: 12,
 		color: APEX_PREDATOR_PURPLE,
 	}),
-
-	// [
-	// 	Species.TEST,
-	// 	{ damage: 30, speed: 300, health: 80, view_radius: 12, color: MAIN_PLAYER_BLUE },
-	// ],
 ]);
 
 export const ALL_SPECIES = Object.values(Species);
