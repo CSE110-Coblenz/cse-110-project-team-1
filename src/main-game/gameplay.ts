@@ -14,10 +14,8 @@ export interface GameHandle {
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
-	// const worldWidth = Math.max(800, window.innerWidth * 5);
-	// const worldHeight = Math.max(600, window.innerHeight * 5);
-	const worldWidth = Math.max(800, window.innerWidth);
-	const worldHeight = Math.max(600, window.innerHeight);
+	const worldWidth = Math.max(800, window.innerWidth * 5);
+	const worldHeight = Math.max(600, window.innerHeight * 5);
 	const config = {
 		width: worldWidth,
 		height: worldHeight,
@@ -49,9 +47,10 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	let animationInterval: number | undefined;
 
 	const playerModel = new PlayerModel(
-		Species.TEST,
+		Species.MOUSE,
 		Math.floor(map_model.getWidth() / 2),
 		Math.floor(map_model.getHeight() / 2),
+		true,
 	);
 	const playerView = new PlayerView();
 	const playerController = new PlayerController(
@@ -75,8 +74,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	// attach input handling for player
 	playerController.attachKeyboardListeners(render);
 
-	//let npcs: NPC[] = NPCFactory.createNRandomNPCs(20);
-	let npcs: NPC[] = NPCFactory.createFairSpreadNPCs(25);
+	let npcs: NPC[] = NPCFactory.createFairSpreadNPCs(100);
 	map_controller.placeNPCs(npcs);
 	render();
 

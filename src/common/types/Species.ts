@@ -3,7 +3,7 @@
  */
 
 export enum Species {
-	TEST = 'Test', // Left for testing purposes, not included in foodchain chart
+	//TEST = 'Test', // Left for testing purposes, not included in foodchain chart
 
 	// Yellowstone Type Environment
 
@@ -59,7 +59,7 @@ export interface SpeciesAttributes {
 
 export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
 
-export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS];
+export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS, Species.RABBIT];
 
 export const SECONDARY_CONSUMERS = [
 	...BIRDS,
@@ -88,7 +88,9 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.DEER, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.ELK, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.MOOSE, { prey: PRODUCERS, predators: APEX_PREDATORS }],
+	[Species.BISON, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	// Insects
+	[Species.CATERPILLAR, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	[Species.ANT, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
 	// Rodents
@@ -100,23 +102,38 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
+	[Species.GARTER_SNAKE, { prey: [...RODENTS], predators: TERTIARY_CONSUMERS }],
 	// birds
 	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 	[Species.SPARROW, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 
 	// -------- Level 3 - Tertiary Consumers
 
-	[Species.FOX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
-	[Species.COYOTE, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
-	[Species.LYNX, { prey: [...RODENTS, ...SECONDARY_CONSUMERS], predators: APEX_PREDATORS }],
+	[
+		Species.FOX,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
+	[
+		Species.COYOTE,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
+	[
+		Species.LYNX,
+		{ prey: [...RODENTS, ...SECONDARY_CONSUMERS, Species.RABBIT], predators: APEX_PREDATORS },
+	],
 
 	// -------- Level 4 - Apex Predators
 
-	[Species.HAWK, { prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.COUGAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
-	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
+	[
+		Species.HAWK,
+		{ prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+	],
+	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[
+		Species.COUGAR,
+		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+	],
+	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
 ]);
 
 export interface SpeciesAttributes {
@@ -145,7 +162,7 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Producers
 	...makeAttributesForGroup(PRODUCERS, {
 		damage: 0,
-		speed: 100,
+		speed: 0,
 		health: 50,
 		view_radius: 0,
 		color: PRODUCER_GREEN,
@@ -183,10 +200,10 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		color: APEX_PREDATOR_PURPLE,
 	}),
 
-	[
-		Species.TEST,
-		{ damage: 30, speed: 300, health: 80, view_radius: 12, color: MAIN_PLAYER_BLUE },
-	],
+	// [
+	// 	Species.TEST,
+	// 	{ damage: 30, speed: 300, health: 80, view_radius: 12, color: MAIN_PLAYER_BLUE },
+	// ],
 ]);
 
 export const ALL_SPECIES = Object.values(Species);

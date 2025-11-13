@@ -1,5 +1,5 @@
 import { Position, Direction } from './types';
-import { Species, SpeciesAttributesMap } from '../common/types/Species';
+import { Species, SpeciesAttributesMap, SpeciesRelations } from '../common/types/Species';
 import { IDGenerator } from './IDGenerator';
 
 import { MapModel } from './MapModel';
@@ -21,15 +21,22 @@ export class EntityModel {
 	private attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
 
-	constructor(species: Species = Species.TEST, x: number = 0, y: number = 0) {
-		const attrs = SpeciesAttributesMap.get(species) ?? SpeciesAttributesMap.get(Species.TEST)!;
+	constructor(
+		species: Species = Species.MOUSE,
+		x: number = 0,
+		y: number = 0,
+		speed_boost: boolean = false,
+	) {
+		const attrs = SpeciesAttributesMap.get(species) ?? SpeciesAttributesMap.get(Species.MOUSE)!;
 		this.pos = { x, y };
 		this.species = species;
 		this.speed = attrs.speed;
+		if (speed_boost) {
+			this.speed = this.speed * 1.5;
+		}
 		this.health = attrs.health;
 		this.damage = attrs.damage;
 		this.color = attrs.color;
-		console.log('this.color: ' + this.color);
 		this.view_radius = attrs!.view_radius;
 		this.direction = Direction.Up;
 		this.id = IDGenerator.createUniqueHash();
@@ -96,11 +103,22 @@ export class EntityModel {
 	}
 
 	public isPreyOf(other_entity_model: EntityModel): boolean {
+		const relations = SpeciesRelations.get(other_entity_model.species);
+		if (relations!.prey.includes(this.species)) {
+			return true;
+		}
 		return false;
 	}
 
 	public isPredatorOf(other_entity_model: EntityModel): boolean {
-		return true;
+		const relations = SpeciesRelations.get(other_entity_model.species);
+		if (!relations) {
+			throw new Error();
+		}
+		if (relations.predators.includes(this.species)) {
+			return true;
+		}
+		return false;
 	}
 
 	public getColor(): string {
@@ -124,18 +142,7 @@ export class EntityModel {
 		const r = this.getViewRadius();
 		// prevent moving so that the player circle goes out of world bounds
 		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-
-		// simple collision: ask mapModel whether the new point or nearby points intersect a wall
-		const offsets = [
-			[0, 0],
-			[r * 0.7, 0],
-			[-r * 0.7, 0],
-			[0, r * 0.7],
-			[0, -r * 0.7],
-		];
-		for (const [ox, oy] of offsets) {
-			if (map_model.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy))) return false;
-		}
+		if (map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
 		this.setPosition(nx, ny);
 		return true;
 	}

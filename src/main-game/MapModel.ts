@@ -18,7 +18,7 @@ export class MapModel {
 	private walls: Wall[] = [];
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
-	private movableNPCs: EntityModel[] = [];
+	private npc_models: EntityModel[] = [];
 	private main_player: EntityModel | null = null;
 
 	// static defaults
@@ -119,13 +119,14 @@ export class MapModel {
 
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
-		let npc_models = npcs.map((npc) => npc.getModel());
-		npc_models = npc_models.concat(npc_models);
-		this.movableNPCs = npc_models.filter((npc) => {
-			const species = npc.getSpecies();
-			const attrs = SpeciesAttributesMap.get(species);
-			return attrs!.speed > 0;
-		});
+		let new_npc_models = npcs.map((npc) => npc.getModel());
+		this.npc_models = this.npc_models.concat(new_npc_models);
+		// this.movableNPCs = npc_models.filter((npc) => {
+		// 	const species = npc.getSpecies();
+		// 	const attrs = SpeciesAttributesMap.get(species);
+		// 	return attrs!.speed > 0;
+		// });
+		//this.movableNPCs = this.npcs;
 	}
 
 	public getNPCs(): NPC[] {
@@ -196,17 +197,22 @@ export class MapModel {
 	}
 
 	public isPointInsideWall(px: number, py: number) {
-		// since walls are axis-aligned rectangles, test against bbox of each wall
+		let r = 10;
 		for (const wall of this.walls) {
-			const b = this.bboxOfPoints(wall.points);
-			if (px >= b.minX && px <= b.maxX && py >= b.minY && py <= b.maxY) return true;
+			const minX = wall.points[0].x - r;
+			const maxX = wall.points[2].x + r;
+			const minY = wall.points[0].y - r;
+			const maxY = wall.points[2].y + r;
+
+			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
+				return true;
+			}
 		}
 		return false;
 	}
-
 	public getEntitiesInArea(npc_model: NPCModel) {
 		const entitiesInArea: EntityModel[] = [];
-		for (const entity_model of [...this.movableNPCs, this.main_player!]) {
+		for (const entity_model of [...this.npc_models, this.main_player!]) {
 			if (entity_model.getID() == npc_model.getID()) {
 				continue;
 			}

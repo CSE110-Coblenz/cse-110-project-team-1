@@ -40,6 +40,7 @@ export class NPCFactory {
 		const species_list: Species[] = Array.from(
 			{ length: num_npcs },
 			() => ALL_SPECIES[Math.floor(Math.random() * ALL_SPECIES.length)],
+			() => PRODUCERS[Math.floor(Math.random() * PRODUCERS.length)],
 		);
 		let npcs: NPC[] = [];
 		for (const species of species_list) {
@@ -75,7 +76,6 @@ export class NPCFactory {
 			for (let j = 0; j < count; j++) {
 				// Pick a random species within the group
 				const species = group[Math.floor(Math.random() * group.length)];
-				console.log('species: ' + species);
 				npcs.push(new NPC(species));
 			}
 		}
