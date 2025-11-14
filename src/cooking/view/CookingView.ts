@@ -24,9 +24,19 @@ export class CookingView {
 	}
 
 	/**
-	 * Initialize the view with game data
+	 * Initialize the view with game data.
+	 * Optionally accepts initial progress metrics so callers don't need a separate call.
+	 * @param customerData Active customer display data
+	 * @param label Current label/type selected by player
+	 * @param score Current score value
+	 * @param progress Optional initial progress counts { correct, incorrect, total }
 	 */
-	initialize(customerData: CustomerDisplayData[], label: string, score: number): void {
+	initialize(
+		customerData: CustomerDisplayData[],
+		label: string,
+		score: number,
+		progress?: { correct: number; incorrect: number; total: number },
+	): void {
 		console.log('CookingView.initialize called');
 		console.log('Customer data:', customerData);
 		console.log('Current label:', label);
@@ -55,6 +65,11 @@ export class CookingView {
 
 			// Create Konva progress bar
 			this.createKonvaProgressBar();
+
+			// If initial progress provided, set bars now (before other textual updates)
+			if (progress) {
+				this.updateProgress(progress.correct, progress.incorrect, progress.total);
+			}
 
 			// Create patience bars for initial customers
 			this.createOrRebuildPatienceStage(customerData);

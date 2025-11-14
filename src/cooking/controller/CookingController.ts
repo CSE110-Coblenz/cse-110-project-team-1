@@ -27,10 +27,8 @@ export default class CookingController {
 			this.model.getCustomerData(),
 			this.model.getLabel(),
 			this.model.getScore(),
+			this.model.getProgress(), // pass initial progress so initialize handles it
 		);
-		// Initialize progress bar in the view
-		const progressInit = this.model.getProgress();
-		this.view.updateProgress(progressInit.correct, progressInit.incorrect, progressInit.total);
 		// TODO: Game loop
 
 		// For now, just show we're working
