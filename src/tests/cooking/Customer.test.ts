@@ -38,7 +38,7 @@ describe('Customer', () => {
 
 	it('patience does not go below zero', () => {
 		const initialPatience = customer.patience;
-		const deltaTime = initialPatience / CookingGameConfig.PATIENCE_DECREASE_RATE + 1; // 1 second more than needed to deplete
+		const deltaTime = initialPatience / CookingGameConfig.PATIENCE_DECREASE_RATE + 1; // 1 millisecond more than needed to deplete
 		customer.updatePatience(deltaTime);
 
 		expect(customer.patience).toBe(0);
@@ -51,5 +51,10 @@ describe('Customer', () => {
 	it('isImpatient returns true when patience reaches zero', () => {
 		customer.patience = 0;
 		expect(customer.isImpatient()).toBe(true);
+	});
+
+	it('correctly identifies matching labels', () => {
+		expect(customer.isCorrectLabel('consumer')).toBe(true);
+		expect(customer.isCorrectLabel('predator')).toBe(false);
 	});
 });

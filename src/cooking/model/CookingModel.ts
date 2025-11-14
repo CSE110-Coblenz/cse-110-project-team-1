@@ -117,20 +117,10 @@ export class CookingModel {
 	 * @param labelType - The type of label being assigned
 	 * @returns Object with updated progress and whether assignment was correct
 	 */
-	handleAssignment(
-		customerId: string,
-		labelType: string,
-	): { correct: number; incorrect: number; total: number; wasCorrect: boolean } {
-		const total = CookingGameConfig.NUM_CUSTOMERS;
-		const totalServed = this.customersCorrect + this.customersIncorrect;
-
-		if (totalServed >= total) {
-			return {
-				correct: this.customersCorrect,
-				incorrect: this.customersIncorrect,
-				total,
-				wasCorrect: false,
-			};
+	handleAssignment(customerId: string): void {
+		// Check if label exists
+		if (!this.currentLabel) {
+			throw new Error('No current label available - initialize() must be called first');
 		}
 
 		// Find the customer by ID
@@ -142,43 +132,55 @@ export class CookingModel {
 				break;
 			}
 		}
-
 		if (!targetCustomer) {
-			return {
-				correct: this.customersCorrect,
-				incorrect: this.customersIncorrect,
-				total,
-				wasCorrect: false,
-			};
+			throw new Error(`Customer with ID ${customerId} not found among active customers`);
 		}
 
-		// Check if the assignment is correct
-		const isCorrect = this.isLabelCorrectForCustomer(targetCustomer, labelType);
-
+		// Check if the assignment is correct, and update state
+		const isCorrect = targetCustomer.isCorrectLabel(this.currentLabel.type);
 		if (isCorrect) {
-			this.customersCorrect = this.customersCorrect + 1;
-			this.score = this.score + 10;
+			this.customersCorrect += 1;
+			this.score += 10;
 		} else {
-			this.customersIncorrect = this.customersIncorrect + 1;
+			this.customersIncorrect += 1;
 		}
-
-		return {
-			correct: this.customersCorrect,
-			incorrect: this.customersIncorrect,
-			total,
-			wasCorrect: isCorrect,
-		};
+		const index = this.activeCustomers.indexOf(targetCustomer);
+		this.activeCustomers.splice(index, 1);
+		this.fillActiveCustomers();
+		this.currentLabel = DeckLogic.generateRandomLabel();
 	}
 
 	/**
-	 * Determines if a label is correct for a given customer.
-	 * This is where the business logic for correctness lives.
-	 * @param customer - The customer to check
-	 * @param labelType - The label type being assigned
-	 * @returns true if the label matches the customer's type
+	 * Handle discarding the current label and generating a new one.
 	 */
-	private isLabelCorrectForCustomer(customer: Customer, labelType: string): boolean {
-		// label is correct if it matches the customer's correctLabel.type
-		return customer.correctLabel.type === labelType;
+	public discardLabel(): void {
+		this.currentLabel = DeckLogic.generateRandomLabel();
+	}
+
+	/**
+	 * Updates the model state, including customer patience.
+	 * Should be called every frame with the elapsed time since last update.
+	 * @param deltaTime - Time elapsed in milliseconds since last update
+	 */
+	public updatePatience(deltaTime: number): void {
+		// Iterate backwards to safely remove items
+		for (let i = this.activeCustomers.length - 1; i >= 0; i--) {
+			const customer = this.activeCustomers[i];
+			customer.updatePatience(deltaTime);
+			if (customer.isImpatient()) {
+				this.customersIncorrect += 1;
+				this.activeCustomers.splice(i, 1);
+			}
+		}
+
+		this.fillActiveCustomers();
+	}
+
+	/**
+	 * Checks if the game is over (all customers served)
+	 * @returns true if all customers have been served
+	 */
+	isGameOver(): boolean {
+		return this.customersCorrect + this.customersIncorrect >= CookingGameConfig.NUM_CUSTOMERS;
 	}
 }
