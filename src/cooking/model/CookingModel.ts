@@ -181,4 +181,17 @@ export class CookingModel {
 		// label is correct if it matches the customer's correctLabel.type
 		return customer.correctLabel.type === labelType;
 	}
+
+	/**
+	 * Decrease patience for all active customers by deltaSeconds.
+	 * This is a simple time step used for visual testing of patience bars.
+	 */
+	tick(deltaSeconds: number): void {
+		if (deltaSeconds <= 0) {
+			return;
+		}
+		for (let i = 0; i < this.activeCustomers.length; i++) {
+			this.activeCustomers[i].updatePatience(deltaSeconds);
+		}
+	}
 }

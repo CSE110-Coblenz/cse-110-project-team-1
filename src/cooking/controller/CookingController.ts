@@ -167,6 +167,18 @@ export default class CookingController {
 		// }, 5000);
 
 		console.log('=== View Method Tests Scheduled ===\n');
+
+		// Start a small demo loop to slowly decrease patience so the bars animate
+		// This keeps existing code intact and only adds a visual test
+		const intervalMs = 250;
+		const intervalId = window.setInterval(() => {
+			this.model.tick(intervalMs / 1000);
+			this.view.updateCustomers(this.model.getCustomerData());
+		}, intervalMs);
+		// Stop after 10 seconds so it doesn't run forever in the demo
+		setTimeout(() => {
+			clearInterval(intervalId);
+		}, 10000);
 	}
 
 	/**
