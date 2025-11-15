@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { GameScene } from 'src/main-game/GameScene';
+import { Species, pickSpeciesForLevel } from 'src/common/types/Species';
 
 // expose a simple start/stop API so an external UI can mount/unmount the game
 export interface GameHandle {
@@ -21,17 +22,41 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	const layer = new Konva.Layer();
 	stage.add(layer);
 
-	const scene = new GameScene(layer);
-	scene.start();
+	// implement a 4-level progression
+	let scene: GameScene | undefined;
+	let currentLevel = 1;
+	const maxLevels = 4;
+
+
+	function startLevel(level: number) {
+		if (scene) {
+			scene.stop();
+			scene = undefined;
+		}
+		const species = pickSpeciesForLevel(level);
+		scene = new GameScene(layer, {
+			levelNumber: level,
+			species,
+			onLevelComplete: () => {
+				if (level < maxLevels) startLevel(level + 1);
+				else {
+					scene?.stop();
+				}
+			},
+			onPlayerDeath: () => {
+				scene?.stop();
+			},
+		});
+		scene.start();
+	}
+
+	// start first level
+	startLevel(currentLevel);
 
 	function stop() {
-		scene.stop();
-		try {
-			stage.destroy();
-		} catch (e) {
-			/* ignore */
-		}
-		if (div.parentElement) div.parentElement.removeChild(div);
+		scene?.stop();
+		stage?.destroy();
+		div.parentElement?.removeChild(div);
 	}
 
 	return { stop };

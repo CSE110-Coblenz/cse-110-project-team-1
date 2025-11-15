@@ -1,11 +1,6 @@
 import Konva from 'konva';
 import { Viewport, Wall } from 'src/main-game/types';
 
-/**
- * MapView renders a viewport of the MapModel.
- * It preserves the original class name and API but supports rendering to
- * either a CanvasRenderingContext2D (legacy) or a Konva.Layer (preferred).
- */
 export class MapView {
 	// static defaults
 	public static DEFAULT_BACKGROUND = '#87ceeb';
@@ -62,7 +57,6 @@ export class MapView {
 			return;
 		}
 
-		// Canvas path (legacy)
 		const ctx = ctxOrLayer as CanvasRenderingContext2D;
 		ctx.clearRect(0, 0, viewport.width, viewport.height);
 		ctx.fillStyle = this.backgroundColor;
