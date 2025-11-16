@@ -1,8 +1,8 @@
-import { Position, Direction } from './types';
-import { Species, SpeciesAttributesMap, SpeciesRelations } from '../common/types/Species';
-import { IDGenerator } from './IDGenerator';
+import { Position, Direction } from 'src/main-game/types';
+import { Species, SpeciesAttributesMap, SpeciesRelations } from 'src/common/types/Species';
+import { IDGenerator } from 'src/main-game/IDGenerator';
 
-import { MapModel } from './MapModel';
+import { MapModel } from 'src/main-game/MapModel';
 
 export class EntityModel {
 	protected direction: Direction;

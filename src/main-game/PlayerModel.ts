@@ -1,5 +1,5 @@
 import { Species } from 'src/common/types/Species';
-import { EntityModel } from './EntityModel';
+import { EntityModel } from 'src/main-game/EntityModel';
 
 export class PlayerModel extends EntityModel {
 	experience: number = 0;
