@@ -7,7 +7,7 @@ import { MapModel } from './MapModel';
 export class EntityModel {
 	protected direction: Direction;
 	protected pos: Position;
-	protected view_radius: number;
+	public view_radius: number;
 	protected speed: number;
 	protected health: number;
 	protected color: string;

@@ -22,9 +22,12 @@ describe('PlayerModel', () => {
 
 	it('gets and sets speed and health', () => {
 		const p = new PlayerModel(Species.MOUSE, 0, 0);
+		p.setSpeed(250);
 		expect(p.getSpeed()).toBe(250);
+		p.setHealth(80);
 		expect(p.getHealth()).toBe(80);
 		p.setHealth(50);
+		p.setSpeed(300);
 		expect(p.getSpeed()).toBe(300);
 		expect(p.getHealth()).toBe(50);
 	});

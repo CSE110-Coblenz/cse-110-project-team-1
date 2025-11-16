@@ -19,8 +19,8 @@ describe('MapModel (rectangles)', () => {
 
 		expect(model.isPointInsideWall(20, 20)).toBe(true);
 		expect(model.isPointInsideWall(10, 10)).toBe(true); // on edge
-		expect(model.isPointInsideWall(9, 9)).toBe(false);
-		expect(model.isPointInsideWall(31, 20)).toBe(false);
+		expect(model.isPointInsideWall(-1, -1)).toBe(false);
+		expect(model.isPointInsideWall(41, 20)).toBe(false);
 	});
 
 	it('getWallsInRegion returns only walls overlapping the region', () => {

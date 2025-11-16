@@ -10,9 +10,15 @@ export class PlayerModel extends EntityModel {
 		y: number = 0,
 		speed_boost: boolean = false,
 		experience: number = 0,
+		radius: number = 10
 	) {
 		super(species, x, y, speed_boost);
 		this.experience = experience;
+	}
+
+	//primarily for testing
+	public setSpeed(newSpeed: number): void {
+		this.speed = newSpeed;
 	}
 
 	public getExperience(): number {
