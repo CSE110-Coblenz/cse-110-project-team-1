@@ -128,7 +128,7 @@ export class PlayerController {
 		this.view.draw(
 			target,
 			viewport,
-			"red",
+			'red',
 			this.model.getPosition(),
 			//this.model.getDirection(),
 			this.model.view_radius,

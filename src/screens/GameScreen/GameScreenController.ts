@@ -50,7 +50,7 @@ export class GameScreenController extends ScreenController {
 
 		// pick a species for the player
 		const species = pickSpeciesForLevel(level);
-		console.log("level begun as a: " + species);
+		console.log('level begun as a: ' + species);
 
 		// create new scene with callbacks
 		this.scene = new GameScene(this.layer, {
@@ -63,7 +63,6 @@ export class GameScreenController extends ScreenController {
 				} else {
 					// finished all levels -> victory
 					this.screenSwitcher.switchToScreen({ type: 'victory' });
-
 				}
 			},
 			onPlayerDeath: () => {

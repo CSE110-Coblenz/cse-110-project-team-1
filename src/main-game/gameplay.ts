@@ -27,7 +27,6 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	let currentLevel = 1;
 	const maxLevels = 4;
 
-
 	function startLevel(level: number) {
 		if (scene) {
 			scene.stop();
