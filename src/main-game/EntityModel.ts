@@ -20,6 +20,8 @@ export class EntityModel {
 	private got_attacked: boolean = false;
 	private swelling_down: boolean = false;
 
+	private static FLASH_SPEED: number = 15;
+
 	public attackRange = 5;
 	private attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
@@ -92,17 +94,6 @@ export class EntityModel {
 			`#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`,
 	};
 
-	public hexToRgb(hex: string): [number, number, number] {
-		const r = parseInt(hex.slice(1, 3), 16);
-		const g = parseInt(hex.slice(3, 5), 16);
-		const b = parseInt(hex.slice(5, 7), 16);
-		return [r, g, b];
-	}
-
-	public rgbToHex(r: number, g: number, b: number): string {
-		return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
-	}
-
 	public getSpecies(): Species {
 		return this.species;
 	}
@@ -171,7 +162,7 @@ export class EntityModel {
 	public setColorAndRadius(deltaSec: number) {
 		if (this.got_attacked || this.swelling_down) {
 			const goal = this.got_attacked ? this.flash_view_radius : this.base_view_radius;
-			this.view_radius += (goal - this.view_radius) * deltaSec * 30;
+			this.view_radius += (goal - this.view_radius) * deltaSec * EntityModel.FLASH_SPEED;
 
 			if (Math.abs(goal - this.view_radius) < 0.5) {
 				if (this.got_attacked) {
@@ -184,13 +175,13 @@ export class EntityModel {
 		}
 
 		const goalColor = this.got_attacked ? this.flash_color : this.base_color;
-		const [rCurr, gCurr, bCurr] = this.hexToRgb(this.color);
-		const [rGoal, gGoal, bGoal] = this.hexToRgb(goalColor);
+		const [rCurr, gCurr, bCurr] = this.colorUtils.hexToRgb(this.color);
+		const [rGoal, gGoal, bGoal] = this.colorUtils.hexToRgb(goalColor);
 		const r = rCurr + (rGoal - rCurr) * deltaSec * 30;
 		const g = gCurr + (gGoal - gCurr) * deltaSec * 30;
 		const b = bCurr + (bGoal - bCurr) * deltaSec * 30;
 
-		this.color = this.rgbToHex(r, g, b);
+		this.color = this.colorUtils.rgbToHex(r, g, b);
 	}
 
 	public takeDamage(damage: number): void {

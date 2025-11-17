@@ -45,10 +45,3 @@ export function distance(a: Position, b: Position): number {
 	const dy = a.y - b.y;
 	return Math.hypot(dx, dy);
 }
-
-// export colorUtils = {
-//     hexToRgb: (hex: string): [number, number, number] =>
-//         [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)],
-//     rgbToHex: (r:number,g:number,b:number) =>
-//         `#${Math.round(r).toString(16).padStart(2,'0')}${Math.round(g).toString(16).padStart(2,'0')}${Math.round(b).toString(16).padStart(2,'0')}`
-// };

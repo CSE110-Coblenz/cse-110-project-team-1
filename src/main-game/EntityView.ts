@@ -1,8 +1,10 @@
 import Konva from 'konva';
-import { Position, Viewport } from './types';
+import { Direction, Position, Viewport } from './types';
 
 // Later we can accept an image and draw that instead.
 export class EntityView {
+	//protected color = '#ffcc00';
+
 	public draw(
 		target: CanvasRenderingContext2D | Konva.Layer,
 		viewport: Viewport,
@@ -24,6 +26,7 @@ export class EntityView {
 				fill: color,
 			});
 			layer.add(circle);
+			return;
 		}
 	}
 }
