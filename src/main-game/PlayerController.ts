@@ -103,6 +103,7 @@ export class PlayerController {
 			target,
 			viewport,
 			this.model.getColor(),
+			this.model.getKonvaObject(),
 			this.model.getPosition(),
 			this.model.getViewRadius(),
 		);

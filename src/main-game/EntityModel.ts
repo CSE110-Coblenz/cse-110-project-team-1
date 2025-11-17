@@ -11,6 +11,7 @@ export class EntityModel {
 	protected speed: number;
 	protected health: number;
 	protected color: string;
+	protected object: Konva.circle
 	public predator: EntityModel | null;
 	public prey: EntityModel | null;
 	protected damage: number;
@@ -125,9 +126,28 @@ export class EntityModel {
 		return this.color;
 	}
 
+	public tintRed(amt = 30): void{
+		console.log("We're tinting ourselves (ID): " + this.getID() + ", red");
+		const n = parseInt(this.color.slice(1), 16);
+		const r = Math.min(255, (n >> 16) + amt);
+		this.color = "#" + ((r << 16) | (n & 0x00FFFF)).toString(16).padStart(6, "0");
+	};
+
+	private inflate(): void{
+
+	}
+
+	public getKonvaObject(): Konva.circle{
+		return this.object
+	}
+
 	public takeDamage(damage: number): void {
+		console.log("We are taking damage");
+		console.log("Our current color:" + this.getColor() + ", ID: " + this.getID());
 		this.health -= damage;
 		if (this.health < 0) this.die();
+		this.inflate();
+		this.tintRed();
 	}
 
 	public die(): void {

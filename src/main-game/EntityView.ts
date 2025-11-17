@@ -9,6 +9,7 @@ export class EntityView {
 		target: CanvasRenderingContext2D | Konva.Layer,
 		viewport: Viewport,
 		color: string,
+		circle: Konva.Circle,
 		position: Position,
 		//direction: Direction,
 		radius: number,
@@ -18,13 +19,22 @@ export class EntityView {
 			(target as Konva.Layer).getClassName &&
 			(target as Konva.Layer).getClassName() === 'Layer'
 		) {
+			// if(circle){
+
+			// }
 			const layer = target as Konva.Layer;
-			const circle = new Konva.Circle({
-				x: position.x - viewport.x,
-				y: position.y - viewport.y,
-				radius,
-				fill: color,
-			});
+			circle.remove();
+			// const circle = new Konva.Circle({
+			// 	x: position.x - viewport.x,
+			// 	y: position.y - viewport.y,
+			// 	radius,
+			// 	fill: color,
+			// });
+
+			circle.x(position.x - viewport.x);
+			circle.y(position.y - viewport.y);
+			circle.radius(radius);
+			circle.fill(color);
 			layer.add(circle);
 			return;
 		}
