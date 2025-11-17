@@ -108,6 +108,8 @@ export class NPCModel extends EntityModel {
 		}
 		const success = this.tryMove(map_model, dirX * step, dirY * step);
 
+		this.setColorAndRadius(deltaSec);
+
 		if (!success && this.predator) {
 			const angle = (Math.random() - 0.5) * Math.PI;
 			const cos = Math.cos(angle);

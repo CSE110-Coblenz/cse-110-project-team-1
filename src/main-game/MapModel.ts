@@ -15,7 +15,7 @@ export class MapModel {
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
 	private npc_models: EntityModel[] = [];
-	private main_player: EntityModel | null = null;
+	public main_player: EntityModel | null = null;
 
 	// static defaults
 	public static DEFAULT_SPACING = 80;

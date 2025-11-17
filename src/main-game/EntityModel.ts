@@ -11,16 +11,24 @@ export class EntityModel {
 	protected speed: number;
 	protected health: number;
 	protected color: string;
-	protected object: Konva.circle
 	public predator: EntityModel | null;
 	public prey: EntityModel | null;
 	protected damage: number;
 	protected species: Species;
 	protected id: string;
 
+	private got_attacked: boolean = false;
+	private swelling_down: boolean = false;
+
 	public attackRange = 5;
 	private attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
+
+	private base_view_radius: number;
+	private flash_view_radius: number;
+
+	private base_color: string;
+	private flash_color: string;
 
 	constructor(
 		species: Species = Species.MOUSE,
@@ -38,11 +46,24 @@ export class EntityModel {
 		this.health = attrs.health;
 		this.damage = attrs.damage;
 		this.color = attrs.color;
+		this.base_color = this.color;
+		this.flash_color = this.makeFlashColor(this.base_color, 0.5); // red-tinted;
 		this.view_radius = attrs!.view_radius;
+		this.base_view_radius = this.view_radius;
+		this.flash_view_radius = this.view_radius * 1.5;
 		this.direction = Direction.Up;
 		this.id = IDGenerator.createUniqueHash();
 		this.predator = null;
 		this.prey = null;
+	}
+
+	private makeFlashColor(baseHex: string, intensity = 0.5) {
+		const [r, g, b] = this.colorUtils.hexToRgb(baseHex);
+		return this.colorUtils.rgbToHex(
+			r + (255 - r) * intensity,
+			g * (1 - intensity),
+			b * (1 - intensity),
+		);
 	}
 
 	public getID(): string {
@@ -59,6 +80,27 @@ export class EntityModel {
 
 	public getHealth(): number {
 		return this.health;
+	}
+
+	public colorUtils = {
+		hexToRgb: (hex: string): [number, number, number] => [
+			parseInt(hex.slice(1, 3), 16),
+			parseInt(hex.slice(3, 5), 16),
+			parseInt(hex.slice(5, 7), 16),
+		],
+		rgbToHex: (r: number, g: number, b: number) =>
+			`#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`,
+	};
+
+	public hexToRgb(hex: string): [number, number, number] {
+		const r = parseInt(hex.slice(1, 3), 16);
+		const g = parseInt(hex.slice(3, 5), 16);
+		const b = parseInt(hex.slice(5, 7), 16);
+		return [r, g, b];
+	}
+
+	public rgbToHex(r: number, g: number, b: number): string {
+		return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
 	}
 
 	public getSpecies(): Species {
@@ -126,28 +168,39 @@ export class EntityModel {
 		return this.color;
 	}
 
-	public tintRed(amt = 30): void{
-		console.log("We're tinting ourselves (ID): " + this.getID() + ", red");
-		const n = parseInt(this.color.slice(1), 16);
-		const r = Math.min(255, (n >> 16) + amt);
-		this.color = "#" + ((r << 16) | (n & 0x00FFFF)).toString(16).padStart(6, "0");
-	};
+	public setColorAndRadius(deltaSec: number) {
+		if (this.got_attacked || this.swelling_down) {
+			const goal = this.got_attacked ? this.flash_view_radius : this.base_view_radius;
+			this.view_radius += (goal - this.view_radius) * deltaSec * 30;
 
-	private inflate(): void{
+			if (Math.abs(goal - this.view_radius) < 0.5) {
+				if (this.got_attacked) {
+					this.got_attacked = false;
+					this.swelling_down = true;
+				} else if (this.swelling_down) {
+					this.swelling_down = false;
+				}
+			}
+		}
 
-	}
+		const goalColor = this.got_attacked ? this.flash_color : this.base_color;
+		const [rCurr, gCurr, bCurr] = this.hexToRgb(this.color);
+		const [rGoal, gGoal, bGoal] = this.hexToRgb(goalColor);
+		const r = rCurr + (rGoal - rCurr) * deltaSec * 30;
+		const g = gCurr + (gGoal - gCurr) * deltaSec * 30;
+		const b = bCurr + (bGoal - bCurr) * deltaSec * 30;
 
-	public getKonvaObject(): Konva.circle{
-		return this.object
+		this.color = this.rgbToHex(r, g, b);
 	}
 
 	public takeDamage(damage: number): void {
-		console.log("We are taking damage");
-		console.log("Our current color:" + this.getColor() + ", ID: " + this.getID());
+		this.got_attacked = true;
 		this.health -= damage;
 		if (this.health < 0) this.die();
-		this.inflate();
-		this.tintRed();
+	}
+
+	public update(mapModel: MapModel, deltaSec: number): void {
+		this.setColorAndRadius(deltaSec);
 	}
 
 	public die(): void {
