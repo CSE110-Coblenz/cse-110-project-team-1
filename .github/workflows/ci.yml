@@ -6,54 +6,81 @@ on:
     branches: [main, develop]
 
 jobs:
+  # ----------------- Setup Job -----------------
+  setup:
+    name: Setup Node & Cache
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache.outputs.cache-key }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache Node Modules
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+      - run: npm ci --prefer-offline
+
   # ----------------- Formatting Job -----------------
   format:
-    name: Format Check
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm ci
-      - name: Check Prettier formatting
-        run: npx prettier --check 'src/**/*.ts'
+          node-version: 20
+      - uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ needs.setup.outputs.cache-key }}
+      - run: npx prettier --check 'src/**/*.ts'
 
   # ----------------- ESLint Job -----------------
   lint:
-    name: ESLint Check
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm ci
-      - name: Run ESLint
-        run: npx eslint 'src/**/*.ts'
+          node-version: 20
+      - uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ needs.setup.outputs.cache-key }}
+      - run: npx eslint 'src/**/*.ts'
 
   # ----------------- Type Checking Job -----------------
   types:
-    name: Type Check
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm ci
-      - name: Run TypeScript
-        run: npx tsc --noEmit
+          node-version: 20
+      - uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ needs.setup.outputs.cache-key }}
+      - run: npx tsc --noEmit
 
   # ----------------- Unit Tests Job -----------------
   tests:
-    name: Unit Tests
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm ci
-      - name: Run Tests
-        run: npm test
+          node-version: 20
+      - uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ needs.setup.outputs.cache-key }}
+      - run: npm test
