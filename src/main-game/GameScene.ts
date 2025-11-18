@@ -63,9 +63,9 @@ export class GameScene {
     this.playerModel = new PlayerModel(
       Math.floor(this.mapModel.getWidth() / 2),
       Math.floor(this.mapModel.getHeight() / 2),
-      12,   // speed (adapt to your API)
-      800,  // e.g., accel/maxSpeed
-      100,  // health
+      12,    
+      800,  
+      100,  
       Species.ANTEATER
     );
     this.playerView = new PlayerView();

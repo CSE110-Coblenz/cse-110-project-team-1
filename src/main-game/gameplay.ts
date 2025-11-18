@@ -17,7 +17,7 @@ export async function startGame(
   div.style.height = '100%';
   (container || document.body).appendChild(div);
 
-  // Stage
+  
   const stage = new Konva.Stage({
     container: div,
     width: window.innerWidth,
@@ -36,7 +36,7 @@ export async function startGame(
   hud.show();
   uiLayer.draw();
 
-  // GameScene (owns world); HUD updates flow via callback
+
   const scene = new GameScene(gameLayer, {
     ...sceneOptions,
     onHudUpdate: ({ health }) => {
