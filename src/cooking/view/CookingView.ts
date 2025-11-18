@@ -18,6 +18,13 @@ export class CookingView {
 	private patienceStage: Konva.Stage | null = null;
 	private patienceBarMap: Map<string, Konva.Rect> = new Map();
 	private patienceLabelMap: Map<string, Konva.Text> = new Map();
+	// Track which customer is in each screen spot (0, 1, 2) for stable positioning
+	// spot -> customerId (null = empty spot)
+	private screenSpots: Map<number, string | null> = new Map([
+		[0, null],
+		[1, null],
+		[2, null],
+	]);
 
 	constructor() {
 		console.log('CookingView created');
@@ -293,6 +300,7 @@ export class CookingView {
 	/**
 	 * Creates or rebuilds the patience bar stage for current active customers.
 	 * Called at initialization or when customer list structure changes.
+	 * Maintains stable screen positions: tracks which customer is in each of the 3 spots.
 	 */
 	private createOrRebuildPatienceStage(customerData: CustomerDisplayData[]): void {
 		const container = document.getElementById('patience-konva-container');
@@ -300,7 +308,40 @@ export class CookingView {
 			return;
 		}
 
-		// If stage exists and count changed, destroy and rebuild
+		// Build set of incoming customer IDs
+		const incomingIds = new Set(customerData.map((c) => c.customerId));
+
+		// Step 1: See which customers have left and free their spots
+		for (const [spot, customerId] of this.screenSpots.entries()) {
+			if (customerId !== null && !incomingIds.has(customerId)) {
+				this.screenSpots.set(spot, null); // Mark spot as empty
+			}
+		}
+
+		// Step 2: Find new customers (in incoming data but not currently in any spot)
+		const currentlyDisplayed = new Set(
+			Array.from(this.screenSpots.values()).filter((id) => id !== null),
+		);
+		const newCustomers: string[] = [];
+		for (const customer of customerData) {
+			if (!currentlyDisplayed.has(customer.customerId)) {
+				newCustomers.push(customer.customerId);
+			}
+		}
+
+		// Step 3: Assign new customers to empty spots (fill lower spots first)
+		let newCustomerIndex = 0;
+		for (let spot = 0; spot < 3; spot++) {
+			if (
+				this.screenSpots.get(spot) === null &&
+				newCustomerIndex < newCustomers.length
+			) {
+				this.screenSpots.set(spot, newCustomers[newCustomerIndex]);
+				newCustomerIndex++;
+			}
+		}
+
+		// Rebuild stage
 		if (this.patienceStage) {
 			this.patienceStage.destroy();
 			this.patienceStage = null;
@@ -323,9 +364,26 @@ export class CookingView {
 		});
 		const layer = new Konva.Layer();
 
-		for (let i = 0; i < customerData.length; i++) {
-			const c = customerData[i];
-			const yBase = i * rowHeight;
+		// Build a map for quick lookup: customerId -> customerData
+		const customerDataMap = new Map<string, CustomerDisplayData>();
+		for (const c of customerData) {
+			customerDataMap.set(c.customerId, c);
+		}
+
+		// Render customers in screen spot order (0, 1, 2)
+		let rowIndex = 0;
+		for (let spot = 0; spot < 3; spot++) {
+			const customerId = this.screenSpots.get(spot);
+			if (customerId === null || customerId === undefined) {
+				continue; // Skip empty spots
+			}
+
+			const c = customerDataMap.get(customerId);
+			if (!c) {
+				continue; // Skip if customer data not found
+			}
+
+			const yBase = rowIndex * rowHeight;
 			// Text label: ID or type
 			const labelText = new Konva.Text({
 				x: 0,
@@ -360,6 +418,8 @@ export class CookingView {
 			});
 			layer.add(fg);
 			this.patienceBarMap.set(c.customerId, fg);
+
+			rowIndex++;
 		}
 
 		this.patienceStage.add(layer);
@@ -367,6 +427,7 @@ export class CookingView {
 
 	/**
 	 * Updates patience bar widths and colors with animation.
+	 * Rebuilds if customer IDs have changed (not just count).
 	 */
 	private updatePatienceBars(customerData: CustomerDisplayData[]): void {
 		// If stage not yet created but data exists, build it.
@@ -375,13 +436,25 @@ export class CookingView {
 			return;
 		}
 
-		// If number differs, rebuild.
-		if (this.patienceStage && this.patienceBarMap.size !== customerData.length) {
+		// Check if customer IDs have changed (Option B: detect ID changes)
+		const currentIds = new Set(this.patienceBarMap.keys());
+		const incomingIds = new Set(customerData.map((c) => c.customerId));
+
+		// Rebuild if count differs or IDs don't match
+		if (currentIds.size !== incomingIds.size) {
 			this.createOrRebuildPatienceStage(customerData);
 			return;
 		}
 
-		const width = PATIENCE_BAR_WIDTH;
+		// Check if all IDs match
+		for (const id of currentIds) {
+			if (!incomingIds.has(id)) {
+				this.createOrRebuildPatienceStage(customerData);
+				return;
+			}
+		}
+
+		// IDs match, just animate the bars
 		for (let i = 0; i < customerData.length; i++) {
 			const c = customerData[i];
 			const bar = this.patienceBarMap.get(c.customerId);
