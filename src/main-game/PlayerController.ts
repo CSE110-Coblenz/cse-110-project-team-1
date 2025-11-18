@@ -99,6 +99,7 @@ export class PlayerController {
 	}
 
 	public tryMove(dx: number, dy: number) {
+		/* Attempt to move the player by (dx, dy). returns true if successful, false otherwise */
 		const pos = this.model.getPosition();
 		const nx = pos.x + dx;
 		const ny = pos.y + dy;
