@@ -98,13 +98,14 @@ export class PlayerController {
 		this.renderCallback = null;
 	}
 
-	private tryMove(dx: number, dy: number) {
+	public tryMove(dx: number, dy: number) {
+		/* Attempt to move the player by (dx, dy). returns true if successful, false otherwise */
 		const pos = this.model.getPosition();
 		const nx = pos.x + dx;
 		const ny = pos.y + dy;
 		const mapW = this.mapModel.getWidth();
 		const mapH = this.mapModel.getHeight();
-		const r = this.model.radius;
+		const r = this.model.view_radius;
 		// prevent moving so that the player circle goes out of world bounds
 		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
 
@@ -128,9 +129,10 @@ export class PlayerController {
 		this.view.draw(
 			target,
 			viewport,
+			'red',
 			this.model.getPosition(),
-			this.model.getDirection(),
-			this.model.radius,
+			//this.model.getDirection(),
+			this.model.view_radius,
 		);
 	}
 }

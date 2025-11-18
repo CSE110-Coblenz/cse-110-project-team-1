@@ -1,70 +1,31 @@
-import { Position, Direction, DEFAULT_ATTRIBUTES } from 'src/main-game/types';
 import { Species } from 'src/common/types/Species';
+import { EntityModel } from 'src/main-game/EntityModel';
 
-export class PlayerModel {
-	protected static DEFAULT_ADVANCE = 24;
-	protected direction: Direction;
-	protected pos: Position;
-	public radius: number;
-	protected speed: number;
-	protected health: number;
-	protected species: Species;
+export class PlayerModel extends EntityModel {
+	experience: number = 0;
 
 	constructor(
-		x = 0,
-		y = 0,
-		radius = DEFAULT_ATTRIBUTES.radius,
-		speed = DEFAULT_ATTRIBUTES.speed,
-		health = DEFAULT_ATTRIBUTES.health,
-		species = DEFAULT_ATTRIBUTES.species,
+		species: Species = Species.MOUSE,
+		x: number = 0,
+		y: number = 0,
+		speed_boost: boolean = false,
+		experience: number = 0,
+		radius: number = 10,
 	) {
-		this.pos = { x, y };
-		this.radius = radius;
-		this.speed = speed;
-		this.health = health;
-		this.species = species;
-		this.direction = Direction.Up;
+		super(species, x, y, speed_boost);
+		this.experience = experience;
 	}
 
-	public getPosition(): Position {
-		return { ...this.pos };
+	//primarily for testing
+	public setSpeed(newSpeed: number): void {
+		this.speed = newSpeed;
 	}
 
-	public getSpeed(): number {
-		return this.speed;
+	public getExperience(): number {
+		return this.experience;
 	}
 
-	public getHealth(): number {
-		return this.health;
-	}
-
-	public getSpecies(): Species {
-		return this.species;
-	}
-
-	public setSpeed(speed: number) {
-		this.speed = speed;
-	}
-
-	public setHealth(health: number) {
-		this.health = health;
-	}
-
-	public setPosition(x: number, y: number) {
-		this.pos.x = x;
-		this.pos.y = y;
-	}
-
-	public moveBy(dx: number, dy: number) {
-		this.pos.x += dx;
-		this.pos.y += dy;
-	}
-
-	public getDirection() {
-		return this.direction;
-	}
-
-	public setDirection(direction: Direction) {
-		this.direction = direction;
+	public setExperience(exp: number): void {
+		this.experience = exp;
 	}
 }

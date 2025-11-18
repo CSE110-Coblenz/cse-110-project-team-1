@@ -8,7 +8,7 @@ import { MapController } from 'src/main-game/MapController';
 
 describe('PlayerController (movement & collision)', () => {
 	it('moves when destination is clear and within bounds', () => {
-		const player = new PlayerModel(50, 50, 10, 100, 100, Species.TEST);
+		const player = new PlayerModel(Species.MOUSE, 50, 50);
 		const view = new PlayerView();
 		const mapMock = {
 			getWidth: () => 200,
@@ -18,13 +18,13 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(10, 0);
+		const moved = pc.tryMove(10, 0);
 		expect(moved).toBe(true);
 		expect(player.getPosition()).toEqual({ x: 60, y: 50 });
 	});
 
 	it('prevents movement that would go out of world bounds', () => {
-		const player = new PlayerModel(190, 100, 10, 100, 100, Species.TEST);
+		const player = new PlayerModel(Species.MOUSE, 190, 100);
 		const view = new PlayerView();
 		const mapMock = {
 			getWidth: () => 200,
@@ -34,13 +34,13 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(20, 0); // would push x to 210, beyond width
+		const moved = pc.tryMove(20, 0); // would push x to 210, beyond width
 		expect(moved).toBe(false);
 		expect(player.getPosition()).toEqual({ x: 190, y: 100 });
 	});
 
 	it('prevents movement that would intersect a wall', () => {
-		const player = new PlayerModel(50, 50, 10, 100, 100, Species.TEST);
+		const player = new PlayerModel(Species.MOUSE, 50, 50);
 		const view = new PlayerView();
 		const mapMock = {
 			getWidth: () => 200,
@@ -53,7 +53,7 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(20, 0); // target x = 70
+		const moved = pc.tryMove(20, 0); // target x = 70
 		expect(moved).toBe(false);
 		expect(player.getPosition()).toEqual({ x: 50, y: 50 });
 	});
