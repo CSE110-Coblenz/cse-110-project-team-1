@@ -160,13 +160,13 @@ export class CookingModel {
 	/**
 	 * Updates the model state, including customer patience.
 	 * Should be called every frame with the elapsed time since last update.
-	 * @param deltaTime - Time elapsed in milliseconds since last update
+	 * @param deltaSeconds - Time elapsed in seconds since last update
 	 */
-	public updatePatience(deltaTime: number): void {
+	public updatePatience(deltaSeconds: number): void {
 		// Iterate backwards to safely remove items
 		for (let i = this.activeCustomers.length - 1; i >= 0; i--) {
 			const customer = this.activeCustomers[i];
-			customer.updatePatience(deltaTime);
+			customer.updatePatience(deltaSeconds);
 			if (customer.isImpatient()) {
 				this.customersIncorrect += 1;
 				this.activeCustomers.splice(i, 1);
@@ -192,8 +192,7 @@ export class CookingModel {
 		if (deltaSeconds <= 0) {
 			return;
 		}
-		for (let i = 0; i < this.activeCustomers.length; i++) {
-			this.activeCustomers[i].updatePatience(deltaSeconds);
-		}
+		// Delegate to the main update method to keep logic in one place
+		this.updatePatience(deltaSeconds);
 	}
 }

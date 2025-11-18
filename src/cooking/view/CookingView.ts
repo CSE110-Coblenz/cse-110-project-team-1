@@ -8,6 +8,8 @@ const PATIENCE_BAR_WIDTH = 400;
 const PATIENCE_ROW_HEIGHT = 28; // label row height
 const PATIENCE_BAR_HEIGHT = 12;
 const ANIM_DURATION = 0.25; // seconds
+// Snappy animation for progress updates
+const PROGRESS_ANIM_DURATION = 0.08; // seconds
 
 export class CookingView {
 	private progressStage: Konva.Stage | null = null;
@@ -113,14 +115,14 @@ export class CookingView {
 			fill: 'black',
 		});
 
-		// Progress numeric text (e.g., "0/5")
+		// Progress numeric text (e.g., "0/5 (0%)")
 		this.progressText = new Konva.Text({
-			x: 340,
+			x: 280,
 			y: 0,
-			text: '0/0',
+			text: '0/0 (0%)',
 			fontSize: 14,
 			fill: 'black',
-			width: 60,
+			width: 120,
 			align: 'right',
 		});
 
@@ -196,8 +198,8 @@ export class CookingView {
 		let percentCorrect = 0;
 		let percentTotal = 0;
 		if (safeTotal > 0) {
-			percentCorrect = Math.round((correct * 100) / safeTotal);
-			percentTotal = Math.round((totalServed * 100) / safeTotal);
+			percentCorrect = (correct * 100) / safeTotal;
+			percentTotal = (totalServed * 100) / safeTotal;
 
 			if (percentCorrect < 0) {
 				percentCorrect = 0;
@@ -213,29 +215,26 @@ export class CookingView {
 			}
 		}
 
-		const targetWidthCorrect = Math.round((PROGRESS_BAR_WIDTH * percentCorrect) / 100);
-		const targetWidthTotal = Math.round((PROGRESS_BAR_WIDTH * percentTotal) / 100);
+		const targetWidthCorrect = (PROGRESS_BAR_WIDTH * percentCorrect) / 100;
+		const targetWidthTotal = (PROGRESS_BAR_WIDTH * percentTotal) / 100;
 
-		// Animate red bar (total served = correct + incorrect)
-		const tweenIncorrect = new Konva.Tween({
-			node: this.progressBarIncorrect,
-			duration: ANIM_DURATION,
+		// Smooth animation with finish() to complete any in-progress tweens immediately
+		// This prevents animation queue buildup that causes lag/snapping
+		(this.progressBarIncorrect as any).to({
 			width: targetWidthTotal,
-			easing: Konva.Easings.EaseInOut,
+			duration: PROGRESS_ANIM_DURATION,
+			easing: Konva.Easings.EaseOut,
 		});
-		tweenIncorrect.play();
 
-		// Animate green bar (correct only)
-		const tweenCorrect = new Konva.Tween({
-			node: this.progressBarCorrect,
-			duration: ANIM_DURATION,
+		(this.progressBarCorrect as any).to({
 			width: targetWidthCorrect,
-			easing: Konva.Easings.EaseInOut,
+			duration: PROGRESS_ANIM_DURATION,
+			easing: Konva.Easings.EaseOut,
 		});
-		tweenCorrect.play();
 
-		// Update text to show correct/total
-		this.progressText.text(correct + '/' + safeTotal);
+		// Update text to show correct/total with percentage (rounded)
+		const percentDisplay = Math.round(percentCorrect);
+		this.progressText.text(correct + '/' + safeTotal + ' (' + percentDisplay + '%)');
 	}
 
 	/**
@@ -261,8 +260,9 @@ export class CookingView {
 			// Simple display of customer count and types
 			let customerSummary = '';
 			for (let i = 0; i < customerData.length; i++) {
+				const roundedPatience = Math.round(customerData[i].patience);
 				customerSummary +=
-					customerData[i].customerType + '(' + customerData[i].patience + '%)';
+					customerData[i].customerType + '(' + roundedPatience + '%)';
 				if (i < customerData.length - 1) {
 					customerSummary += ', ';
 				}
@@ -411,7 +411,7 @@ export class CookingView {
 			const fg = new Konva.Rect({
 				x: 0,
 				y: yBase + 14,
-				width: Math.round((PATIENCE_BAR_WIDTH * c.patience) / 100),
+				width: (PATIENCE_BAR_WIDTH * c.patience) / 100,
 				height: 12,
 				fill: color,
 				cornerRadius: 6,
@@ -431,26 +431,56 @@ export class CookingView {
 	 */
 	private updatePatienceBars(customerData: CustomerDisplayData[]): void {
 		// If stage not yet created but data exists, build it.
+		let rebuilt = false;
 		if (!this.patienceStage && customerData.length > 0) {
 			this.createOrRebuildPatienceStage(customerData);
-			return;
+			rebuilt = true;
 		}
 
 		// Check if customer IDs have changed (Option B: detect ID changes)
 		const currentIds = new Set(this.patienceBarMap.keys());
 		const incomingIds = new Set(customerData.map((c) => c.customerId));
 
-		// Rebuild if count differs or IDs don't match
+		let needRebuild = false;
 		if (currentIds.size !== incomingIds.size) {
-			this.createOrRebuildPatienceStage(customerData);
-			return;
+			needRebuild = true;
+		} else {
+			for (const id of currentIds) {
+				if (!incomingIds.has(id)) {
+					needRebuild = true;
+					break;
+				}
+			}
 		}
 
-		// Check if all IDs match
-		for (const id of currentIds) {
-			if (!incomingIds.has(id)) {
-				this.createOrRebuildPatienceStage(customerData);
-				return;
+		// Preserve existing widths for stable visual continuity when rebuilding
+		let oldWidths: Map<string, number> | null = null;
+		if (needRebuild && this.patienceBarMap.size > 0) {
+			oldWidths = new Map<string, number>();
+			for (const [id, bar] of this.patienceBarMap.entries()) {
+				try {
+					oldWidths.set(id, bar.width());
+				} catch (_) {
+					oldWidths.set(id, 0);
+				}
+			}
+		}
+
+		if (needRebuild) {
+			this.createOrRebuildPatienceStage(customerData);
+			rebuilt = true;
+			// Restore widths for existing customers if possible
+			if (oldWidths) {
+				for (const [id, width] of oldWidths.entries()) {
+					const bar = this.patienceBarMap.get(id) as any;
+					if (bar) {
+						if (typeof bar.width === 'function') {
+							bar.width(width);
+						} else if (bar.attrs) {
+							bar.attrs.width = width;
+						}
+					}
+				}
 			}
 		}
 
@@ -461,17 +491,20 @@ export class CookingView {
 			if (!bar) {
 				continue;
 			}
-			const targetWidth = Math.round((PATIENCE_BAR_WIDTH * c.patience) / 100);
+			const targetWidth = (PATIENCE_BAR_WIDTH * c.patience) / 100;
 			const color = this.getPatienceColor(c.patience);
-			// Animate width change
-			const tween = new Konva.Tween({
-				node: bar,
-				duration: ANIM_DURATION,
-				width: targetWidth,
-				fill: color,
-				easing: Konva.Easings.EaseInOut,
-			});
-			tween.play();
+			// Directly set width each frame to match exact patience; avoids lag-induced snapping
+			const anyBar = bar as any;
+			if (typeof anyBar.width === 'function') {
+				anyBar.width(targetWidth);
+			} else if (anyBar && anyBar.attrs) {
+				anyBar.attrs.width = targetWidth;
+			}
+			if (typeof anyBar.fill === 'function') {
+				anyBar.fill(color);
+			} else if (anyBar && anyBar.attrs) {
+				anyBar.attrs.fill = color;
+			}
 		}
 	}
 

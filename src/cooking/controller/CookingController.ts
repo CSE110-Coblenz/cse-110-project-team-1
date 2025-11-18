@@ -31,9 +31,7 @@ export default class CookingController {
 			this.model.getScore(),
 			this.model.getProgress(), // pass initial progress so initialize handles it
 		);
-		// Initialize progress bar in the view
-		const progressInit = this.model.getProgress();
-		this.view.updateProgress(progressInit.correct, progressInit.incorrect, progressInit.total);
+		// Progress already initialized via view.initialize
 		// Game loop
 		this.lastUpdateTime = Date.now();
 		this.gameLoopInterval = setInterval(() => {
@@ -49,7 +47,8 @@ export default class CookingController {
 
 	private update(deltaTime: number): void {
 		// Update model state
-		this.model.updatePatience(deltaTime);
+		// Convert milliseconds to seconds for model/customer update logic
+		this.model.updatePatience(deltaTime / 1000);
 
 		// Get updated data from model
 		const customerData = this.model.getCustomerData();
@@ -92,10 +91,10 @@ export default class CookingController {
 		return Date.now() - this.lastUpdateTime; // in milliseconds
 	}
 
-	// temporary test method to simulate drop events
+	// temporary test method to simulate drop events, made it in ms so that it actually shows in testing
 	private testDropEvent(): void {
 		const fullPatienceTime =
-			CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE;
+			CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE * 1000;
 
 		setTimeout(() => {
 			const customerData = this.model.getCustomerData();
