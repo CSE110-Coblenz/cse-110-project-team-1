@@ -153,7 +153,6 @@ export class GameScreenView implements View {
 		this.barW = Math.max(120, Math.min(360, Math.round(this.stageWidth * 0.22)));
 		this.barH = Math.max(12, Math.round(this.stageHeight * 0.025));
 
-
 		this.panelPadX = Math.max(8, Math.round(this.barH * 0.6));
 		this.panelPadY = Math.max(6, Math.round(this.barH * 0.45));
 
@@ -179,7 +178,7 @@ export class GameScreenView implements View {
 		const progressY = this.hudY + this.barH + Math.round(this.barH * 0.6);
 		const progressH = Math.max(10, Math.round(this.barH * 0.75));
 
-		const labelOffsetProgressY = Math.round (this.barH * -0.01);
+		const labelOffsetProgressY = Math.round(this.barH * -0.01);
 		this.progressBg.x(this.hudX);
 		this.progressBg.y(progressY + labelOffsetY);
 		this.progressBg.width(this.barW);

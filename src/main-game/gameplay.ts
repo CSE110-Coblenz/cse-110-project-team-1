@@ -1,11 +1,10 @@
 import Konva from 'konva';
 import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
 import GameScene, { GameSceneOptions } from 'src/main-game/GameScene';
-import { GameScene } from 'src/main-game/GameScene';
 import { Species, pickSpeciesForLevel } from 'src/common/types/Species';
 
 export interface GameHandle {
-  stop: () => void;
+	stop: () => void;
 }
 
 export async function startGame(container: HTMLElement | null): Promise<GameHandle> {
@@ -63,5 +62,5 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 }
 
 export function stopGame(handle: GameHandle) {
-  handle.stop();
+	handle.stop();
 }
