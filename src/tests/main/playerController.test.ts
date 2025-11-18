@@ -18,7 +18,7 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(10, 0);
+		const moved = pc.tryMove(10, 0);
 		expect(moved).toBe(true);
 		expect(player.getPosition()).toEqual({ x: 60, y: 50 });
 	});
@@ -34,7 +34,7 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(20, 0); // would push x to 210, beyond width
+		const moved = pc.tryMove(20, 0); // would push x to 210, beyond width
 		expect(moved).toBe(false);
 		expect(player.getPosition()).toEqual({ x: 190, y: 100 });
 	});
@@ -53,7 +53,7 @@ describe('PlayerController (movement & collision)', () => {
 		const controllerMock = { centerOn: vi.fn() } as unknown as MapController;
 
 		const pc = new PlayerController(player, view, mapMock, controllerMock);
-		const moved = (pc as any).tryMove(20, 0); // target x = 70
+		const moved = pc.tryMove(20, 0); // target x = 70
 		expect(moved).toBe(false);
 		expect(player.getPosition()).toEqual({ x: 50, y: 50 });
 	});

@@ -198,3 +198,21 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 ]);
 
 export const ALL_SPECIES = Object.values(Species);
+
+/**
+ * Pick a random species appropriate for the given level number.
+ * Levels: 1 -> primary, 2 -> secondary, 3 -> tertiary, 4 -> apex
+ */
+export function pickSpeciesForLevel(level: number): Species {
+	switch (level) {
+		case 1:
+			return PRIMARY_CONSUMERS[Math.floor(Math.random() * PRIMARY_CONSUMERS.length)];
+		case 2:
+			return SECONDARY_CONSUMERS[Math.floor(Math.random() * SECONDARY_CONSUMERS.length)];
+		case 3:
+			return TERTIARY_CONSUMERS[Math.floor(Math.random() * TERTIARY_CONSUMERS.length)];
+		case 4:
+		default:
+			return APEX_PREDATORS[Math.floor(Math.random() * APEX_PREDATORS.length)];
+	}
+}

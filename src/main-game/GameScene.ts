@@ -17,6 +17,10 @@ export type GameSceneOptions = {
 	wallMinWidth?: number;
 	wallMaxWidth?: number;
 	npcCount?: number;
+	species?: Species;
+	levelNumber?: number;
+	onLevelComplete?: () => void;
+	onPlayerDeath?: () => void;
 };
 
 export class GameScene {
@@ -62,11 +66,10 @@ export class GameScene {
 		this.mapController = new MapController(this.mapModel, vpW, vpH);
 		this.mapView = new MapView();
 
-		this.playerModel = new PlayerModel(
-			Species.MOUSE,
-			Math.floor(this.mapModel.getWidth() / 2),
-			Math.floor(this.mapModel.getHeight() / 2),
-		);
+		// create player with requested species
+		const startX = Math.floor(this.mapModel.getWidth() / 2);
+		const startY = Math.floor(this.mapModel.getHeight() / 2);
+		this.playerModel = new PlayerModel(options.species ?? Species.MOUSE, startX, startY);
 		this.playerView = new PlayerView();
 		this.playerController = new PlayerController(
 			this.playerModel,
@@ -81,6 +84,10 @@ export class GameScene {
 		const npcCount = options.npcCount ?? 150;
 		const npcs = NPCFactory.createNRandomNPCs(npcCount);
 		this.mapController.placeNPCs(npcs);
+	}
+
+	public getPlayerModel(): PlayerModel {
+		return this.playerModel;
 	}
 
 	private renderOnce() {
@@ -107,6 +114,22 @@ export class GameScene {
 			this.lastTimestamp = timestamp;
 			this.mapController.animateNPCs(deltaSec);
 			this.playerController.updateFromInput(deltaSec);
+
+			// check player death
+			if (this.playerModel.getHealth() <= 0) {
+				if (this.options.onPlayerDeath) this.options.onPlayerDeath();
+				this.stop();
+				return;
+			}
+
+			// check player level up
+			if (this.playerModel.getExperience() >= 100) {
+				if (this.options.onLevelComplete) this.options.onLevelComplete();
+				this.playerModel.setExperience(0);
+				this.playerModel.setHealth(100);
+				this.stop();
+				return;
+			}
 			this.renderOnce();
 			this.animationFrameId = requestAnimationFrame(loop);
 		};
