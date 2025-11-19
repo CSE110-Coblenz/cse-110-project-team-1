@@ -1,15 +1,8 @@
-// src/views/GameScreenView.ts
-// src/views/GameScreenView.ts
 import Konva from 'konva';
 import type { Group } from 'konva/lib/Group';
 import type { View } from 'src/types';
 /**
- * GameScreenView: draws the main game HUD (health + progress).
- * Provides `setHealth` and `setProgress` for external updates.
- *
- * The HUD auto-resizes with the screen.
- * GameScreenView: draws the main game HUD (health + progress).
- * Provides `setHealth` and `setProgress` for external updates.
+ * GameScreenView: draws the main game HUD (health + progress + level).
  *
  */
 export class GameScreenView implements View {
@@ -30,6 +23,9 @@ export class GameScreenView implements View {
 	private levelBadgeRect: Konva.Rect;
   	private levelBadgeText: Konva.Text;
 
+	private speciesBadgeRect: Konva.Rect;
+  	private speciesBadgeText: Konva.Text;
+
 
 
 	// dynamic layout fields (updated on resize)
@@ -49,6 +45,7 @@ export class GameScreenView implements View {
 	private currentHealth = 100;
 	private currentProgress = 0;
   	private currentLevel = 1;
+	private currentSpeciesText = 'Mouse';
 
 	// Badge config
   	private badgePadX = 8;
@@ -147,14 +144,34 @@ export class GameScreenView implements View {
       		listening: false,
     	});
 
+		this.speciesBadgeText = new Konva.Text({ 
+			x: 0, 
+			y: 0, 
+			text: 'Mouse', 
+			fontSize: 12, 
+			fill: '#000000ff', 
+			fontStyle: 'bold',
+		});
+    	this.speciesBadgeRect = new Konva.Rect({
+      		x: 0, 
+			y: 0, 
+			width: 1, 
+			height: 1, 
+			cornerRadius: 8,
+      		fill: '#fedc00ff', 
+			stroke: 'rgba(255,255,255,0.25)', 
+			strokeWidth: 1, 
+			listening: false,
+    	});
 
-
-		// add to group (panel first => behind)
+		// add to group (panel first)
 		this.group.add(this.hudPanel);
 
 		this.group.add(this.levelBadgeRect);
 	    this.group.add(this.levelBadgeText);
 
+		this.group.add(this.speciesBadgeRect);
+    	this.group.add(this.speciesBadgeText);
 
 		this.group.add(this.healthBg);
 		this.group.add(this.healthFill);
@@ -236,32 +253,43 @@ export class GameScreenView implements View {
     	this.levelBadgeText.fontSize(badgeFont);
     	this.levelBadgeText.text(`Level ${this.currentLevel}`);
 
-    	// Compute badge size from text + padding
-    	const txtW = this.levelBadgeText.width();
-    	const txtH = this.levelBadgeText.height();
-    	const badgeW = Math.round(txtW + this.badgePadX * 2);
-    	const badgeH = Math.round(txtH + this.badgePadY * 2);
+    	const lvlTxtW = this.levelBadgeText.width();
+    	const lvlTxtH = this.levelBadgeText.height();
+    	const lvlW = Math.round(lvlTxtW + this.badgePadX * 2);
+    	const lvlH = Math.round(lvlTxtH + this.badgePadY * 2);
+    	const lvlX = this.hudX;
+    	const lvlY = this.hudY - (lvlH + this.badgeGap);
 
-    	// Position: above the health bar, left-aligned with bar
-    	const badgeX = this.hudX;
-    	const badgeY = this.hudY - (badgeH + this.badgeGap);
-
-    	this.levelBadgeRect.position({ x: badgeX, y: badgeY });
-    	this.levelBadgeRect.size({ width: badgeW, height: badgeH });
-
-    	// Text centered inside the rect
+	    this.levelBadgeRect.position({ x: lvlX, y: lvlY });
+    	this.levelBadgeRect.size({ width: lvlW, height: lvlH });
     	this.levelBadgeText.position({
-      	x: badgeX + Math.round((badgeW - txtW) / 2),
-      	y: badgeY + Math.round((badgeH - txtH) / 2),
+      		x: lvlX + Math.round((lvlW - lvlTxtW) / 2),
+      		y: lvlY + Math.round((lvlH - lvlTxtH) / 2),
     	});
 
 
-		// compute panel bounds to wrap HUD
-		const left = Math.min(badgeX, this.hudX) - this.panelPadX;
-    	const top = Math.min(badgeY, this.hudY - this.panelPadY);
-    	const right = this.hudX + this.barW + this.panelPadX;
-    	const bottom = progressY + progressH + this.panelPadY;
+		this.speciesBadgeText.fontSize(badgeFont);
+    	this.speciesBadgeText.text(this.currentSpeciesText);
 
+    	const spTxtW = this.speciesBadgeText.width();
+    	const spTxtH = this.speciesBadgeText.height();
+    	const spW = Math.round(spTxtW + this.badgePadX * 2);
+    	const spH = Math.round(spTxtH + this.badgePadY * 2);
+    	const spX = lvlX + lvlW + 8; // gap between badges
+    	const spY = lvlY;
+
+    	this.speciesBadgeRect.position({ x: spX, y: spY });
+    	this.speciesBadgeRect.size({ width: spW, height: spH });
+    	this.speciesBadgeText.position({
+      		x: spX + Math.round((spW - spTxtW) / 2),
+      		y: spY + Math.round((spH - spTxtH) / 2),
+    	});
+
+    	// compute panel bounds to fit all elements
+    	const left = Math.min(this.hudX, lvlX) - this.panelPadX;
+    	const top = Math.min(this.hudY - this.panelPadY, lvlY);
+    	const right = Math.max(this.hudX + this.barW + this.panelPadX, spX + spW + this.panelPadX);
+    	const bottom = progressY + progressH + this.panelPadY;
 
 		this.hudPanel.x(left);
 		this.hudPanel.y(top);
@@ -312,6 +340,27 @@ export class GameScreenView implements View {
     	});
 
 	}
+
+	setSpecies(name: string): void {
+    	this.currentSpeciesText = name;
+  		this.speciesBadgeText.text(name);
+
+    	// refit and keep next to level badge
+    	const txtW = this.speciesBadgeText.width();
+    	const txtH = this.speciesBadgeText.height();
+    	const w = Math.round(txtW + this.badgePadX * 2);
+    	const h = Math.round(txtH + this.badgePadY * 2);
+    	const x = this.levelBadgeRect.x() + this.levelBadgeRect.width() + 8;
+    	const y = this.levelBadgeRect.y();
+
+    	this.speciesBadgeRect.size({ width: w, height: h });
+    	this.speciesBadgeRect.position({ x, y });
+    	this.speciesBadgeText.position({
+      		x: x + Math.round((w - txtW) / 2),
+      		y: y + Math.round((h - txtH) / 2),
+    	});
+  }
+
 
 
 

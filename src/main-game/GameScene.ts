@@ -21,7 +21,7 @@ export type GameSceneOptions = {
   levelNumber?: number;
   onLevelComplete?: () => void;
   onPlayerDeath?: () => void;
-  onHudUpdate?: (hud: { health: number ;progress: number; level: number}) => void;
+  onHudUpdate?: (hud: { health: number ;progress: number; level: number; species: Species}) => void;
 };
 
 export class GameScene {
@@ -90,7 +90,8 @@ export class GameScene {
 	const progress = this.playerModel.getExperience?.() ?? 0;    // expect 0..100
     const level = this.options.levelNumber ?? 1;
 	const health = this.playerModel.getHealth?.() ?? 0;
-    this.options.onHudUpdate?.({ health, progress, level });
+	const species = this.playerModel.getSpecies?.() ?? Species.MOUSE;
+    this.options.onHudUpdate?.({ health, progress, level, species });
 
   }
 
