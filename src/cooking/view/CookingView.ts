@@ -1,5 +1,6 @@
 import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
+import { CookingGameConfig } from '../config/CookingGameConfig';
 
 // View constants (avoid magic numbers)
 const PROGRESS_BAR_WIDTH = 400;
@@ -260,7 +261,7 @@ export class CookingView {
 			// Simple display of customer count and types
 			let customerSummary = '';
 			for (let i = 0; i < customerData.length; i++) {
-				const roundedPatience = Math.round(customerData[i].patience);
+				const roundedPatience = Math.round(customerData[i].patience / CookingGameConfig.INITIAL_PATIENCE * 100);
 				customerSummary +=
 					customerData[i].customerType + '(' + roundedPatience + '%)';
 				if (i < customerData.length - 1) {
@@ -411,7 +412,7 @@ export class CookingView {
 			const fg = new Konva.Rect({
 				x: 0,
 				y: yBase + 14,
-				width: (PATIENCE_BAR_WIDTH * c.patience) / 100,
+				width: (PATIENCE_BAR_WIDTH * c.patience) / CookingGameConfig.INITIAL_PATIENCE,
 				height: 12,
 				fill: color,
 				cornerRadius: 6,
@@ -491,7 +492,7 @@ export class CookingView {
 			if (!bar) {
 				continue;
 			}
-			const targetWidth = (PATIENCE_BAR_WIDTH * c.patience) / 100;
+			const targetWidth = (PATIENCE_BAR_WIDTH * c.patience) / CookingGameConfig.INITIAL_PATIENCE;
 			const color = this.getPatienceColor(c.patience);
 			// Directly set width each frame to match exact patience; avoids lag-induced snapping
 			const anyBar = bar as any;
