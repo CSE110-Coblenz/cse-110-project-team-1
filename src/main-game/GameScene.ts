@@ -2,6 +2,7 @@ import { MapModel } from 'src/main-game/MapModel';
 import { MapController } from 'src/main-game/MapController';
 import { MapView } from 'src/main-game/MapView';
 import { PlayerModel } from 'src/main-game/PlayerModel';
+//import {GameScreenView} from 'src/screens/GameScreen/GameScreenView';
 import { PlayerView } from 'src/main-game/PlayerView';
 import { PlayerController } from 'src/main-game/PlayerController';
 import { NPCFactory } from 'src/main-game/NPC/NPC';
@@ -16,6 +17,10 @@ export type GameSceneOptions = {
   wallMinWidth?: number;
   wallMaxWidth?: number;
   npcCount?: number;
+  species?: Species;
+  levelNumber?: number;
+  onLevelComplete?: () => void;
+  onPlayerDeath?: () => void;
   onHudUpdate?: (hud: { health: number }) => void;
 };
 
@@ -36,38 +41,32 @@ export class GameScene {
     this.layer = layer;
     this.options = options;
 
-    // World size (bigger than viewport so camera can pan)
+    // World config
     const worldWidth = options.width ?? Math.max(800, window.innerWidth * 5);
     const worldHeight = options.height ?? Math.max(600, window.innerHeight * 5);
 
-    // MapModel config — adjust keys to match your actual constructor
-    const config = {
+    this.mapModel = new MapModel({
       width: worldWidth,
       height: worldHeight,
       spacing: options.spacing ?? 120,
       wallCount: options.wallCount ?? 2500,
       wallMinWidth: options.wallMinWidth ?? 80,
       wallMaxWidth: options.wallMaxWidth ?? 160,
-    };
-    this.mapModel = new MapModel(config);
+    });
 
-    // Initial viewport size
+    // Viewport size
     const vpW =
       window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     const vpH =
       window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    this.mapController = new MapController(this.mapModel, vpW, vpH);
-    this.mapView = new MapView('#8fb3d9'); // or default ctor if yours takes none
 
-    // Player at world center
-    this.playerModel = new PlayerModel(
-      Math.floor(this.mapModel.getWidth() / 2),
-      Math.floor(this.mapModel.getHeight() / 2),
-      12,   // speed (adapt to your API)
-      800,  // e.g., accel/maxSpeed
-      100,  // health
-      Species.ANTEATER
-    );
+    this.mapController = new MapController(this.mapModel, vpW, vpH);
+    this.mapView = new MapView(); // keep default; provide color if required by your MapView ctor
+
+    // Player (new API: species, x, y)
+    const startX = Math.floor(this.mapModel.getWidth() / 2);
+    const startY = Math.floor(this.mapModel.getHeight() / 2);
+    this.playerModel = new PlayerModel(this.options.species ?? Species.MOUSE, startX, startY);
     this.playerView = new PlayerView();
     this.playerController = new PlayerController(
       this.playerModel,
@@ -76,21 +75,30 @@ export class GameScene {
       this.mapController
     );
 
+    this.mapModel.setMainPlayer(this.playerModel);
+
     // NPCs
     const npcs = NPCFactory.createNRandomNPCs(options.npcCount ?? 150);
     this.mapController.placeNPCs(npcs);
   }
 
+  public getPlayerModel(): PlayerModel {
+    return this.playerModel;
+  }
+
   private pushHud() {
+    // Why: decouple HUD (on a separate UI layer) via callback
     this.options.onHudUpdate?.({ health: this.playerModel.getHealth() });
   }
 
   private renderOnce() {
     const vp = this.mapController.getViewport();
     const walls = this.mapController.getVisibleWalls();
+
     this.mapView.draw(this.layer, vp, walls);
     this.playerController.draw(this.layer, vp);
     this.mapController.drawNPCs(this.layer, vp);
+
     this.pushHud();
   }
 
@@ -108,6 +116,22 @@ export class GameScene {
 
       this.mapController.animateNPCs(deltaSec);
       this.playerController.updateFromInput(deltaSec);
+
+      // Death
+      if (this.playerModel.getHealth() <= 0) {
+        this.options.onPlayerDeath?.();
+        this.stop();
+        return;
+      }
+
+      // Level complete
+      if (this.playerModel.getExperience() >= 100) {
+        this.options.onLevelComplete?.();
+        this.playerModel.setExperience(0);
+        this.playerModel.setHealth(100);
+        this.stop();
+        return;
+      }
 
       this.renderOnce();
       this.animationFrameId = requestAnimationFrame(loop);
@@ -128,11 +152,12 @@ export class GameScene {
       this.lastTimestamp = null;
     }
 
-    // Clean layer
     try {
-      this.layer.destroyChildren();
+      this.layer.destroyChildren(); // clears world drawings on this layer
       this.layer.draw();
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 }
 

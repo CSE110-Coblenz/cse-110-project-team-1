@@ -1,5 +1,3 @@
-import { Species } from 'src/common/types/Species';
-
 // Continuous-world types: walls are polygons in pixel coordinates.
 export interface Point {
 	x: number;
@@ -42,9 +40,8 @@ export enum Direction {
 	Right = 3,
 }
 
-export const DEFAULT_ATTRIBUTES = {
-	radius: 12,
-	speed: 500,
-	health: 100,
-	species: Species.SPEC1,
-};
+export function distance(a: Position, b: Position): number {
+	const dx = a.x - b.x;
+	const dy = a.y - b.y;
+	return Math.hypot(dx, dy);
+}

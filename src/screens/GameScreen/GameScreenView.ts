@@ -86,7 +86,7 @@ export class GameScreenView implements View {
 			x: 0,
 			y: 0,
 			text: `HP: 100%`,
-			fontSize: 14,
+			fontSize: 12,
 			fill: '#ffffff',
 			fontStyle: 'bold',
 		});
@@ -97,7 +97,7 @@ export class GameScreenView implements View {
 			width: 10,
 			height: 10,
 			fill: '#333',
-			cornerRadius: 6,
+			cornerRadius: 10,
 		});
 		this.progressFill = new Konva.Rect({
 			x: 0,
@@ -111,7 +111,7 @@ export class GameScreenView implements View {
 			x: 0,
 			y: 0,
 			text: `Progress: 0%`,
-			fontSize: 12,
+			fontSize: 8,
 			fill: '#ffffff',
 		});
 
@@ -153,7 +153,6 @@ export class GameScreenView implements View {
 		this.barW = Math.max(120, Math.min(360, Math.round(this.stageWidth * 0.22)));
 		this.barH = Math.max(12, Math.round(this.stageHeight * 0.025));
 
-		// paddings scale slightly with size (why: improves readability on large screens)
 		this.panelPadX = Math.max(8, Math.round(this.barH * 0.6));
 		this.panelPadY = Math.max(6, Math.round(this.barH * 0.45));
 
@@ -170,7 +169,7 @@ export class GameScreenView implements View {
 		this.healthFill.width(healthW);
 
 		// labels above bars by a tiny offset
-		const labelOffsetY = Math.round(this.barH * -0.15);
+		const labelOffsetY = Math.round(this.barH * -0.02);
 		this.healthLabel.fontSize(Math.max(12, Math.round(this.barH * 0.8)));
 		this.healthLabel.x(this.hudX + 8);
 		this.healthLabel.y(this.hudY + labelOffsetY);
@@ -179,8 +178,9 @@ export class GameScreenView implements View {
 		const progressY = this.hudY + this.barH + Math.round(this.barH * 0.6);
 		const progressH = Math.max(10, Math.round(this.barH * 0.75));
 
+		const labelOffsetProgressY = Math.round(this.barH * -0.01);
 		this.progressBg.x(this.hudX);
-		this.progressBg.y(progressY);
+		this.progressBg.y(progressY + labelOffsetY);
 		this.progressBg.width(this.barW);
 		this.progressBg.height(progressH);
 
@@ -192,7 +192,7 @@ export class GameScreenView implements View {
 
 		this.progressLabel.fontSize(Math.max(10, Math.round(this.barH * 0.65)));
 		this.progressLabel.x(this.hudX + 8);
-		this.progressLabel.y(progressY + Math.round(progressH * -0.15));
+		this.progressLabel.y(progressY + labelOffsetProgressY);
 
 		// compute panel bounds to wrap HUD
 		const left = this.hudX - this.panelPadX;

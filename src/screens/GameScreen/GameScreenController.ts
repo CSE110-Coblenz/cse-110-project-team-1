@@ -1,70 +1,96 @@
-import { ScreenController } from 'src/types';
-import type { ScreenSwitcher } from 'src/types';
+// src/screens/GameScreen/GameScreenController.ts
+import Konva from 'konva';
+import { ScreenController, ScreenSwitcher } from 'src/types';
+import GameScreenView from 'src/screens/GameScreen/GameScreenView'; 
+import GameScene from 'src/main-game/GameScene';
+import { pickSpeciesForLevel } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
-import { GameScreenModel } from 'src/screens/GameScreen/GameScreenModel';
-import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
-import { GameScene } from 'src/main-game/GameScene';
-/**
- * GameScreenController - Minimal structure for new game logic
- */
+
 export class GameScreenController extends ScreenController {
-	private layer?: Layer;
-	private model: GameScreenModel;
-	private view: GameScreenView;
-	private screenSwitcher: ScreenSwitcher;
-	private scene?: GameScene;
+  private worldLayer?: Layer;         
+  private uiLayer?: Layer;            
+  private view: GameScreenView;
+  private scene?: GameScene;
+  private screenSwitcher: ScreenSwitcher;
+  private currentLevel = 0;
+  private maxLevels = 4;
 
-	constructor(screenSwitcher: ScreenSwitcher) {
-		super();
-		this.screenSwitcher = screenSwitcher;
-		this.model = new GameScreenModel();
-		this.view = new GameScreenView();
-	}
+  constructor(screenSwitcher: ScreenSwitcher) {
+    super();
+    this.screenSwitcher = screenSwitcher;
+    this.view = new GameScreenView();
+  }
 
-	mount(layer?: Layer): void {
-		this.layer = layer;
-		if (this.layer) {
-			this.layer.add(this.view.getGroup());
-			// start the main-game scene on the provided layer
-			this.scene = new GameScene(this.layer);
-			this.scene.start();
-			this.layer.draw();
-		}
-	}
+  mount(layer?: Layer): void {
+    this.worldLayer = layer;
+    const stage = this.worldLayer?.getStage();
+    if (!stage || !this.worldLayer) return;
 
-	dispose(): void {
-		if (this.layer) {
-			try {
-				// stop scene if running and remove view group
-				if (this.scene) {
-					this.scene.stop();
-					this.scene = undefined;
-				}
-				this.view.getGroup().remove();
-				this.layer.draw();
-			} catch (e) {
-				// ignore removal errors
-			}
-		}
-	}
+    // Create UI layer above world
+    this.uiLayer = new Konva.Layer();
+    stage.add(this.uiLayer);
 
-	getView(): GameScreenView {
-		return this.view;
-	}
+    // Add HUD to UI layer
+    this.uiLayer.add(this.view.getGroup());
+    this.view.resize(stage.width(), stage.height());
+    this.uiLayer.draw();
 
-	/**
-	 * External systems can call this to update the HUD health value (0..100).
-	 */
-	setHealth(pct: number): void {
-		this.view.setHealth(pct);
-		if (this.layer) this.layer.batchDraw();
-	}
+    // Start level loop
+    this.currentLevel = 1;
+    this.startLevel(this.currentLevel);
 
-	/**
-	 * External systems can call this to update the HUD progress value (0..100).
-	 */
-	setProgress(pct: number): void {
-		this.view.setProgress(pct);
-		if (this.layer) this.layer.batchDraw();
-	}
+    // Keep HUD responsive
+    const onResize = () => {
+      this.view.resize(stage.width(), stage.height());
+      this.uiLayer?.batchDraw();
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+  }
+
+  private startLevel(level: number) {
+    if (!this.worldLayer) return;
+
+    this.scene?.stop();
+    this.scene = new GameScene(this.worldLayer, {
+      levelNumber: level,
+      species: pickSpeciesForLevel(level),
+      onHudUpdate: ({ health }) => {           // 👈 wire HUD updates
+        this.view.setHealth(health);
+        this.uiLayer?.batchDraw();
+      },
+      onLevelComplete: () => {
+        if (level < this.maxLevels) {
+          this.currentLevel = level + 1;
+          this.startLevel(this.currentLevel);
+        } else {
+          this.screenSwitcher.switchToScreen({ type: 'victory' });
+        }
+      },
+      onPlayerDeath: () => {
+        this.screenSwitcher.switchToScreen({ type: 'death' });
+      },
+    });
+
+    this.scene.start();
+    this.worldLayer.draw();
+  }
+
+  dispose(): void {
+    try { this.scene?.stop(); } catch {}
+    try { this.view.getGroup().remove(); } catch {}
+    try { this.worldLayer?.draw(); } catch {}
+  }
+
+  getView(): GameScreenView {
+	return this.view;
+  }
+
+  setHealth(pct: number): void {
+    this.view.setHealth(pct);
+    this.uiLayer?.batchDraw();
+  }
+  setProgress(pct: number): void {
+    this.view.setProgress(pct);
+    this.uiLayer?.batchDraw();
+  }
 }

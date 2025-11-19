@@ -59,15 +59,10 @@ export class MapController {
 				placedNPCs.push(spawn_position);
 			}
 		}
-		this.model.setNCPs(npcs);
-		console.log('this.model.getNPCs(): ' + this.model.getNPCs());
+		this.model.setNPCs(npcs);
 	}
 
 	public drawNPCs(target: CanvasRenderingContext2D | any, viewport: Viewport): void {
-		if (this.model.getNPCs().length == 0) {
-			console.log('The length is 0, there are no NPCS');
-			return;
-		}
 		for (const npc of this.model.getNPCs()) {
 			npc.getController().draw(target, viewport);
 		}

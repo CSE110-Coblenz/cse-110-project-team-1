@@ -4,29 +4,26 @@ import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 describe('NPCModel', () => {
 	it('initializes with defaults and returns position/copy', () => {
-		const p = new NPCModel(10, 15);
-		expect(p.getPosition()).toEqual({ x: 10, y: 15 });
+		const p = new NPCModel(Species.MOUSE);
+		expect(p.getPosition()).toEqual({ x: 0, y: 0 });
 		// modifying returned object should not change internal state
 		const pos = p.getPosition();
 		(pos as any).x = 999;
-		expect(p.getPosition()).toEqual({ x: 10, y: 15 });
+		expect(p.getPosition()).toEqual({ x: 0, y: 0 });
 	});
 
 	it('moves and sets position correctly', () => {
-		const p = new NPCModel(0, 0);
+		const p = new NPCModel(Species.MOUSE);
 		p.moveBy(5, -3);
 		expect(p.getPosition()).toEqual({ x: 5, y: -3 });
 		p.setPosition(100, 200);
 		expect(p.getPosition()).toEqual({ x: 100, y: 200 });
 	});
 
-	it('gets and sets speed and health', () => {
-		const p = new NPCModel(0, 0, 12, 250, 80, Species.CAT);
-		expect(p.getSpeed()).toBe(250);
-		expect(p.getHealth()).toBe(80);
-		p.setSpeed(300);
-		p.setHealth(50);
-		expect(p.getSpeed()).toBe(300);
+	it('gets and sets health', () => {
+		const p = new NPCModel(Species.MOUSE);
 		expect(p.getHealth()).toBe(50);
+		p.setHealth(30);
+		expect(p.getHealth()).toBe(30);
 	});
 });
