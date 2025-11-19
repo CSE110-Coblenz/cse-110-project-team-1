@@ -27,6 +27,11 @@ export class GameScreenView implements View {
 	private progressFill: Konva.Rect;
 	private progressLabel: Konva.Text;
 
+	private levelBadgeRect: Konva.Rect;
+  	private levelBadgeText: Konva.Text;
+
+
+
 	// dynamic layout fields (updated on resize)
 	private stageWidth: number;
 	private stageHeight: number;
@@ -43,6 +48,13 @@ export class GameScreenView implements View {
 	// keep current values so layout can reapply them
 	private currentHealth = 100;
 	private currentProgress = 0;
+  	private currentLevel = 1;
+
+	// Badge config
+  	private badgePadX = 8;
+  	private badgePadY = 4;
+  	private badgeGap = 6;
+
 
 	constructor(stageWidth = 800, stageHeight = 600) {
 		this.group = new Konva.Group({
@@ -115,8 +127,34 @@ export class GameScreenView implements View {
 			fill: '#ffffff',
 		});
 
+		this.levelBadgeText = new Konva.Text({
+      		x: 0,
+      		y: 0,
+      		text: 'Level 1',
+      		fontSize: 12,
+      		fill: '#000000ff',
+      		fontStyle: 'bold',
+    	});
+    	this.levelBadgeRect = new Konva.Rect({
+      		x: 0,
+      		y: 0,
+      		width: 1,
+      		height: 1,
+      		cornerRadius: 8,
+      		fill: '#fedc00ff',
+      		stroke: 'rgba(255,255,255,0.25)',
+      		strokeWidth: 1,
+      		listening: false,
+    	});
+
+
+
 		// add to group (panel first => behind)
 		this.group.add(this.hudPanel);
+
+		this.group.add(this.levelBadgeRect);
+	    this.group.add(this.levelBadgeText);
+
 
 		this.group.add(this.healthBg);
 		this.group.add(this.healthFill);
@@ -194,11 +232,36 @@ export class GameScreenView implements View {
 		this.progressLabel.x(this.hudX + 8);
 		this.progressLabel.y(progressY + labelOffsetProgressY);
 
+		const badgeFont = Math.max(11, Math.round(this.barH * 0.8));
+    	this.levelBadgeText.fontSize(badgeFont);
+    	this.levelBadgeText.text(`Level ${this.currentLevel}`);
+
+    	// Compute badge size from text + padding
+    	const txtW = this.levelBadgeText.width();
+    	const txtH = this.levelBadgeText.height();
+    	const badgeW = Math.round(txtW + this.badgePadX * 2);
+    	const badgeH = Math.round(txtH + this.badgePadY * 2);
+
+    	// Position: above the health bar, left-aligned with bar
+    	const badgeX = this.hudX;
+    	const badgeY = this.hudY - (badgeH + this.badgeGap);
+
+    	this.levelBadgeRect.position({ x: badgeX, y: badgeY });
+    	this.levelBadgeRect.size({ width: badgeW, height: badgeH });
+
+    	// Text centered inside the rect
+    	this.levelBadgeText.position({
+      	x: badgeX + Math.round((badgeW - txtW) / 2),
+      	y: badgeY + Math.round((badgeH - txtH) / 2),
+    	});
+
+
 		// compute panel bounds to wrap HUD
-		const left = this.hudX - this.panelPadX;
-		const top = this.hudY - this.panelPadY;
-		const right = this.hudX + this.barW + this.panelPadX;
-		const bottom = progressY + progressH + this.panelPadY;
+		const left = Math.min(badgeX, this.hudX) - this.panelPadX;
+    	const top = Math.min(badgeY, this.hudY - this.panelPadY);
+    	const right = this.hudX + this.barW + this.panelPadX;
+    	const bottom = progressY + progressH + this.panelPadY;
+
 
 		this.hudPanel.x(left);
 		this.hudPanel.y(top);
@@ -226,6 +289,32 @@ export class GameScreenView implements View {
 		this.progressFill.width(w);
 		this.progressLabel.text(`Progress: ${clamped}%`);
 	}
+
+	setLevel(level: number): void {
+    	this.currentLevel = Math.max(1, Math.floor(level));
+    	this.levelBadgeText.text(`Level ${this.currentLevel}`);
+
+    	// Re-fit badge width quickly (no full resize)
+    	const txtW = this.levelBadgeText.width();
+    	const txtH = this.levelBadgeText.height();
+    	const badgeW = Math.round(txtW + this.badgePadX * 2);
+    	const badgeH = Math.round(txtH + this.badgePadY * 2);
+
+    	// Keep left-aligned above health bar
+    	const badgeX = this.hudX;
+    	const badgeY = this.hudY - (badgeH + this.badgeGap);
+
+    	this.levelBadgeRect.size({ width: badgeW, height: badgeH });
+    	this.levelBadgeRect.position({ x: badgeX, y: badgeY });
+    	this.levelBadgeText.position({
+      	x: badgeX + Math.round((badgeW - txtW) / 2),
+      	y: badgeY + Math.round((badgeH - txtH) / 2),
+    	});
+
+	}
+
+
+
 }
 
 export default GameScreenView;

@@ -21,7 +21,7 @@ export type GameSceneOptions = {
   levelNumber?: number;
   onLevelComplete?: () => void;
   onPlayerDeath?: () => void;
-  onHudUpdate?: (hud: { health: number }) => void;
+  onHudUpdate?: (hud: { health: number ;progress: number; level: number}) => void;
 };
 
 export class GameScene {
@@ -87,8 +87,11 @@ export class GameScene {
   }
 
   private pushHud() {
-    // Why: decouple HUD (on a separate UI layer) via callback
-    this.options.onHudUpdate?.({ health: this.playerModel.getHealth() });
+	const progress = this.playerModel.getExperience?.() ?? 0;    // expect 0..100
+    const level = this.options.levelNumber ?? 1;
+	const health = this.playerModel.getHealth?.() ?? 0;
+    this.options.onHudUpdate?.({ health, progress, level });
+
   }
 
   private renderOnce() {
