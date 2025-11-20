@@ -2,7 +2,6 @@ import { MapModel } from 'src/main-game/MapModel';
 import { MapController } from 'src/main-game/MapController';
 import { MapView } from 'src/main-game/MapView';
 import { PlayerModel } from 'src/main-game/PlayerModel';
-//import {GameScreenView} from 'src/screens/GameScreen/GameScreenView';
 import { PlayerView } from 'src/main-game/PlayerView';
 import { PlayerController } from 'src/main-game/PlayerController';
 import { NPCFactory } from 'src/main-game/NPC/NPC';
