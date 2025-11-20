@@ -43,7 +43,6 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 			levelNumber: level,
 			species: pickSpeciesForLevel(level),
 			onHudUpdate: ({ health }) => {
-				// 👈 drives HUD every frame
 				hud.setHealth(health);
 				uiLayer.batchDraw();
 			},

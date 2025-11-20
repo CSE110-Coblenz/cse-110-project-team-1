@@ -116,7 +116,7 @@ export class GameScreenView implements View {
 		this.progressLabel = new Konva.Text({
 			x: 0,
 			y: 0,
-			text: `Progress: 0%`,
+			text: `Experience: 0%`,
 			fontSize: 8,
 			fill: '#ffffff',
 		});
@@ -220,7 +220,6 @@ export class GameScreenView implements View {
 		const healthW = (Math.max(0, Math.min(100, this.currentHealth)) / 100) * this.barW;
 		this.healthFill.width(healthW);
 
-		// labels above bars by a tiny offset
 		const labelOffsetY = Math.round(this.barH * -0.02);
 		this.healthLabel.fontSize(Math.max(12, Math.round(this.barH * 0.8)));
 		this.healthLabel.x(this.hudX + 8);
@@ -311,7 +310,7 @@ export class GameScreenView implements View {
 		this.currentProgress = clamped;
 		const w = (clamped / 100) * this.barW;
 		this.progressFill.width(w);
-		this.progressLabel.text(`Progress: ${clamped}%`);
+		this.progressLabel.text(`Experience: ${clamped}%`);
 	}
 
 	setLevel(level: number): void {
