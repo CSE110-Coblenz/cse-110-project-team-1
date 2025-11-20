@@ -1,4 +1,3 @@
-// src/screens/GameScreen/GameScreenController.ts
 import Konva from 'konva';
 import { ScreenController, ScreenSwitcher } from 'src/types';
 import { GameScreenView } from 'src/screens/GameScreen/GameScreenView';
@@ -14,6 +13,7 @@ export class GameScreenController extends ScreenController {
 	private screenSwitcher: ScreenSwitcher;
 	private currentLevel = 0;
 	private maxLevels = 4;
+	private onResize?: () => void;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
@@ -40,11 +40,11 @@ export class GameScreenController extends ScreenController {
 		this.startLevel(this.currentLevel);
 
 		// Keep HUD responsive
-		const onResize = () => {
+		this.onResize = () => {
 			this.view.resize(stage.width(), stage.height());
 			this.uiLayer?.batchDraw();
 		};
-		window.addEventListener('resize', onResize, { passive: true });
+		window.addEventListener('resize', this.onResize, { passive: true });
 	}
 
 	private startLevel(level: number) {
@@ -82,8 +82,16 @@ export class GameScreenController extends ScreenController {
 		try {
 			this.scene?.stop();
 		} catch {}
+		if (this.onResize) {
+      		try { window.removeEventListener('resize', this.onResize); } catch {}
+      		this.onResize = undefined;
+    	}
 		try {
 			this.view.getGroup().remove();
+		} catch {}
+		try { 
+			this.uiLayer?.destroyChildren(); 
+			this.uiLayer?.draw(); 
 		} catch {}
 		try {
 			this.worldLayer?.draw();
@@ -102,4 +110,13 @@ export class GameScreenController extends ScreenController {
 		this.view.setProgress(pct);
 		this.uiLayer?.batchDraw();
 	}
+	setLevel(lvl: number): void {           
+    	this.view.setLevel(lvl);
+    	this.uiLayer?.batchDraw();
+  	}
+  	setSpecies(name: string): void {        
+    	this.view.setSpecies(name);
+    	this.uiLayer?.batchDraw();
+  	}
+
 }

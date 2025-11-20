@@ -43,7 +43,7 @@ export class GameScreenView implements View {
 	private currentHealth = 100;
 	private currentProgress = 0;
 	private currentLevel = 1;
-	private currentSpeciesText = 'Mouse';
+	private currentSpeciesText = 'Mouse'; //hard coded since i saw this in playerModel but update should handle if not that. 
 
 	// Badge config
 	private badgePadX = 8;
@@ -144,7 +144,7 @@ export class GameScreenView implements View {
 		this.speciesBadgeText = new Konva.Text({
 			x: 0,
 			y: 0,
-			text: 'Mouse',
+			text: '',
 			fontSize: 12,
 			fill: '#000000ff',
 			fontStyle: 'bold',
@@ -270,7 +270,7 @@ export class GameScreenView implements View {
 		const spTxtH = this.speciesBadgeText.height();
 		const spW = Math.round(spTxtW + this.badgePadX * 2);
 		const spH = Math.round(spTxtH + this.badgePadY * 2);
-		const spX = lvlX + lvlW + 8; // gap between badges
+		const spX = lvlX + lvlW + 8; 
 		const spY = lvlY;
 
 		this.speciesBadgeRect.position({ x: spX, y: spY });
@@ -304,7 +304,7 @@ export class GameScreenView implements View {
 		this.healthLabel.text(`HP: ${clamped}%`);
 	}
 
-	/** Set progress as percentage 0..100 */
+	/** Set Experience...will change name later lol */
 	setProgress(pct: number): void {
 		const clamped = Math.max(0, Math.min(100, Math.round(pct)));
 		this.currentProgress = clamped;

@@ -25,6 +25,7 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 	const uiLayer = new Konva.Layer();
 	stage.add(worldLayer);
 	stage.add(uiLayer);
+	uiLayer.moveToTop(); // just in case i add buttons to this layer which i prob will 
 
 	// HUD on its own layer
 	const hud = new GameScreenView(stage.width(), stage.height());
@@ -42,8 +43,11 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		scene = new GameScene(worldLayer, {
 			levelNumber: level,
 			species: pickSpeciesForLevel(level),
-			onHudUpdate: ({ health }) => {
+			onHudUpdate: ({ health, progress, species, level: lvl }) => {
 				hud.setHealth(health);
+				hud.setProgress(progress);
+				hud.setSpecies(species);
+				hud.setLevel(lvl);
 				uiLayer.batchDraw();
 			},
 			onLevelComplete: () => {
