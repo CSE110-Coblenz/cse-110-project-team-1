@@ -83,15 +83,17 @@ export class GameScreenController extends ScreenController {
 			this.scene?.stop();
 		} catch {}
 		if (this.onResize) {
-      		try { window.removeEventListener('resize', this.onResize); } catch {}
-      		this.onResize = undefined;
-    	}
+			try {
+				window.removeEventListener('resize', this.onResize);
+			} catch {}
+			this.onResize = undefined;
+		}
 		try {
 			this.view.getGroup().remove();
 		} catch {}
-		try { 
-			this.uiLayer?.destroyChildren(); 
-			this.uiLayer?.draw(); 
+		try {
+			this.uiLayer?.destroyChildren();
+			this.uiLayer?.draw();
 		} catch {}
 		try {
 			this.worldLayer?.draw();
@@ -110,13 +112,12 @@ export class GameScreenController extends ScreenController {
 		this.view.setProgress(pct);
 		this.uiLayer?.batchDraw();
 	}
-	setLevel(lvl: number): void {           
-    	this.view.setLevel(lvl);
-    	this.uiLayer?.batchDraw();
-  	}
-  	setSpecies(name: string): void {        
-    	this.view.setSpecies(name);
-    	this.uiLayer?.batchDraw();
-  	}
-
+	setLevel(lvl: number): void {
+		this.view.setLevel(lvl);
+		this.uiLayer?.batchDraw();
+	}
+	setSpecies(name: string): void {
+		this.view.setSpecies(name);
+		this.uiLayer?.batchDraw();
+	}
 }
