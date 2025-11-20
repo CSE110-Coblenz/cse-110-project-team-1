@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Screen Switcher Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 12px;
+      }
+
+      button {
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        background: #2563eb;
+        color: #f8fafc;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s ease;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      #container {
+        width: 800px;
+        height: 600px;
+        border: 2px solid #1e293b;
+        background: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Screen Switcher Demo</h1>
+    <p>Click the buttons to navigate between screens.</p>
+    <div class="toolbar">
+      <button data-screen="intro">Intro</button>
+      <button data-screen="menu">Menu</button>
+      <button data-screen="game">Game</button>
+      <button data-screen="cooking">Cooking</button>
+      <button data-screen="result">Result</button>
+    </div>
+    <div id="container"></div>
+    <script type="module" src="./src/screenSwitchDemo.ts"></script>
+  </body>
+</html>
