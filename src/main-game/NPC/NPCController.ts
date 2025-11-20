@@ -3,7 +3,7 @@ import { NPCView } from 'src/main-game/NPC/NPCView';
 
 import { MapModel } from 'src/main-game/MapModel';
 
-import { Position, Viewport, distance } from '../types';
+import { Position, Viewport, distance } from 'src/main-game/types';
 
 /**
  * NPCController manages the locations, animations, and interactions between NPCs

@@ -1,8 +1,8 @@
-import { Direction, Position } from '../types';
-import { MapModel } from '../MapModel';
-import { EntityModel } from '../EntityModel';
+import { Direction, Position } from 'src/main-game/types';
+import { MapModel } from 'src/main-game/MapModel';
+import { EntityModel } from 'src/main-game/EntityModel';
 
-import { Species } from '../../common/types/Species';
+import { Species } from 'src/common/types/Species';
 
 export class NPCModel extends EntityModel {
 	private pov_radius: number = 100;

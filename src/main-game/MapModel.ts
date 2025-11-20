@@ -4,10 +4,6 @@ import { PlayerModel } from 'src/main-game/PlayerModel';
 import { EntityModel } from 'src/main-game/EntityModel';
 import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
-/**
- * MapModel for a continuous open world where walls are polygonal shapes.
- * It generates non-overlapping-ish polygons and exposes queries for walls in a viewport.
- */
 export class MapModel {
 	private width: number;
 	private height: number;
@@ -61,6 +57,8 @@ export class MapModel {
 		const maxAttempts = count * 20;
 
 		const randInRange = (min: number, max: number) => min + Math.random() * (max - min);
+		const spawnX = Math.floor(this.getWidth() / 2);
+		const spawnY = Math.floor(this.getHeight() / 2);
 
 		while (walls.length < count && attempts < maxAttempts) {
 			attempts++;
@@ -76,6 +74,16 @@ export class MapModel {
 
 			const x = randInRange(spacing, width - w - spacing);
 			const y = randInRange(spacing, height - h - spacing);
+
+			// check if wall is in player spawn area
+			if (
+				x < spawnX + maxWidth + 50 &&
+				x + w > spawnX - maxWidth - 50 &&
+				y < spawnY + maxWidth + 50 &&
+				y + h > spawnY - maxWidth - 50
+			) {
+				continue; //go to next attempt
+			}
 
 			const newWall: Wall = {
 				id: `wall_${walls.length}`,
