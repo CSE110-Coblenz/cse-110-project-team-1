@@ -43,7 +43,7 @@ export class GameScreenView implements View {
 	private currentHealth = 100;
 	private currentProgress = 0;
 	private currentLevel = 1;
-	private currentSpeciesText = 'Mouse'; //hard coded since i saw this in playerModel but update should handle if not that. 
+	private currentSpeciesText = 'Mouse'; //hard coded since i saw this in playerModel but update should handle if not that.
 
 	// Badge config
 	private badgePadX = 8;
@@ -270,7 +270,7 @@ export class GameScreenView implements View {
 		const spTxtH = this.speciesBadgeText.height();
 		const spW = Math.round(spTxtW + this.badgePadX * 2);
 		const spH = Math.round(spTxtH + this.badgePadY * 2);
-		const spX = lvlX + lvlW + 8; 
+		const spX = lvlX + lvlW + 8;
 		const spY = lvlY;
 
 		this.speciesBadgeRect.position({ x: spX, y: spY });
