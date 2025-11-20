@@ -147,14 +147,19 @@ export class CookingModel {
 		const index = this.activeCustomers.indexOf(targetCustomer);
 		this.activeCustomers.splice(index, 1);
 		this.fillActiveCustomers();
-		this.currentLabel = DeckLogic.generateRandomLabel();
+		// Generate a new label guaranteed different from the one just used when possible
+		this.currentLabel = DeckLogic.generateRandomLabelDifferent(this.currentLabel.type);
 	}
 
 	/**
 	 * Handle discarding the current label and generating a new one.
 	 */
 	public discardLabel(): void {
-		this.currentLabel = DeckLogic.generateRandomLabel();
+		if (!this.currentLabel) {
+			this.currentLabel = DeckLogic.generateRandomLabel();
+			return;
+		}
+		this.currentLabel = DeckLogic.generateRandomLabelDifferent(this.currentLabel.type);
 	}
 
 	/**

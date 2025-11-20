@@ -5,22 +5,95 @@ import { CookingGameConfig } from '../config/CookingGameConfig';
 // View constants (avoid magic numbers)
 const PROGRESS_BAR_WIDTH = 400;
 const PROGRESS_BAR_HEIGHT = 16;
-const PATIENCE_BAR_WIDTH = 400;
-const PATIENCE_ROW_HEIGHT = 28; // label row height
-const PATIENCE_BAR_HEIGHT = 12;
-const ANIM_DURATION = 0.25; // seconds
 // Snappy animation for progress updates
 const PROGRESS_ANIM_DURATION = 0.08; // seconds
+
+// Gameplay stage layout
+const GAME_STAGE_WIDTH = 480;
+const GAME_STAGE_HEIGHT = 260;
+const CUSTOMER_SIZE = 64;
+const CUSTOMER_TOP_Y = 16; // top padding
+const CUSTOMER_GAP = 24;
+const LABEL_HEIGHT = 36;
+const TRASH_SIZE = 48;
 
 export class CookingView {
 	private progressStage: Konva.Stage | null = null;
 	private progressBarCorrect: Konva.Rect | null = null;
 	private progressBarIncorrect: Konva.Rect | null = null;
 	private progressText: Konva.Text | null = null;
-	// Patience bar stage and per-customer bar references
-	private patienceStage: Konva.Stage | null = null;
-	private patienceBarMap: Map<string, Konva.Rect> = new Map();
-	private patienceLabelMap: Map<string, Konva.Text> = new Map();
+
+	// Gameplay stage (customers + draggable label + trash)
+	private gameStage: Konva.Stage | null = null;
+	private gameLayer: Konva.Layer | null = null;
+	private customerRects: Map<string, Konva.Rect> = new Map();
+	private customerPatienceTexts: Map<string, Konva.Text> = new Map();
+	private customerTypeTexts: Map<string, Konva.Text> = new Map();
+	private customerPatienceBarBg: Map<string, Konva.Rect> = new Map();
+	private customerPatienceBarFg: Map<string, Konva.Rect> = new Map();
+	private spotPositions: Array<{ x: number; y: number }> = [];
+	private draggableLabelGroup: any | null = null;
+	private trashRect: Konva.Rect | null = null;
+	private trashText: Konva.Text | null = null;
+
+	// Track current label value for event details and display
+	private currentLabel: string = '';
+
+	// Controller-provided drop handler callback
+	private dropHandler: ((target: 'customer' | 'trashcan', customerId?: string) => void) | null = null;
+
+	// Dynamic layout properties (computed at runtime for responsive scaling)
+	private stageWidth: number = GAME_STAGE_WIDTH;
+	private stageHeight: number = GAME_STAGE_HEIGHT;
+	private dynCustomerSize: number = CUSTOMER_SIZE;
+	private dynCustomerGap: number = CUSTOMER_GAP;
+	private dynLabelHeight: number = LABEL_HEIGHT;
+	private dynLabelWidth: number = 160;
+	private dynTrashSize: number = TRASH_SIZE;
+	private resizeHandler: (() => void) | null = null;
+	private highlightedTarget: Konva.Shape | null = null;
+	private baseLabelX: number = 0;
+	private baseLabelY: number = 0;
+	private isDraggingLabel: boolean = false;
+	private measureCtx: CanvasRenderingContext2D | null = null;
+
+	// ---- Utility helpers ----
+	/** Returns client rect, falling back to x/y/width/height if getClientRect unavailable. */
+	private getNodeRect(node: any): { x: number; y: number; width: number; height: number } {
+		try {
+			if (node.getClientRect) return node.getClientRect();
+		} catch (_) { /* ignore */ }
+		return { x: node.x(), y: node.y(), width: node.width(), height: node.height() };
+	}
+	/**
+	 * Recomputes dynamic layout metrics (sizes & gaps) based on the container width so the game scales.
+	 * Uses guarded minimums for legibility on very small viewports.
+	 */
+	private computeDynamicMetrics(containerWidth: number): void {
+		this.stageWidth = Math.max(320, containerWidth);
+		this.stageHeight = this.computeAvailableGameStageHeight();
+		// Customer avatars scale proportionally to width with a lower bound for clarity.
+		this.dynCustomerSize = Math.max(48, Math.floor(this.stageWidth * 0.12));
+		// Horizontal gap also scales but maintains a usable minimum.
+		this.dynCustomerGap = Math.max(16, Math.floor(this.stageWidth * 0.05));
+		// Label shares size with customer for consistent card appearance.
+		this.dynLabelHeight = this.dynCustomerSize;
+		this.dynLabelWidth = this.dynCustomerSize;
+		// Trash can scales modestly to remain tappable without dominating layout.
+		this.dynTrashSize = Math.max(40, Math.floor(this.stageWidth * 0.08));
+	}
+	/**
+	 * Computes the three top customer spot coordinates centered horizontally in the current stage width.
+	 */
+	private computeCustomerSpotPositions(): void {
+		const totalWidth = 3 * this.dynCustomerSize + 2 * this.dynCustomerGap;
+		const startX = Math.max(0, Math.floor((this.stageWidth - totalWidth) / 2));
+		this.spotPositions = [
+			{ x: startX, y: CUSTOMER_TOP_Y },
+			{ x: startX + this.dynCustomerSize + this.dynCustomerGap, y: CUSTOMER_TOP_Y },
+			{ x: startX + 2 * (this.dynCustomerSize + this.dynCustomerGap), y: CUSTOMER_TOP_Y },
+		];
+	}
 	// Track which customer is in each screen spot (0, 1, 2) for stable positioning
 	// spot -> customerId (null = empty spot)
 	private screenSpots: Map<number, string | null> = new Map([
@@ -28,10 +101,6 @@ export class CookingView {
 		[1, null],
 		[2, null],
 	]);
-
-	constructor() {
-		console.log('CookingView created');
-	}
 
 	/**
 	 * Initialize the view with game data.
@@ -47,10 +116,7 @@ export class CookingView {
 		score: number,
 		progress?: { correct: number; incorrect: number; total: number },
 	): void {
-		console.log('CookingView.initialize called');
-		console.log('Customer data:', customerData);
-		console.log('Current label:', label);
-		console.log('Score:', score);
+		// Initialization: build DOM scaffolding + stages
 
 		// Get the container element
 		const container = document.getElementById('container');
@@ -61,29 +127,37 @@ export class CookingView {
 			if (!document.getElementById('view-placeholder')) {
 				const wrapper = document.createElement('div');
 				wrapper.id = 'view-placeholder';
-				wrapper.style.cssText = 'border: 2px solid blue; padding: 10px; margin-top: 20px;';
+				// Ensure the whole game fits viewport without scrolling
+				wrapper.style.cssText = 'border: none; padding: 0; margin: 0; height: 100vh; overflow: hidden; box-sizing: border-box;';
 				wrapper.innerHTML = '' +
-					'<h2>View Component Placeholder</h2>' +
-					'<div id="progress-konva-container" style="margin: 8px 0 12px;"></div>' +
-					'<div id="score-display">Score: <span id="score-value">0</span></div>' +
-					'<div id="label-display">Label: <span id="label-value">none</span></div>' +
-					'<div id="customers-display">Customers: <span id="customers-value">[]</span></div>' +
-					'<div id="patience-konva-container" style="margin: 12px 0;"></div>' +
-					'<div id="game-status"></div>';
+					// Move score to the very top
+					'<div id="score-display" style="margin: 8px 0 6px; font-weight: 600;">Score: <span id="score-value">0</span></div>' +
+					'<div id="progress-konva-container" style="margin: 6px 0 8px;"></div>' +
+					'<div id="game-stage-container" style="margin: 6px 0 8px;"></div>' +
+					// Hide debug text labels at the bottom while keeping them for tests
+					''; // Removed test-only hidden debug elements
 				container.appendChild(wrapper);
+			}
+			else {
+				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
+				if (wrapper) {
+					wrapper.style.cssText = 'margin: 0; height: 100vh; overflow: hidden; box-sizing: border-box; border: none; padding: 0;';
+				}
 			}
 
 			// Create Konva progress bar
 			this.createKonvaProgressBar();
+
+			// Create gameplay stage (customers + draggable label + trash)
+			this.createGameplayStage();
 
 			// If initial progress provided, set bars now (before other textual updates)
 			if (progress) {
 				this.updateProgress(progress.correct, progress.incorrect, progress.total);
 			}
 
-			// Create patience bars for initial customers
-			this.createOrRebuildPatienceStage(customerData);
-			//Update initial data
+			// Removed patience placeholder stage
+			// Update initial data
 			this.updateScore(score);
 			this.updateLabel(label);
 			this.updateCustomers(customerData);
@@ -166,15 +240,248 @@ export class CookingView {
 	}
 
 	/**
-	 * Updates the score display
+	 * Creates the gameplay stage with three customer placeholders at the top,
+	 * a draggable label at the bottom, and a trash can on the bottom-right.
 	 */
-	updateScore(score: number): void {
-		console.log('Updating score:', score);
+	private createGameplayStage(): void {
+		const stageContainer = document.getElementById('game-stage-container');
+		if (!stageContainer) return;
 
-		const scoreElement = document.getElementById('score-value');
-		if (scoreElement) {
-			scoreElement.textContent = score.toString();
+
+		// Compute responsive sizes using container width; fall back to window for tests
+		const winW = (typeof window !== 'undefined' && (window as any).innerWidth) ? (window as any).innerWidth : GAME_STAGE_WIDTH;
+		const containerWidth = (stageContainer as HTMLElement).clientWidth || winW;
+		this.computeDynamicMetrics(containerWidth);
+
+		this.gameStage = new Konva.Stage({
+			container: 'game-stage-container',
+			width: this.stageWidth,
+			height: this.stageHeight,
+		});
+		this.gameLayer = new Konva.Layer();
+
+		this.computeCustomerSpotPositions();
+
+		// Draggable label at bottom center
+		const labelY = this.stageHeight - this.dynLabelHeight - 12;
+		const labelWidth = this.dynLabelWidth;
+		const labelX = Math.floor((this.stageWidth - labelWidth) / 2);
+		this.baseLabelX = labelX;
+		this.baseLabelY = labelY;
+
+		// Create draggable label group with rect and text
+		const labelRect = new Konva.Rect({
+			x: 0, y: 0,
+			width: labelWidth,
+			height: this.dynLabelHeight,
+			fill: '#3b82f6',
+			cornerRadius: 12,
+			opacity: 0.9,
+		});
+		const labelText = new Konva.Text({
+			x: 0, y: 0,
+			width: labelWidth,
+			align: 'center',
+			text: 'Drag Label',
+			fontSize: Math.max(10, Math.floor(this.dynLabelHeight * 0.22)),
+			fill: '#ffffff',
+			wrap: 'none' as any,
+		});
+		this.draggableLabelGroup = new (Konva as any).Group({ x: labelX, y: labelY, draggable: true });
+		this.draggableLabelGroup.add(labelRect);
+		this.draggableLabelGroup.add(labelText);
+
+		// Trash can at bottom-right
+		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
+		const trashY = this.stageHeight - this.dynTrashSize - 12;
+		this.trashRect = new Konva.Rect({ x: trashX, y: trashY, width: this.dynTrashSize, height: this.dynTrashSize, fill: '#ef4444', cornerRadius: 8, opacity: 0.9 });
+		this.trashText = new Konva.Text({
+			x: trashX,
+			y: trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16),
+			width: this.dynTrashSize,
+			align: 'center',
+			text: 'Trash',
+			fontSize: Math.max(10, Math.floor(this.dynTrashSize * 0.2)),
+			fill: '#ffffff',
+		});
+
+		// Add items to layer and stage
+		this.gameLayer.add(this.draggableLabelGroup);
+		this.gameLayer.add(this.trashRect);
+		this.gameLayer.add(this.trashText);
+		this.gameStage.add(this.gameLayer);
+
+		// Fit the label text to the card after nodes are created (initial state)
+		this.fitLabelTextToCard();
+
+
+		// Drag handling for label
+		const onDragStart = () => {
+			this.isDraggingLabel = true;
+			this.clearHighlights();
+			this.draggableLabelGroup.to({ scaleX: 1.05, scaleY: 1.05, duration: 0.06, easing: Konva.Easings.EaseOut });
+		};
+		const onDragMove = () => {
+			const labelBox = this.getNodeRect(this.draggableLabelGroup);
+
+			// Highlight any intersecting customer
+			let found = false;
+			for (const [customerId, rect] of this.customerRects.entries()) {
+				if (this._rectsIntersect(labelBox, this.getNodeRect(rect))) {
+					this.highlightTarget(rect);
+					found = true;
+					break;
+				}
+			}
+			// Highlight trash if not found on customer
+			if (!found && this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect))) {
+				this.highlightTarget(this.trashRect);
+				found = true;
+			}
+			if (!found) this.clearHighlights();
+		};
+
+		const onDragEnd = () => {
+			if (!this.gameLayer) return;
+			const labelBox = this.getNodeRect(this.draggableLabelGroup);
+
+			// Check drop on customers
+			let droppedOnCustomer: string | null = null;
+			for (const [customerId, rect] of this.customerRects.entries()) {
+				if (this._rectsIntersect(labelBox, this.getNodeRect(rect))) {
+					droppedOnCustomer = customerId;
+					break;
+				}
+			}
+
+			// Check drop on trash
+			const droppedOnTrash = this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect));
+
+			if (droppedOnCustomer) {
+				console.log('Dropped label on customer:', droppedOnCustomer);
+				if (this.dropHandler) this.dropHandler('customer', droppedOnCustomer);
+			} else if (droppedOnTrash) {
+				console.log('Dropped label on trash');
+				if (this.dropHandler) this.dropHandler('trashcan');
+			} else {
+				console.log('Dropped label on empty area');
+			}
+
+			// Snap label back to origin
+			this.draggableLabelGroup.to({ 
+				x: this.baseLabelX, 
+				y: this.baseLabelY, 
+				scaleX: 1, 
+				scaleY: 1, 
+				duration: 0.08, 
+				easing: Konva.Easings.EaseOut 
+			});
+			this.isDraggingLabel = false;
+		};
+
+		this.draggableLabelGroup.on('dragstart', onDragStart);
+		this.draggableLabelGroup.on('dragmove', onDragMove);
+		this.draggableLabelGroup.on('dragend', onDragEnd);
+
+		// Handle window resize to recompute layout
+		this.resizeHandler = () => { try { this.layoutGameStage(); } catch (_) {} };
+		if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('resize', this.resizeHandler);
+	}
+
+	// Computes available height for the gameplay stage such that the whole screen fits in viewport without scrolling
+	private computeAvailableGameStageHeight(): number {
+		const vh = (typeof window !== 'undefined' && (window as any).innerHeight) ? (window as any).innerHeight : GAME_STAGE_HEIGHT;
+		// Measure actual block heights when possible
+		const progressEl = document.getElementById('progress-konva-container') as HTMLElement | null;
+		const scoreEl = document.getElementById('score-display') as HTMLElement | null;
+		const labelEl = document.getElementById('label-display') as HTMLElement | null;
+		const customersEl = document.getElementById('customers-display') as HTMLElement | null;
+
+		const progressH = progressEl?.offsetHeight || 40;
+		const statsH = (scoreEl?.offsetHeight || 20) + (labelEl?.offsetHeight || 20) + (customersEl?.offsetHeight || 20);
+		// No separate patience section anymore
+		const VERTICAL_MARGINS = 24; // tighter margins: progress(6+6) + game(6+6)
+		const available = vh - progressH - statsH - VERTICAL_MARGINS;
+		return Math.max(140, Math.floor(available));
+	}
+
+	/**
+	 * Compute layout based on current stageWidth/stageHeight and reposition elements.
+	 */
+	private layoutGameStage(): void {
+		if (!this.gameStage || !this.gameLayer) return;
+		const containerEl = document.getElementById('game-stage-container') as HTMLElement | null;
+		const winW = (typeof window !== 'undefined' && (window as any).innerWidth) ? (window as any).innerWidth : GAME_STAGE_WIDTH;
+		this.computeDynamicMetrics(containerEl?.clientWidth || winW);
+		this.computeCustomerSpotPositions();
+
+		this.gameStage.width(this.stageWidth).height(this.stageHeight);
+
+		// reposition label and trash
+		const labelY = this.stageHeight - this.dynLabelHeight - 12;
+		const labelWidth = this.dynLabelWidth;
+		const labelX = Math.floor((this.stageWidth - labelWidth) / 2);
+		this.baseLabelX = labelX;
+		this.baseLabelY = labelY;
+		if (!this.isDraggingLabel) {
+			this.draggableLabelGroup.x(labelX).y(labelY);
 		}
+		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
+		const trashY = this.stageHeight - this.dynTrashSize - 12;
+		this.trashRect!.x(trashX).y(trashY).width(this.dynTrashSize).height(this.dynTrashSize);
+		this.trashText!.x(trashX).y(trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16)).width(this.dynTrashSize);
+
+		// reposition existing customers based on screenSpots
+		const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.10));
+		for (let spot = 0; spot < 3; spot++) {
+			const cid = this.screenSpots.get(spot);
+			if (!cid) continue;
+			const pos = this.spotPositions[spot];
+			if (!pos) continue;
+			this.customerRects.get(cid)?.x(pos.x).y(pos.y + 18);
+			this.customerPatienceTexts.get(cid)?.x(pos.x).y(pos.y - 12);
+			this.customerTypeTexts.get(cid)?.x(pos.x).y(pos.y + 18 + this.dynCustomerSize + 4).width(this.dynCustomerSize);
+			this.customerPatienceBarBg.get(cid)?.x(pos.x).y(pos.y).width(this.dynCustomerSize).height(barH);
+			this.customerPatienceBarFg.get(cid)?.x(pos.x).y(pos.y).height(barH);
+		}
+
+		this.gameLayer.draw();
+	}
+
+	private _rectsIntersect(a: { x: number; y: number; width: number; height: number }, b: { x: number; y: number; width: number; height: number }): boolean {
+		return (
+			a.x < b.x + b.width &&
+			a.x + a.width > b.x &&
+			a.y < b.y + b.height &&
+			a.y + a.height > b.y
+		);
+	}
+
+	/** Highlight a Konva shape (customer rect or trash) to provide drag-over feedback. */
+	private highlightTarget(shape: Konva.Shape): void {
+		if (this.highlightedTarget === shape) return;
+		this.clearHighlights();
+		this.highlightedTarget = shape;
+		shape.stroke('#f59e0b').strokeWidth(4);
+		this.gameLayer?.draw();
+	}
+
+	/** Clear any existing highlight on previously highlighted target. */
+	private clearHighlights(): void {
+		if (!this.highlightedTarget) return;
+		this.highlightedTarget.stroke(null).strokeWidth(0);
+		this.highlightedTarget = null;
+		this.gameLayer?.draw();
+	}
+
+	// Allow controller to inject a drop handler callback
+	public setDropHandler(handler: (target: 'customer' | 'trashcan', customerId?: string) => void): void {
+		this.dropHandler = handler;
+	}
+
+	updateScore(score: number): void {
+		const scoreElement = document.getElementById('score-value');
+		if (scoreElement) scoreElement.textContent = score.toString();
 	}
 
 	/**
@@ -182,343 +489,279 @@ export class CookingView {
 	 * Shows green bar for correct, red bar for incorrect
 	 */
 	updateProgress(correct: number, incorrect: number, total: number): void {
-		if (!this.progressBarCorrect || !this.progressBarIncorrect || !this.progressText) {
-			return;
-		}
+		if (!this.progressBarCorrect || !this.progressBarIncorrect || !this.progressText) return;
 
-		let safeTotal = total;
-		if (safeTotal < 1) {
-			safeTotal = 0;
-		}
-
-		let totalServed = correct + incorrect;
-		if (totalServed > safeTotal) {
-			totalServed = safeTotal;
-		}
-
-		let percentCorrect = 0;
-		let percentTotal = 0;
-		if (safeTotal > 0) {
-			percentCorrect = (correct * 100) / safeTotal;
-			percentTotal = (totalServed * 100) / safeTotal;
-
-			if (percentCorrect < 0) {
-				percentCorrect = 0;
-			}
-			if (percentCorrect > 100) {
-				percentCorrect = 100;
-			}
-			if (percentTotal < 0) {
-				percentTotal = 0;
-			}
-			if (percentTotal > 100) {
-				percentTotal = 100;
-			}
-		}
+		const safeTotal = Math.max(0, total);
+		const totalServed = Math.min(correct + incorrect, safeTotal);
+		const percentCorrect = safeTotal > 0 ? Math.min(100, Math.max(0, (correct * 100) / safeTotal)) : 0;
+		const percentTotal = safeTotal > 0 ? Math.min(100, Math.max(0, (totalServed * 100) / safeTotal)) : 0;
 
 		const targetWidthCorrect = (PROGRESS_BAR_WIDTH * percentCorrect) / 100;
 		const targetWidthTotal = (PROGRESS_BAR_WIDTH * percentTotal) / 100;
 
-		// Smooth animation with finish() to complete any in-progress tweens immediately
-		// This prevents animation queue buildup that causes lag/snapping
-		(this.progressBarIncorrect as any).to({
-			width: targetWidthTotal,
-			duration: PROGRESS_ANIM_DURATION,
-			easing: Konva.Easings.EaseOut,
-		});
-
-		(this.progressBarCorrect as any).to({
-			width: targetWidthCorrect,
-			duration: PROGRESS_ANIM_DURATION,
-			easing: Konva.Easings.EaseOut,
-		});
+		this.progressBarIncorrect.to({ width: targetWidthTotal, duration: PROGRESS_ANIM_DURATION, easing: Konva.Easings.EaseOut });
+		this.progressBarCorrect.to({ width: targetWidthCorrect, duration: PROGRESS_ANIM_DURATION, easing: Konva.Easings.EaseOut });
 
 		// Update text to show correct/total with percentage (rounded)
 		const percentDisplay = Math.round(percentCorrect);
 		this.progressText.text(correct + '/' + safeTotal + ' (' + percentDisplay + '%)');
 	}
 
-	/**
-	 * Updates the current label display
-	 */
+	/** Updates the current label display */
 	updateLabel(label: string): void {
-		console.log('Updating label:', label);
-
-		const labelElement = document.getElementById('label-value');
-		if (labelElement) {
-			labelElement.textContent = label;
+		this.currentLabel = label;
+		if (this.draggableLabelGroup) {
+			const textNode = this.draggableLabelGroup.children[1]; // Text is second child
+			if (textNode) {
+				textNode.text(label);
+				this.fitLabelTextToCard();
+			}
 		}
 	}
 
-	/**
-	 * Updates the customer display with current customer data
-	 */
-	updateCustomers(customerData: CustomerDisplayData[]): void {
-		console.log('Updating customers:', customerData);
+		/** Ensure the draggable label's text fits within the square card and is vertically centered. */
+		private fitLabelTextToCard(): void {
+			if (!this.draggableLabelGroup) return;
+			const textNode = this.draggableLabelGroup.children[1];
+			if (!textNode) return;
+			const label = this.currentLabel || 'Label';
+			const padding = Math.max(6, Math.floor(this.dynLabelWidth * 0.08));
+			const maxWidth = Math.max(10, this.dynLabelWidth - padding * 2);
+			let fontSize = Math.max(8, Math.floor(this.dynLabelHeight * 0.26));
+			const minFont = 8;
 
-		const customersElement = document.getElementById('customers-value');
-		if (customersElement) {
-			// Simple display of customer count and types
-			let customerSummary = '';
-			for (let i = 0; i < customerData.length; i++) {
-				const roundedPatience = Math.round(customerData[i].patience / CookingGameConfig.INITIAL_PATIENCE * 100);
-				customerSummary +=
-					customerData[i].customerType + '(' + roundedPatience + '%)';
-				if (i < customerData.length - 1) {
-					customerSummary += ', ';
-				}
-			}
-			customersElement.textContent = customerSummary || 'none';
+			const measure = (t: string, fs: number): number => {
+				try {
+					if (!this.measureCtx && typeof document !== 'undefined') {
+						const canvas = document.createElement('canvas');
+						this.measureCtx = canvas.getContext('2d');
+					}
+					if (this.measureCtx) {
+						this.measureCtx.font = fs + 'px system-ui, sans-serif';
+						return this.measureCtx.measureText(t).width;
+					}
+				} catch (_) {}
+				return t.length * fs * 0.6;
+			};
+
+			let safety = 40;
+			while (measure(label, fontSize) > maxWidth && fontSize > minFont && safety-- > 0) fontSize -= 1;
+
+			const centeredY = Math.max(0, Math.floor((this.dynLabelHeight - fontSize) / 2));
+			textNode.fontSize(fontSize).width(this.dynLabelWidth).x(0).y(centeredY);
+			this.gameLayer?.draw();
 		}
-		// Update patience bars (animate changes)
-		this.updatePatienceBars(customerData);
+
+	/** Updates the customer display with current customer data */
+	updateCustomers(customerData: CustomerDisplayData[]): void {
+		this.updateCustomerStage(customerData);
 	}
 
 	/**
 	 * Displays a game over message
 	 */
 	showGameOver(finalScore: number): void {
-		console.log('Game over! Final score:', finalScore);
 
-		const statusElement = document.getElementById('game-status');
-		if (statusElement) {
-			statusElement.innerHTML = `<strong style="color: red;">GAME OVER! Final Score: ${finalScore}</strong>`;
+		// Create centered popup overlay
+		const wrapper = document.getElementById('view-placeholder');
+		if (!wrapper) return;
+		let overlay = document.getElementById('game-over-overlay');
+		if (!overlay) {
+			overlay = document.createElement('div');
+			overlay.id = 'game-over-overlay';
+			overlay.style.cssText = [
+				'position: fixed',
+				'left: 0',
+				'top: 0',
+				'width: 100vw',
+				'height: 100vh',
+				'background: rgba(0,0,0,0.45)',
+				'display: flex',
+				'align-items: center',
+				'justify-content: center',
+				'z-index: 9999',
+			].join(';');
+			const panel = document.createElement('div');
+			panel.id = 'game-over-panel';
+			panel.style.cssText = [
+				'background: #ffffff',
+				'border-radius: 12px',
+				'padding: 20px 24px',
+				'box-shadow: 0 10px 30px rgba(0,0,0,0.25)',
+				'min-width: 240px',
+				'text-align: center',
+				'font-family: system-ui, sans-serif',
+			].join(';');
+			panel.innerHTML = `
+				<div style="font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 8px;">Game Over</div>
+				<div style="font-size: 16px; color: #374151; margin-bottom: 12px;">Final Score: <strong>${finalScore}</strong></div>
+				<button id="game-over-close" style="margin-top: 4px; padding: 8px 12px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; font-weight: 600; cursor: pointer;">Close</button>
+			`;
+			overlay.appendChild(panel);
+			wrapper.appendChild(overlay);
+
+			const closeBtn = document.getElementById('game-over-close');
+			if (closeBtn) {
+				closeBtn.addEventListener('click', () => {
+					overlay?.remove();
+				});
+			}
+		} else {
+			// Update existing panel text
+			const panel = document.getElementById('game-over-panel');
+			if (panel) {
+				panel.querySelector('div:nth-child(2)')!.innerHTML = `Final Score: <strong>${finalScore}</strong>`;
+			}
 		}
 	}
 
 	/**
 	 * Clears the view
 	 */
-	clear(): void {
-		console.log('Clearing view');
-
-		const placeholder = document.getElementById('view-placeholder');
-		if (placeholder) {
-			placeholder.remove();
-		}
-	}
-
-	/**
-	 * Creates or rebuilds the patience bar stage for current active customers.
-	 * Called at initialization or when customer list structure changes.
-	 * Maintains stable screen positions: tracks which customer is in each of the 3 spots.
-	 */
-	private createOrRebuildPatienceStage(customerData: CustomerDisplayData[]): void {
-		const container = document.getElementById('patience-konva-container');
-		if (!container) {
-			return;
+		clear(): void {
+			document.getElementById('view-placeholder')?.remove();
 		}
 
-		// Build set of incoming customer IDs
-		const incomingIds = new Set(customerData.map((c) => c.customerId));
-
-		// Step 1: See which customers have left and free their spots
-		for (const [spot, customerId] of this.screenSpots.entries()) {
-			if (customerId !== null && !incomingIds.has(customerId)) {
-				this.screenSpots.set(spot, null); // Mark spot as empty
-			}
-		}
-
-		// Step 2: Find new customers (in incoming data but not currently in any spot)
-		const currentlyDisplayed = new Set(
-			Array.from(this.screenSpots.values()).filter((id) => id !== null),
-		);
-		const newCustomers: string[] = [];
-		for (const customer of customerData) {
-			if (!currentlyDisplayed.has(customer.customerId)) {
-				newCustomers.push(customer.customerId);
-			}
-		}
-
-		// Step 3: Assign new customers to empty spots (fill lower spots first)
-		let newCustomerIndex = 0;
-		for (let spot = 0; spot < 3; spot++) {
-			if (
-				this.screenSpots.get(spot) === null &&
-				newCustomerIndex < newCustomers.length
-			) {
-				this.screenSpots.set(spot, newCustomers[newCustomerIndex]);
-				newCustomerIndex++;
-			}
-		}
-
-		// Rebuild stage
-		if (this.patienceStage) {
-			this.patienceStage.destroy();
-			this.patienceStage = null;
-			this.patienceBarMap.clear();
-			this.patienceLabelMap.clear();
-		}
-
-		const width = PATIENCE_BAR_WIDTH;
-		const rowHeight = PATIENCE_ROW_HEIGHT;
-		const totalHeight = customerData.length * rowHeight;
-		let stageHeight = totalHeight;
-		if (stageHeight <= 40) {
-			stageHeight = 40;
-		}
-
-		this.patienceStage = new Konva.Stage({
-			container: 'patience-konva-container',
-			width: width,
-			height: stageHeight,
-		});
-		const layer = new Konva.Layer();
-
-		// Build a map for quick lookup: customerId -> customerData
-		const customerDataMap = new Map<string, CustomerDisplayData>();
-		for (const c of customerData) {
-			customerDataMap.set(c.customerId, c);
-		}
-
-		// Render customers in screen spot order (0, 1, 2)
-		let rowIndex = 0;
-		for (let spot = 0; spot < 3; spot++) {
-			const customerId = this.screenSpots.get(spot);
-			if (customerId === null || customerId === undefined) {
-				continue; // Skip empty spots
-			}
-
-			const c = customerDataMap.get(customerId);
-			if (!c) {
-				continue; // Skip if customer data not found
-			}
-
-			const yBase = rowIndex * rowHeight;
-			// Text label: ID or type
-			const labelText = new Konva.Text({
-				x: 0,
-				y: yBase,
-				text: c.customerType + ' (' + c.customerId + ')',
-				fontSize: 12,
-				fill: 'black',
-			});
-			layer.add(labelText);
-			this.patienceLabelMap.set(c.customerId, labelText);
-
-			// Background bar
-			const bg = new Konva.Rect({
-				x: 0,
-				y: yBase + 14,
-				width: width,
-				height: 12,
-				fill: '#e5e7eb',
-				cornerRadius: 6,
-			});
-			layer.add(bg);
-
-			// Foreground bar (patience value)
-			const color = this.getPatienceColor(c.patience);
-			const fg = new Konva.Rect({
-				x: 0,
-				y: yBase + 14,
-				width: (PATIENCE_BAR_WIDTH * c.patience) / CookingGameConfig.INITIAL_PATIENCE,
-				height: 12,
-				fill: color,
-				cornerRadius: 6,
-			});
-			layer.add(fg);
-			this.patienceBarMap.set(c.customerId, fg);
-
-			rowIndex++;
-		}
-
-		this.patienceStage.add(layer);
-	}
-
-	/**
-	 * Updates patience bar widths and colors with animation.
-	 * Rebuilds if customer IDs have changed (not just count).
-	 */
-	private updatePatienceBars(customerData: CustomerDisplayData[]): void {
-		// If stage not yet created but data exists, build it.
-		let rebuilt = false;
-		if (!this.patienceStage && customerData.length > 0) {
-			this.createOrRebuildPatienceStage(customerData);
-			rebuilt = true;
-		}
-
-		// Check if customer IDs have changed (Option B: detect ID changes)
-		const currentIds = new Set(this.patienceBarMap.keys());
-		const incomingIds = new Set(customerData.map((c) => c.customerId));
-
-		let needRebuild = false;
-		if (currentIds.size !== incomingIds.size) {
-			needRebuild = true;
-		} else {
-			for (const id of currentIds) {
-				if (!incomingIds.has(id)) {
-					needRebuild = true;
-					break;
-				}
-			}
-		}
-
-		// Preserve existing widths for stable visual continuity when rebuilding
-		let oldWidths: Map<string, number> | null = null;
-		if (needRebuild && this.patienceBarMap.size > 0) {
-			oldWidths = new Map<string, number>();
-			for (const [id, bar] of this.patienceBarMap.entries()) {
-				try {
-					oldWidths.set(id, bar.width());
-				} catch (_) {
-					oldWidths.set(id, 0);
-				}
-			}
-		}
-
-		if (needRebuild) {
-			this.createOrRebuildPatienceStage(customerData);
-			rebuilt = true;
-			// Restore widths for existing customers if possible
-			if (oldWidths) {
-				for (const [id, width] of oldWidths.entries()) {
-					const bar = this.patienceBarMap.get(id) as any;
-					if (bar) {
-						if (typeof bar.width === 'function') {
-							bar.width(width);
-						} else if (bar.attrs) {
-							bar.attrs.width = width;
-						}
-					}
-				}
-			}
-		}
-
-		// IDs match, just animate the bars
-		for (let i = 0; i < customerData.length; i++) {
-			const c = customerData[i];
-			const bar = this.patienceBarMap.get(c.customerId);
-			if (!bar) {
-				continue;
-			}
-			const targetWidth = (PATIENCE_BAR_WIDTH * c.patience) / CookingGameConfig.INITIAL_PATIENCE;
-			const color = this.getPatienceColor(c.patience);
-			// Directly set width each frame to match exact patience; avoids lag-induced snapping
-			const anyBar = bar as any;
-			if (typeof anyBar.width === 'function') {
-				anyBar.width(targetWidth);
-			} else if (anyBar && anyBar.attrs) {
-				anyBar.attrs.width = targetWidth;
-			}
-			if (typeof anyBar.fill === 'function') {
-				anyBar.fill(color);
-			} else if (anyBar && anyBar.attrs) {
-				anyBar.attrs.fill = color;
-			}
-		}
-	}
-
-	/**
-	 * Returns patience color based on thresholds.
-	 */
 	private getPatienceColor(patience: number): string {
-		if (patience >= 50) {
-			return '#22c55e'; // green
-		}
-		if (patience >= 25) {
-			return '#f59e0b'; // orange
-		}
-		return '#ef4444'; // red
+		return patience >= 50 ? '#22c55e' : patience >= 25 ? '#f59e0b' : '#ef4444';
 	}
+
+	/**
+	 * Update or create the three customer placeholders at the top of the gameplay stage.
+	 * Shows patience above each customer and handles fade-out on zero patience.
+	 */
+	private updateCustomerStage(customerData: CustomerDisplayData[]): void {
+		if (!this.gameStage || !this.gameLayer) return;
+
+		// Maintain screen spot mapping: free spots whose customers left, assign new customers to empty spots
+		const incomingIds = new Set(customerData.map(c => c.customerId));
+		for (let spot = 0; spot < 3; spot++) {
+			const id = this.screenSpots.get(spot);
+			if (id && !incomingIds.has(id)) this.screenSpots.set(spot, null);
+		}
+		const placed = new Set(Array.from(this.screenSpots.values()).filter((v): v is string => v !== null));
+		const newCustomersToPlace = customerData.filter(c => !placed.has(c.customerId)).map(c => c.customerId);
+		let ni = 0;
+		for (let spot = 0; spot < 3 && ni < newCustomersToPlace.length; spot++) {
+			if (this.screenSpots.get(spot) === null) this.screenSpots.set(spot, newCustomersToPlace[ni++]);
+		}
+
+		// Build a lookup for active customers by ID
+		const activeIds = new Set(customerData.map((c) => c.customerId));
+
+		// Remove visuals for customers who are no longer present
+		for (const [id, rect] of Array.from(this.customerRects.entries())) {
+			if (!activeIds.has(id)) {
+				rect.destroy();
+				this.customerPatienceTexts.get(id)?.destroy();
+				this.customerTypeTexts.get(id)?.destroy();
+				this.customerPatienceBarBg.get(id)?.destroy();
+				this.customerPatienceBarFg.get(id)?.destroy();
+				this.customerRects.delete(id);
+				this.customerPatienceTexts.delete(id);
+				this.customerTypeTexts.delete(id);
+				this.customerPatienceBarBg.delete(id);
+				this.customerPatienceBarFg.delete(id);
+			}
+		}
+
+		// Place or update up to three customers by exact spot mapping
+		for (let i = 0; i < 3; i++) {
+			const spot = this.spotPositions[i];
+			if (!spot) continue;
+			const currentId = this.screenSpots.get(i);
+			if (!currentId) continue; // empty spot
+			const c = customerData.find((x) => x.customerId === currentId);
+			if (!c) continue;
+
+			let rect = this.customerRects.get(c.customerId);
+			let text = this.customerPatienceTexts.get(c.customerId);
+
+			if (!rect) {
+				// Create a new placeholder character (simple rectangle)
+				rect = new Konva.Rect({
+					x: spot.x,
+					y: spot.y + 18,
+					width: this.dynCustomerSize,
+					height: this.dynCustomerSize,
+					fill: '#94a3b8',
+					cornerRadius: 12,
+					opacity: 1,
+				});
+				this.customerRects.set(c.customerId, rect);
+				this.gameLayer.add(rect);
+
+				// Patience text above (slightly above the bar)
+				text = new Konva.Text({
+					x: spot.x,
+					y: spot.y - 12,
+					width: this.dynCustomerSize,
+					align: 'center',
+					text: Math.round(c.patience) + '%',
+					fontSize: 14,
+					fill: this.getPatienceColor(c.patience),
+				});
+				this.customerPatienceTexts.set(c.customerId, text);
+				this.gameLayer.add(text);
+
+				// Patience progress bar (background + foreground) - thinner
+				const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.10));
+				const barBg = new Konva.Rect({ x: spot.x, y: spot.y, width: this.dynCustomerSize, height: barH, fill: '#e5e7eb', cornerRadius: 4 });
+				const barFg = new Konva.Rect({ x: spot.x, y: spot.y, width: Math.max(0, Math.floor(this.dynCustomerSize * c.patience / CookingGameConfig.INITIAL_PATIENCE)), height: barH, fill: this.getPatienceColor(c.patience), cornerRadius: 4 });
+				this.customerPatienceBarBg.set(c.customerId, barBg);
+				this.customerPatienceBarFg.set(c.customerId, barFg);
+				this.gameLayer.add(barBg);
+				this.gameLayer.add(barFg);
+
+				// Customer species label under the character (restored)
+				const typeText = new Konva.Text({
+					x: spot.x,
+					y: spot.y + 18 + this.dynCustomerSize + 4,
+					width: this.dynCustomerSize,
+					align: 'center',
+					text: c.customerType + ' — ' + Math.round(c.patience) + '%',
+					fontSize: 12,
+					fill: '#111827',
+				});
+				this.customerTypeTexts.set(c.customerId, typeText);
+				this.gameLayer.add(typeText);
+			} else {
+				// Update position (in case of remap)
+				rect.x(spot.x).y(spot.y + 18);
+				if (text) text.x(spot.x).y(spot.y - 12);
+				const typeText = this.customerTypeTexts.get(c.customerId);
+				if (typeText) typeText.x(spot.x).y(spot.y + 18 + this.dynCustomerSize + 4).width(this.dynCustomerSize);
+			}
+
+			// Update patience display + progress bar width/color and label text
+			const color = this.getPatienceColor(c.patience);
+			if (text) text.text(Math.round(c.patience) + '%').fill(color);
+			const barFg = this.customerPatienceBarFg.get(c.customerId);
+			if (barFg) {
+				const bw = Math.max(0, Math.floor(this.dynCustomerSize * c.patience / CookingGameConfig.INITIAL_PATIENCE));
+				barFg.width(bw).fill(color);
+			}
+			const typeText = this.customerTypeTexts.get(c.customerId);
+			if (typeText) typeText.text(c.customerType + ' — ' + Math.round(c.patience) + '%');
+
+			// Fade-out and remove when patience is depleted
+			if (c.patience <= 0 && rect) {
+				const fadeOut = (node: any) => node?.to({ opacity: 0, duration: 0.12, onFinish: () => node.destroy() });
+				fadeOut(rect);
+				fadeOut(text);
+				fadeOut(this.customerTypeTexts.get(c.customerId));
+				this.customerPatienceBarBg.get(c.customerId)?.destroy();
+				this.customerPatienceBarFg.get(c.customerId)?.destroy();
+				this.customerPatienceBarBg.delete(c.customerId);
+				this.customerPatienceBarFg.delete(c.customerId);
+				this.customerRects.delete(c.customerId);
+				this.customerPatienceTexts.delete(c.customerId);
+				this.customerTypeTexts.delete(c.customerId);
+			}
+		}
+
+		this.gameLayer.draw();
+	}
+
+	public getCurrentLabel(): string { return this.currentLabel; }
 }

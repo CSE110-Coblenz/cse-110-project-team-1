@@ -31,6 +31,10 @@ export default class CookingController {
 			this.model.getScore(),
 			this.model.getProgress(), // pass initial progress so initialize handles it
 		);
+		// Wire view drop handler directly to controller method
+		this.view.setDropHandler((dropTarget: 'customer' | 'trashcan', customerId?: string) =>
+			this.handleDrop(dropTarget, customerId),
+		);
 		// Progress already initialized via view.initialize
 		// Game loop
 		this.lastUpdateTime = Date.now();
@@ -41,8 +45,6 @@ export default class CookingController {
 			}
 		}, CookingGameConfig.FRAME_TIME);
 
-		// For testing: simulate some drop events
-		this.testDropEvent();
 	}
 
 	private update(deltaTime: number): void {
@@ -85,6 +87,16 @@ export default class CookingController {
 		} else if (dropTarget === 'trashcan') {
 			this.model.discardLabel();
 		}
+
+		// Immediately reflect changes in the view to avoid perceived lag/mismatch
+		const customerData = this.model.getCustomerData();
+		const currentLabel = this.model.getLabel();
+		const score = this.model.getScore();
+		const progress = this.model.getProgress();
+		this.view.updateCustomers(customerData);
+		this.view.updateLabel(currentLabel);
+		this.view.updateScore(score);
+		this.view.updateProgress(progress.correct, progress.incorrect, progress.total);
 	}
 
 	private getDeltaTime(): number {
