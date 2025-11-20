@@ -1,8 +1,8 @@
 // src/screens/GameScreen/GameScreenController.ts
 import Konva from 'konva';
 import { ScreenController, ScreenSwitcher } from 'src/types';
-import GameScreenView from 'src/screens/GameScreen/GameScreenView'; 
-import GameScene from 'src/main-game/GameScene';
+import { GameScreenView } from 'src/screens/GameScreen/GameScreenView'; 
+import { GameScene } from 'src/main-game/GameScene';
 import { pickSpeciesForLevel } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
 
