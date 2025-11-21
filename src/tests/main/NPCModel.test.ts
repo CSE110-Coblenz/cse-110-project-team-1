@@ -8,7 +8,7 @@ describe('NPCModel.attacked', () => {
 		const player = new PlayerModel(Species.MOUSE, 0, 0);
 		expect(player.getExperience()).toBe(0);
 
-		const mockView = { undraw: () => { } } as any;
+		const mockView = { undraw: () => {} } as any;
 		const npc = new NPCModel(Species.MOUSE, mockView);
 		// call attacked with player as the predator model
 		// attacked is defined on EntityModel and should addExperience(40) for PlayerModel
@@ -20,7 +20,7 @@ describe('NPCModel.attacked', () => {
 
 describe('NPCModel', () => {
 	it('initializes with defaults and returns position/copy', () => {
-		const mockView = { undraw: () => { } } as any;
+		const mockView = { undraw: () => {} } as any;
 		const p = new NPCModel(Species.MOUSE, mockView);
 		expect(p.getPosition()).toEqual({ x: 0, y: 0 });
 		// modifying returned object should not change internal state
@@ -30,7 +30,7 @@ describe('NPCModel', () => {
 	});
 
 	it('moves and sets position correctly', () => {
-		const mockView = { undraw: () => { } } as any;
+		const mockView = { undraw: () => {} } as any;
 		const p = new NPCModel(Species.MOUSE, mockView);
 		p.moveBy(5, -3);
 		expect(p.getPosition()).toEqual({ x: 5, y: -3 });
@@ -39,7 +39,7 @@ describe('NPCModel', () => {
 	});
 
 	it('gets and sets health', () => {
-		const mockView = { undraw: () => { } } as any;
+		const mockView = { undraw: () => {} } as any;
 		const p = new NPCModel(Species.MOUSE, mockView);
 		expect(p.getHealth()).toBe(50);
 		p.setHealth(30);

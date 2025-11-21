@@ -3,8 +3,8 @@ import { MapModel } from 'src/main-game/MapModel';
 import { EntityModel } from 'src/main-game/EntityModel';
 
 import { Species } from 'src/common/types/Species';
-import { NPCView } from './NPCView';
-import { PlayerModel } from '../PlayerModel';
+import { NPCView } from 'src/main-game/NPC/NPCView';
+import { PlayerModel } from 'src/main-game/PlayerModel';
 
 export class NPCModel extends EntityModel {
 	private pov_radius: number = 100;

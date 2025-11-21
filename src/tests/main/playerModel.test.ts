@@ -49,5 +49,3 @@ describe('PlayerModel', () => {
 		expect(p.getExperience()).toBe(35);
 	});
 });
-
-

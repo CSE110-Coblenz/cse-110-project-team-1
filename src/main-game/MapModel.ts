@@ -124,6 +124,14 @@ export class MapModel {
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
 		let new_npc_models = npcs.map((npc) => npc.getModel());
+		// set owner reference so EntityModel can call back to remove itself
+		for (const m of new_npc_models) {
+			try {
+				(m as any).setOwner?.(this);
+			} catch (e) {
+				/* ignore */
+			}
+		}
 		this.npc_models = this.npc_models.concat(new_npc_models);
 	}
 
@@ -222,5 +230,27 @@ export class MapModel {
 			}
 		}
 		return entitiesInArea;
+	}
+
+	// Remove an NPC model and its wrapper; try to undraw and dispose its view/controller
+	public removeNPCModel(npcModel: EntityModel) {
+		const id = npcModel.getID();
+		const mi = this.npc_models.findIndex((m) => m.getID() === id);
+		if (mi >= 0) this.npc_models.splice(mi, 1);
+
+		const wi = this.npcs.findIndex((w) => w.getModel().getID() === id);
+		if (wi >= 0) {
+			const wrapper = this.npcs.splice(wi, 1)[0];
+			try {
+				wrapper.getView()?.undraw?.();
+			} catch (e) {
+				/* ignore */
+			}
+			try {
+				(wrapper.getController() as any)?.dispose?.();
+			} catch (e) {
+				/* ignore */
+			}
+		}
 	}
 }
