@@ -160,7 +160,7 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 0,
 		speed: 0,
 		health: 50,
-		view_radius: 0,
+		view_radius: 12,
 		color: PRODUCER_GREEN,
 	}),
 	// Primary Consumers
