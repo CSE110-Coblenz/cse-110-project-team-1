@@ -108,8 +108,7 @@ export class PlayerController {
 		const r = this.model.view_radius;
 		// prevent moving so that the player circle goes out of world bounds
 		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-		if (this.mapModel.isPointInsideWall(Math.floor(nx), Math.floor(ny)))
-			return false;
+		if (this.mapModel.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
 		this.model.setPosition(nx, ny);
 		return true;
 	}
@@ -120,7 +119,7 @@ export class PlayerController {
 			viewport,
 			this.model.getColor(),
 			this.model.getPosition(),
-			//this.model.getDirection(),
+			this.model.getSpecies(),
 			this.model.view_radius,
 		);
 	}

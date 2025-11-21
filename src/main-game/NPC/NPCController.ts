@@ -53,6 +53,7 @@ export class NPCController {
 			viewport,
 			this.model.getColor(),
 			this.model.getPosition(),
+			this.model.getSpecies(),
 			this.model.getViewRadius(),
 		);
 	}

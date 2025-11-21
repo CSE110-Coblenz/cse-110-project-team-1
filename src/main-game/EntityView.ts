@@ -1,5 +1,6 @@
 import Konva from 'konva';
-import { Direction, Position, Viewport } from 'src/main-game/types';
+import { Position, Viewport } from 'src/main-game/types';
+import { Species } from 'src/common/types/Species';
 
 // Later we can accept an image and draw that instead.
 export class EntityView {
@@ -10,7 +11,7 @@ export class EntityView {
 		viewport: Viewport,
 		color: string,
 		position: Position,
-		//direction: Direction,
+		species: Species,
 		radius: number,
 	) {
 		// If target looks like a Konva layer, add a simple circle node
@@ -26,6 +27,22 @@ export class EntityView {
 				fill: color,
 			});
 			layer.add(circle);
+
+			const textNode = new Konva.Text({
+				x: position.x - viewport.x,
+				y: position.y - viewport.y,
+				text: species,
+				fontSize: radius,
+				fontFamily: 'Arial',
+				fill: 'black',
+				align: 'center',
+			});
+
+			// center text on the circle
+			textNode.offsetX(textNode.width() / 2);
+			textNode.offsetY(textNode.height() / 2);
+
+			layer.add(textNode);
 			return;
 		}
 	}
