@@ -106,20 +106,10 @@ export class PlayerController {
 		const mapW = this.mapModel.getWidth();
 		const mapH = this.mapModel.getHeight();
 		const r = this.model.view_radius;
-		// prevent moving so that the player circle goes out of world bounds
+		// prevent moving so that the player  goes out of world bounds
 		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-
-		// simple collision: ask mapModel whether the new point or nearby points intersect a wall
-		const offsets = [
-			[0, 0],
-			[r * 0.7, 0],
-			[-r * 0.7, 0],
-			[0, r * 0.7],
-			[0, -r * 0.7],
-		];
-		for (const [ox, oy] of offsets) {
-			if (this.mapModel.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy)))
-				return false;
+		if (this.mapModel.isPointInsideWall(Math.floor(nx), Math.floor(ny))) {
+			return false;
 		}
 		this.model.setPosition(nx, ny);
 		return true;

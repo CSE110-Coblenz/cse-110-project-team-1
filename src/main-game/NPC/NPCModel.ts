@@ -3,6 +3,8 @@ import { MapModel } from 'src/main-game/MapModel';
 import { EntityModel } from 'src/main-game/EntityModel';
 
 import { Species } from 'src/common/types/Species';
+import { NPCView } from './NPCView';
+import { PlayerModel } from '../PlayerModel';
 
 export class NPCModel extends EntityModel {
 	private pov_radius: number = 100;
@@ -11,9 +13,11 @@ export class NPCModel extends EntityModel {
 	private readonly segmentDuration = 2;
 	private readonly targetDistance = 40 + Math.random() * 40;
 	private distanceTraveled = 0;
+	private view: NPCView;
 
-	constructor(species: Species) {
+	constructor(species: Species, view: NPCView) {
 		super(species);
+		this.view = view;
 	}
 
 	private static NextDirection = new Map<Direction, Direction>([
@@ -50,6 +54,13 @@ export class NPCModel extends EntityModel {
 		const dist = Math.hypot(dx, dy);
 		if (dist < 1e-3) return [dist, 0, 0]; // already at the target
 		return [dist, dx / dist, dy / dist];
+	}
+
+	public attacked(predator_model: EntityModel, deltaSec: number): void {
+		this.view.undraw();
+		if (predator_model instanceof PlayerModel) {
+			(predator_model as PlayerModel).addExperience(40);
+		}
 	}
 
 	public handleSurroundings(surrounding_npcs: any[]): void {
@@ -95,6 +106,7 @@ export class NPCModel extends EntityModel {
 			if (dist < this.attackRange) return this.tryAttack(this.prey, deltaSec);
 		} else if (this.predator) {
 			[dist, dirX, dirY] = this.getDirVector(this.pos, this.predator.getPosition());
+			if (dist < this.attackRange) return this.attacked(this.predator, deltaSec);
 		} else {
 			this.timeInSegment += deltaSec;
 			if (this.timeInSegment >= this.segmentDuration) {

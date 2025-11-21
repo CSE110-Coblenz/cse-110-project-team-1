@@ -25,6 +25,10 @@ export class PlayerModel extends EntityModel {
 		return this.experience;
 	}
 
+	public addExperience(exp: number): void {
+		this.experience += exp;
+	}
+
 	public setExperience(exp: number): void {
 		this.experience = exp;
 	}
