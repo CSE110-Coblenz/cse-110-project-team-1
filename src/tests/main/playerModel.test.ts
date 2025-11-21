@@ -40,4 +40,14 @@ describe('PlayerModel', () => {
 		p.setExperience(100);
 		expect(p.getExperience()).toBe(100);
 	});
+	it('adds experience correctly with addExperience', () => {
+		const p = new PlayerModel(Species.MOUSE, 0, 0);
+		expect(p.getExperience()).toBe(0);
+		p.addExperience(25);
+		expect(p.getExperience()).toBe(25);
+		p.addExperience(10);
+		expect(p.getExperience()).toBe(35);
+	});
 });
+
+
