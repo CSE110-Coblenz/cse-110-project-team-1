@@ -6,26 +6,38 @@ on:
     branches: [main, develop]
 
 jobs:
-  # ----------------- Setup Job -----------------
+  # ---------------- Setup Job ----------------
   setup:
     name: Setup Node & Cache
     runs-on: ubuntu-latest
     outputs:
-      cache-key: ${{ steps.cache.outputs.cache-key }}
+      cache-key: ${{ steps.key.outputs.key }}
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Cache Node Modules
+
+      # Step 1: compute deterministic key
+      - name: Compute Cache Key
+        id: key
+        run: echo "key=node-modules-$(sha256sum package-lock.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      # Step 2: attempt cache restore
+      - name: Restore Cache
         id: cache
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-${{ hashFiles('package-lock.json') }}
-      - run: npm ci --prefer-offline
+          key: ${{ steps.key.outputs.key }}
 
-  # ----------------- Formatting Job -----------------
+      # Step 3: if cache miss, install deps
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline
+
+  # ------------ Format Check --------------
   format:
     needs: setup
     runs-on: ubuntu-latest
@@ -37,10 +49,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-${{ needs.setup.outputs.cache-key }}
+          key: ${{ needs.setup.outputs.cache-key }}
       - run: npx prettier --check 'src/**/*.ts'
 
-  # ----------------- ESLint Job -----------------
+  # ------------ Lint Check --------------
   lint:
     needs: setup
     runs-on: ubuntu-latest
@@ -52,10 +64,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-${{ needs.setup.outputs.cache-key }}
+          key: ${{ needs.setup.outputs.cache-key }}
       - run: npx eslint 'src/**/*.ts'
 
-  # ----------------- Type Checking Job -----------------
+  # ------------- Types Check --------------
   types:
     needs: setup
     runs-on: ubuntu-latest
@@ -67,10 +79,10 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-${{ needs.setup.outputs.cache-key }}
+          key: ${{ needs.setup.outputs.cache-key }}
       - run: npx tsc --noEmit
 
-  # ----------------- Unit Tests Job -----------------
+  # ------------ Unit tests --------------
   tests:
     needs: setup
     runs-on: ubuntu-latest
@@ -82,5 +94,5 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: node_modules
-          key: node-modules-${{ needs.setup.outputs.cache-key }}
+          key: ${{ needs.setup.outputs.cache-key }}
       - run: npm test
