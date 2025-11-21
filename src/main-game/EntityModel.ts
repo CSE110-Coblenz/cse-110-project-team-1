@@ -26,7 +26,7 @@ export class EntityModel {
 	private attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
 
-	private base_view_radius: number;
+	protected base_view_radius: number;
 	private flash_view_radius: number;
 
 	private base_color: string;

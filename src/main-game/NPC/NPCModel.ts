@@ -11,6 +11,7 @@ export class NPCModel extends EntityModel {
 	private readonly segmentDuration = 2;
 	private readonly targetDistance = 40 + Math.random() * 40;
 	private distanceTraveled = 0;
+	private started_chase: boolean = false;
 
 	constructor(species: Species) {
 		super(species);
@@ -72,11 +73,22 @@ export class NPCModel extends EntityModel {
 		}
 	}
 
+	private setColorRadiusNPC(deltaSec: number): void {
+		this.setColorAndRadius(deltaSec);
+		if (this.prey && !this.started_chase) {
+			this.view_radius = this.view_radius * 1.5;
+			this.started_chase = true;
+		} else if (!this.prey) {
+			this.view_radius = this.base_view_radius;
+		}
+	}
+
 	private clearRelations() {
 		if (this.prey) this.prey.predator = null;
 		this.prey = null;
 		if (this.predator) this.predator.prey = null;
 		this.predator = null;
+		this.started_chase = false;
 	}
 
 	public update(map_model: MapModel, deltaSec: number): void {
@@ -86,7 +98,7 @@ export class NPCModel extends EntityModel {
 		else {
 			this.clearRelations();
 		}
-		const step = this.speed * deltaSec;
+		let step = this.speed * deltaSec;
 		let dirX = 0,
 			dirY = 0,
 			dist = 0;
@@ -108,7 +120,7 @@ export class NPCModel extends EntityModel {
 		}
 		const success = this.tryMove(map_model, dirX * step, dirY * step);
 
-		this.setColorAndRadius(deltaSec);
+		this.setColorRadiusNPC(deltaSec);
 
 		if (!success && this.predator) {
 			const angle = (Math.random() - 0.5) * Math.PI;
