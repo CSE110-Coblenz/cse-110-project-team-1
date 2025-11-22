@@ -1,8 +1,8 @@
 import { Position, Direction } from 'src/main-game/types';
 import { Species, SpeciesAttributesMap, SpeciesRelations } from 'src/common/types/Species';
 import { IDGenerator } from 'src/main-game/IDGenerator';
-
 import { MapModel } from 'src/main-game/MapModel';
+import { EventEmitter } from 'src/main-game/types';
 
 export class EntityModel {
 	protected direction: Direction;
@@ -16,10 +16,11 @@ export class EntityModel {
 	protected damage: number;
 	protected species: Species;
 	protected id: string;
+	private events = new EventEmitter();
 
-	public attackRange = 5;
-	private attackCooldown = 0;
-	private attackCooldownMax = 1; // seconds between attacks
+	private attackRange = 15;
+	protected attackCooldown = 0;
+	protected attackCooldownMax = 1; // seconds between attacks
 
 	constructor(
 		species: Species = Species.MOUSE,
@@ -44,8 +45,21 @@ export class EntityModel {
 		this.prey = null;
 	}
 
+	public onDead(fn: () => void) {
+		this.events.on('dead', fn);
+	}
+
+	public die(): boolean {
+		this.events.emit('dead');
+		return true;
+	}
+
 	public getID(): string {
 		return this.id;
+	}
+
+	public getAttackRange(): number {
+		return this.attackRange;
 	}
 
 	public getPosition(): Position {
@@ -94,12 +108,11 @@ export class EntityModel {
 		return !this.predator && !this.prey;
 	}
 
-	public tryAttack(prey_model: EntityModel, deltaSec: number): void {
+	public tryAttack(prey_model: EntityModel): void {
 		if (this.attackCooldown <= 0) {
-			prey_model.takeDamage(this.damage);
 			this.attackCooldown = this.attackCooldownMax;
+			prey_model.takeDamage(this.damage);
 		}
-		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 
 	public isPreyOf(other_entity_model: EntityModel): boolean {
@@ -125,13 +138,10 @@ export class EntityModel {
 		return this.color;
 	}
 
-	public takeDamage(damage: number): void {
+	public takeDamage(damage: number): boolean {
 		this.health -= damage;
-		if (this.health < 0) this.die();
-	}
-
-	public die(): void {
-		return;
+		if (this.health <= 0) return this.die();
+		return false;
 	}
 
 	public tryMove(map_model: MapModel, dx: number, dy: number) {
@@ -145,5 +155,9 @@ export class EntityModel {
 		if (map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
 		this.setPosition(nx, ny);
 		return true;
+	}
+
+	public updateAttackCooldown(deltaSec: number) {
+		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 }

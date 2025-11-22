@@ -80,10 +80,16 @@ export class NPCModel extends EntityModel {
 	}
 
 	public update(map_model: MapModel, deltaSec: number): void {
-		const surrounding = map_model.getEntitiesInArea(this);
+		this.updateAttackCooldown(deltaSec);
+		const surrounding = map_model.getEntitiesInArea(
+			this.getID(),
+			this.getPosition(),
+			this.getPOVRadius(),
+		);
 		// 1. Determine behavior
-		if (surrounding.length > 0) this.handleSurroundings(surrounding);
-		else {
+		if (surrounding.length > 0) {
+			this.handleSurroundings(surrounding);
+		} else {
 			this.clearRelations();
 		}
 		const step = this.speed * deltaSec;
@@ -92,7 +98,10 @@ export class NPCModel extends EntityModel {
 			dist = 0;
 		if (this.prey) {
 			[dist, dirX, dirY] = this.getDirVector(this.prey.getPosition(), this.pos);
-			if (dist < this.attackRange) return this.tryAttack(this.prey, deltaSec);
+			if (dist < this.getAttackRange()) {
+				this.tryAttack(this.prey);
+				return;
+			}
 		} else if (this.predator) {
 			[dist, dirX, dirY] = this.getDirVector(this.pos, this.predator.getPosition());
 		} else {

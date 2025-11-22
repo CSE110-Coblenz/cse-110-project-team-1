@@ -10,7 +10,6 @@ export class PlayerModel extends EntityModel {
 		y: number = 0,
 		speed_boost: boolean = false,
 		experience: number = 0,
-		radius: number = 10,
 	) {
 		super(species, x, y, speed_boost);
 		this.experience = experience;
@@ -25,7 +24,20 @@ export class PlayerModel extends EntityModel {
 		return this.experience;
 	}
 
+	public addExperience(exp: number): void {
+		this.experience += exp;
+	}
+
 	public setExperience(exp: number): void {
 		this.experience = exp;
+	}
+
+	public tryAttack(prey_model: EntityModel): void {
+		if (this.attackCooldown <= 0) {
+			this.attackCooldown = this.attackCooldownMax;
+			if (prey_model.takeDamage(this.damage)) {
+				this.addExperience(40);
+			}
+		}
 	}
 }
