@@ -2,7 +2,6 @@ import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-g
 import { NPC } from 'src/main-game/NPC/NPC';
 import { PlayerModel } from 'src/main-game/PlayerModel';
 import { EntityModel } from 'src/main-game/EntityModel';
-import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 export class MapModel {
 	private width: number;
@@ -131,6 +130,9 @@ export class MapModel {
 			} catch (e) {
 				/* ignore */
 			}
+			m.onDead(() => {
+				this.removeNPCModel(m);
+			});
 		}
 		this.npc_models = this.npc_models.concat(new_npc_models);
 	}
@@ -198,6 +200,7 @@ export class MapModel {
 	public getWidth() {
 		return this.width;
 	}
+
 	public getHeight() {
 		return this.height;
 	}
@@ -216,16 +219,13 @@ export class MapModel {
 		}
 		return false;
 	}
-	public getEntitiesInArea(npc_model: NPCModel) {
+	public getEntitiesInArea(id: string, position: Position, radius: number) {
 		const entitiesInArea: EntityModel[] = [];
 		for (const entity_model of [...this.npc_models, this.main_player!]) {
-			if (entity_model.getID() == npc_model.getID()) {
+			if (entity_model.getID() == id) {
 				continue;
 			}
-			if (
-				distance(entity_model.getPosition(), npc_model.getPosition()) <=
-				npc_model.getPOVRadius()
-			) {
+			if (distance(entity_model.getPosition(), position) <= radius) {
 				entitiesInArea.push(entity_model);
 			}
 		}

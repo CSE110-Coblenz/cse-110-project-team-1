@@ -3,8 +3,6 @@ import { MapModel } from 'src/main-game/MapModel';
 import { EntityModel } from 'src/main-game/EntityModel';
 
 import { Species } from 'src/common/types/Species';
-import { NPCView } from 'src/main-game/NPC/NPCView';
-import { PlayerModel } from 'src/main-game/PlayerModel';
 
 export class NPCModel extends EntityModel {
 	private pov_radius: number = 100;
@@ -13,11 +11,9 @@ export class NPCModel extends EntityModel {
 	private readonly segmentDuration = 2;
 	private readonly targetDistance = 40 + Math.random() * 40;
 	private distanceTraveled = 0;
-	private view: NPCView;
 
-	constructor(species: Species, view: NPCView) {
+	constructor(species: Species) {
 		super(species);
-		this.view = view;
 	}
 
 	private static NextDirection = new Map<Direction, Direction>([
@@ -56,13 +52,6 @@ export class NPCModel extends EntityModel {
 		return [dist, dx / dist, dy / dist];
 	}
 
-	public attacked(predator_model: EntityModel, deltaSec: number): void {
-		this.view.undraw();
-		if (predator_model instanceof PlayerModel) {
-			(predator_model as PlayerModel).addExperience(40);
-		}
-	}
-
 	public handleSurroundings(surrounding_npcs: any[]): void {
 		if (this.isFree()) {
 			for (const npc of surrounding_npcs) {
@@ -91,7 +80,12 @@ export class NPCModel extends EntityModel {
 	}
 
 	public update(map_model: MapModel, deltaSec: number): void {
-		const surrounding = map_model.getEntitiesInArea(this);
+		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
+		const surrounding = map_model.getEntitiesInArea(
+			this.getID(),
+			this.getPosition(),
+			this.getViewRadius(),
+		);
 		// 1. Determine behavior
 		if (surrounding.length > 0) this.handleSurroundings(surrounding);
 		else {
@@ -103,10 +97,9 @@ export class NPCModel extends EntityModel {
 			dist = 0;
 		if (this.prey) {
 			[dist, dirX, dirY] = this.getDirVector(this.prey.getPosition(), this.pos);
-			if (dist < this.attackRange) return this.tryAttack(this.prey, deltaSec);
+			if (dist < this.attackRange) return this.tryAttack(this.prey);
 		} else if (this.predator) {
 			[dist, dirX, dirY] = this.getDirVector(this.pos, this.predator.getPosition());
-			if (dist < this.attackRange) return this.attacked(this.predator, deltaSec);
 		} else {
 			this.timeInSegment += deltaSec;
 			if (this.timeInSegment >= this.segmentDuration) {

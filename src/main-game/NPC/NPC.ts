@@ -18,7 +18,7 @@ export class NPC {
 
 	public constructor(species: Species) {
 		this.view = new NPCView();
-		this.model = new NPCModel(species, this.view);
+		this.model = new NPCModel(species);
 		this.controller = new NPCController(this.model, this.view);
 	}
 

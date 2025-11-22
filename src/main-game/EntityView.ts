@@ -1,17 +1,15 @@
 import Konva from 'konva';
-import { Direction, Position, Viewport } from 'src/main-game/types';
+import { Position, Viewport } from 'src/main-game/types';
 
 // Later we can accept an image and draw that instead.
 export class EntityView {
-	//protected color = '#ffcc00';
-	private circle: Konva.Circle | null = null;
+	private circle: Konva.Circle | null = new Konva.Circle();
 
 	public draw(
 		target: CanvasRenderingContext2D | Konva.Layer,
 		viewport: Viewport,
 		color: string,
 		position: Position,
-		//direction: Direction,
 		radius: number,
 	) {
 		// If target looks like a Konva layer, add a simple circle node
@@ -19,15 +17,16 @@ export class EntityView {
 			(target as Konva.Layer).getClassName &&
 			(target as Konva.Layer).getClassName() === 'Layer'
 		) {
-			const layer = target as Konva.Layer;
-			this.circle = new Konva.Circle({
-				x: position.x - viewport.x,
-				y: position.y - viewport.y,
-				radius,
-				fill: color,
-			});
-			layer.add(this.circle);
-			return;
+			if (this.circle) {
+				const layer = target as Konva.Layer;
+				this.circle = new Konva.Circle({
+					x: position.x - viewport.x,
+					y: position.y - viewport.y,
+					radius,
+					fill: color,
+				});
+				layer.add(this.circle);
+			}
 		}
 	}
 

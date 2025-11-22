@@ -1,8 +1,8 @@
 import { Position, Direction } from 'src/main-game/types';
 import { Species, SpeciesAttributesMap, SpeciesRelations } from 'src/common/types/Species';
 import { IDGenerator } from 'src/main-game/IDGenerator';
-
 import { MapModel } from 'src/main-game/MapModel';
+import { EventEmitter } from 'src/main-game/types';
 
 export class EntityModel {
 	protected direction: Direction;
@@ -16,9 +16,10 @@ export class EntityModel {
 	protected damage: number;
 	protected species: Species;
 	protected id: string;
+	private events = new EventEmitter();
 
-	public attackRange = 5;
-	private attackCooldown = 0;
+	public attackRange = 15;
+	public attackCooldown = 0;
 	private attackCooldownMax = 1; // seconds between attacks
 
 	constructor(
@@ -42,6 +43,14 @@ export class EntityModel {
 		this.id = IDGenerator.createUniqueHash();
 		this.predator = null;
 		this.prey = null;
+	}
+
+	onDead(fn: () => void) {
+		this.events.on('dead', fn);
+	}
+
+	public die(): void {
+		this.events.emit('dead');
 	}
 
 	public getID(): string {
@@ -94,12 +103,11 @@ export class EntityModel {
 		return !this.predator && !this.prey;
 	}
 
-	public tryAttack(prey_model: EntityModel, deltaSec: number): void {
+	public tryAttack(prey_model: EntityModel): void {
 		if (this.attackCooldown <= 0) {
 			prey_model.takeDamage(this.damage);
 			this.attackCooldown = this.attackCooldownMax;
 		}
-		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 
 	public isPreyOf(other_entity_model: EntityModel): boolean {
@@ -127,11 +135,7 @@ export class EntityModel {
 
 	public takeDamage(damage: number): void {
 		this.health -= damage;
-		if (this.health < 0) this.die();
-	}
-
-	public die(): void {
-		return;
+		if (this.health <= 0) this.die();
 	}
 
 	public tryMove(map_model: MapModel, dx: number, dy: number) {
