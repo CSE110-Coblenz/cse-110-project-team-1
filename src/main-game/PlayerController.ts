@@ -72,8 +72,10 @@ export class PlayerController extends EntityController {
 				this.model.getPosition(),
 				this.model.getAttackRange(),
 			);
-			if (surrounding.length != 0) {
-				this.model.tryAttack(surrounding[0]);
+			if (surrounding.length > 0) {
+				if (this.model.isPredatorOf(surrounding[0])) {
+					this.model.tryAttack(surrounding[0]);
+				}
 			}
 			this.attackRequested = false;
 		}

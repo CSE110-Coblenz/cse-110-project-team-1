@@ -20,7 +20,6 @@ describe('NPCModel.attacked', () => {
 
 describe('NPCModel', () => {
 	it('initializes with defaults and returns position/copy', () => {
-		const mockView = { undraw: () => {} } as any;
 		const p = new NPCModel(Species.MOUSE);
 		expect(p.getPosition()).toEqual({ x: 0, y: 0 });
 		// modifying returned object should not change internal state

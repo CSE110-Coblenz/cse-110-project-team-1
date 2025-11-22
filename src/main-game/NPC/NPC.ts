@@ -17,8 +17,8 @@ export class NPC {
 	private readonly controller: NPCController;
 
 	public constructor(species: Species) {
-		this.view = new NPCView();
 		this.model = new NPCModel(species);
+		this.view = new NPCView();
 		this.controller = new NPCController(this.model, this.view);
 	}
 

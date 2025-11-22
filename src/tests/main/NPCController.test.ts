@@ -91,8 +91,8 @@ describe('NPCController (simple mock test)', () => {
 			wallMaxWidth: 160,
 		};
 
-		const npc_view = new NPCView();
 		const npc_model = new NPCModel(Species.MOUSE);
+		const npc_view = new NPCView();
 		const map_model = new MapModel(config);
 
 		const npc_controller = new NPCController(npc_model, npc_view);
