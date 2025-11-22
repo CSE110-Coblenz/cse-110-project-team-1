@@ -2,7 +2,6 @@ import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-g
 import { NPC } from 'src/main-game/NPC/NPC';
 import { PlayerModel } from 'src/main-game/PlayerModel';
 import { EntityModel } from 'src/main-game/EntityModel';
-import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 export class MapModel {
 	private width: number;
@@ -124,6 +123,17 @@ export class MapModel {
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
 		let new_npc_models = npcs.map((npc) => npc.getModel());
+		// set owner reference so EntityModel can call back to remove itself
+		for (const m of new_npc_models) {
+			try {
+				(m as any).setOwner?.(this);
+			} catch (e) {
+				/* ignore */
+			}
+			m.onDead(() => {
+				this.removeNPCModel(m);
+			});
+		}
 		this.npc_models = this.npc_models.concat(new_npc_models);
 	}
 
@@ -190,6 +200,7 @@ export class MapModel {
 	public getWidth() {
 		return this.width;
 	}
+
 	public getHeight() {
 		return this.height;
 	}
@@ -208,19 +219,38 @@ export class MapModel {
 		}
 		return false;
 	}
-	public getEntitiesInArea(npc_model: NPCModel) {
+	public getEntitiesInArea(id: string, position: Position, radius: number) {
 		const entitiesInArea: EntityModel[] = [];
 		for (const entity_model of [...this.npc_models, this.main_player!]) {
-			if (entity_model.getID() == npc_model.getID()) {
+			if (entity_model.getID() == id) {
 				continue;
 			}
-			if (
-				distance(entity_model.getPosition(), npc_model.getPosition()) <=
-				npc_model.getPOVRadius()
-			) {
+			if (distance(entity_model.getPosition(), position) <= radius) {
 				entitiesInArea.push(entity_model);
 			}
 		}
 		return entitiesInArea;
+	}
+
+	// Remove an NPC model and its wrapper; try to undraw and dispose its view/controller
+	public removeNPCModel(npcModel: EntityModel) {
+		const id = npcModel.getID();
+		const mi = this.npc_models.findIndex((m) => m.getID() === id);
+		if (mi >= 0) this.npc_models.splice(mi, 1);
+
+		const wi = this.npcs.findIndex((w) => w.getModel().getID() === id);
+		if (wi >= 0) {
+			const wrapper = this.npcs.splice(wi, 1)[0];
+			try {
+				wrapper.getView()?.undraw?.();
+			} catch (e) {
+				/* ignore */
+			}
+			try {
+				(wrapper.getController() as any)?.dispose?.();
+			} catch (e) {
+				/* ignore */
+			}
+		}
 	}
 }

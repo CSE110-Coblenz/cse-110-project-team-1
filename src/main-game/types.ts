@@ -9,6 +9,21 @@ export interface Wall {
 	points: Point[]; // polygon points in world coordinates
 }
 
+type Listener = (...args: any[]) => void;
+
+export class EventEmitter {
+	private listeners: Record<string, Listener[]> = {};
+
+	on(event: string, fn: Listener) {
+		this.listeners[event] ||= [];
+		this.listeners[event].push(fn);
+	}
+
+	emit(event: string, ...args: any[]) {
+		(this.listeners[event] || []).forEach((fn) => fn(...args));
+	}
+}
+
 export interface MapConfig {
 	width: number; // world width in pixels
 	height: number; // world height in pixels

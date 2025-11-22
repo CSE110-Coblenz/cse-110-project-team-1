@@ -46,8 +46,10 @@ export class GameScene {
 		this.options = options;
 
 		// World config
-		const worldWidth = options.width ?? Math.max(800, window.innerWidth * 5);
-		const worldHeight = options.height ?? Math.max(600, window.innerHeight * 5);
+		// const worldWidth = options.width ?? Math.max(800, window.innerWidth * 5);
+		// const worldHeight = options.height ?? Math.max(600, window.innerHeight * 5);
+		const worldWidth = options.width ?? Math.max(800, window.innerWidth);
+		const worldHeight = options.height ?? Math.max(600, window.innerHeight);
 
 		this.mapModel = new MapModel({
 			width: worldWidth,
@@ -84,7 +86,7 @@ export class GameScene {
 		this.mapModel.setMainPlayer(this.playerModel);
 
 		// NPCs
-		const npcs = NPCFactory.createNRandomNPCs(options.npcCount ?? 150);
+		const npcs = NPCFactory.createNRandomNPCs(options.npcCount ?? 10);
 		this.mapController.placeNPCs(npcs);
 	}
 

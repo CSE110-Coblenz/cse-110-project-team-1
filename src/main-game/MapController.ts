@@ -52,14 +52,18 @@ export class MapController {
 	}
 
 	public placeNPCs(npcs: NPC[]) {
-		let placedNPCs: Position[] = [];
+		let placedNPCs: NPC[] = [];
+		let placedNPCPositions: Position[] = [];
 		for (const npc of npcs) {
-			let spawn_position: Position | void = npc.getController().spawn(this.model, placedNPCs);
+			let spawn_position: Position | void = npc
+				.getController()
+				.spawn(this.model, placedNPCPositions);
 			if (spawn_position) {
-				placedNPCs.push(spawn_position);
+				placedNPCPositions.push(spawn_position);
+				placedNPCs.push(npc);
 			}
 		}
-		this.model.setNPCs(npcs);
+		this.model.setNPCs(placedNPCs);
 	}
 
 	public drawNPCs(target: CanvasRenderingContext2D | any, viewport: Viewport): void {
@@ -70,7 +74,7 @@ export class MapController {
 
 	public animateNPCs(deltaSec: number) {
 		for (const npc of this.model.getNPCs()) {
-			npc.getController().update(this.model, deltaSec);
+			npc.getModel().update(this.model, deltaSec);
 		}
 		this.model.main_player!.update(this.model, deltaSec);
 	}

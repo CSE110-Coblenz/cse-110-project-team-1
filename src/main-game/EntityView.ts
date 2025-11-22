@@ -4,7 +4,7 @@ import { Species } from 'src/common/types/Species';
 
 // Later we can accept an image and draw that instead.
 export class EntityView {
-	//protected color = '#ffcc00';
+	private circle: Konva.Circle | null = new Konva.Circle();
 
 	public draw(
 		target: CanvasRenderingContext2D | Konva.Layer,
@@ -19,31 +19,39 @@ export class EntityView {
 			(target as Konva.Layer).getClassName &&
 			(target as Konva.Layer).getClassName() === 'Layer'
 		) {
-			const layer = target as Konva.Layer;
-			const circle = new Konva.Circle({
-				x: position.x - viewport.x,
-				y: position.y - viewport.y,
-				radius,
-				fill: color,
-			});
-			layer.add(circle);
+			if (this.circle) {
+				const layer = target as Konva.Layer;
+				this.circle = new Konva.Circle({
+					x: position.x - viewport.x,
+					y: position.y - viewport.y,
+					radius,
+					fill: color,
+				});
+				layer.add(this.circle);
 
-			const textNode = new Konva.Text({
-				x: position.x - viewport.x,
-				y: position.y - viewport.y,
-				text: species,
-				fontSize: radius,
-				fontFamily: 'Arial',
-				fill: 'black',
-				align: 'center',
-			});
+				const textNode = new Konva.Text({
+					x: position.x - viewport.x,
+					y: position.y - viewport.y,
+					text: species,
+					fontSize: radius,
+					fontFamily: 'Arial',
+					fill: 'black',
+					align: 'center',
+				});
 
-			// center text on the circle
-			textNode.offsetX(textNode.width() / 2);
-			textNode.offsetY(textNode.height() / 2);
+				// center text on the circle
+				textNode.offsetX(textNode.width() / 2);
+				textNode.offsetY(textNode.height() / 2);
 
-			layer.add(textNode);
-			return;
+				layer.add(textNode);
+			}
+		}
+	}
+
+	public undraw() {
+		if (this.circle) {
+			this.circle.destroy();
+			this.circle = null;
 		}
 	}
 }

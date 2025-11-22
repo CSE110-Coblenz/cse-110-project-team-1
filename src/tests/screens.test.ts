@@ -1,7 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
-
 import { describe, it, expect, vi } from 'vitest';
 import { MenuScreenController } from 'src/screens/MenuScreen/MenuScreenController';
 import { VictoryScreenController } from 'src/screens/VictoryScreen/VictoryScreenController';

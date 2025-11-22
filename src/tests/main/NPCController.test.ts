@@ -9,6 +9,7 @@ vi.mock('../../main-game/NPC/NPCModel', () => ({
 	NPCModel: class {
 		getPosition = vi.fn(() => ({ x: 0, y: 0 }));
 		setPosition = vi.fn();
+		onDead = vi.fn();
 	},
 }));
 

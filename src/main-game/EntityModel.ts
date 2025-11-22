@@ -1,8 +1,8 @@
 import { Position, Direction } from 'src/main-game/types';
 import { Species, SpeciesAttributesMap, SpeciesRelations } from 'src/common/types/Species';
 import { IDGenerator } from 'src/main-game/IDGenerator';
-
 import { MapModel } from 'src/main-game/MapModel';
+import { EventEmitter } from 'src/main-game/types';
 
 export class EntityModel {
 	protected direction: Direction;
@@ -16,15 +16,16 @@ export class EntityModel {
 	protected damage: number;
 	protected species: Species;
 	protected id: string;
+	private events = new EventEmitter();
 
-	private got_attacked: boolean = false;
-	private swelling_down: boolean = false;
+	protected got_attacked: boolean = false;
+	protected swelling_down: boolean = false;
 
-	private static FLASH_SPEED: number = 15;
+	private static FLASH_SPEED: number = 10;
 
-	public attackRange = 5;
-	private attackCooldown = 0;
-	private attackCooldownMax = 1; // seconds between attacks
+	private attackRange = 15;
+	protected attackCooldown = 0;
+	protected attackCooldownMax = 1; // seconds between attacks
 
 	protected base_view_radius: number;
 	private flash_view_radius: number;
@@ -68,8 +69,21 @@ export class EntityModel {
 		);
 	}
 
+	public onDead(fn: () => void) {
+		this.events.on('dead', fn);
+	}
+
+	public die(): boolean {
+		this.events.emit('dead');
+		return true;
+	}
+
 	public getID(): string {
 		return this.id;
+	}
+
+	public getAttackRange(): number {
+		return this.attackRange;
 	}
 
 	public getPosition(): Position {
@@ -128,12 +142,11 @@ export class EntityModel {
 		return !this.predator && !this.prey;
 	}
 
-	public tryAttack(prey_model: EntityModel, deltaSec: number): void {
+	public tryAttack(prey_model: EntityModel): void {
 		if (this.attackCooldown <= 0) {
-			prey_model.takeDamage(this.damage);
 			this.attackCooldown = this.attackCooldownMax;
+			prey_model.takeDamage(this.damage);
 		}
-		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 
 	public isPreyOf(other_entity_model: EntityModel): boolean {
@@ -160,42 +173,45 @@ export class EntityModel {
 	}
 
 	public setColorAndRadius(deltaSec: number) {
-		if (this.got_attacked || this.swelling_down) {
-			const goal = this.got_attacked ? this.flash_view_radius : this.base_view_radius;
-			this.view_radius += (goal - this.view_radius) * deltaSec * EntityModel.FLASH_SPEED;
+		const goal = this.got_attacked ? this.flash_view_radius : this.base_view_radius;
+		const speed = EntityModel.FLASH_SPEED;
+
+		if (this.got_attacked) {
+			const next = this.view_radius + (goal - this.view_radius) * deltaSec * speed;
+			this.view_radius = Math.min(next, goal);
 
 			if (Math.abs(goal - this.view_radius) < 0.5) {
-				if (this.got_attacked) {
-					this.got_attacked = false;
-					this.swelling_down = true;
-				} else if (this.swelling_down) {
-					this.swelling_down = false;
-				}
+				this.got_attacked = false;
+				this.swelling_down = true;
+			}
+		} else if (this.swelling_down) {
+			const next = this.view_radius + (goal - this.view_radius) * deltaSec * speed;
+			this.view_radius = Math.max(next, goal);
+
+			if (Math.abs(goal - this.view_radius) < 0.5) {
+				this.swelling_down = false;
 			}
 		}
 
 		const goalColor = this.got_attacked ? this.flash_color : this.base_color;
 		const [rCurr, gCurr, bCurr] = this.colorUtils.hexToRgb(this.color);
 		const [rGoal, gGoal, bGoal] = this.colorUtils.hexToRgb(goalColor);
-		const r = rCurr + (rGoal - rCurr) * deltaSec * 30;
-		const g = gCurr + (gGoal - gCurr) * deltaSec * 30;
-		const b = bCurr + (bGoal - bCurr) * deltaSec * 30;
+		const r = rCurr + (rGoal - rCurr) * deltaSec * 10;
+		const g = gCurr + (gGoal - gCurr) * deltaSec * 10;
+		const b = bCurr + (bGoal - bCurr) * deltaSec * 10;
 
 		this.color = this.colorUtils.rgbToHex(r, g, b);
-	}
-
-	public takeDamage(damage: number): void {
-		this.got_attacked = true;
-		this.health -= damage;
-		if (this.health < 0) this.die();
 	}
 
 	public update(mapModel: MapModel, deltaSec: number): void {
 		this.setColorAndRadius(deltaSec);
 	}
 
-	public die(): void {
-		return;
+	public takeDamage(damage: number): boolean {
+		this.health -= damage;
+		this.got_attacked = true;
+		if (this.health <= 0) return this.die();
+		return false;
 	}
 
 	public tryMove(map_model: MapModel, dx: number, dy: number) {
@@ -209,5 +225,9 @@ export class EntityModel {
 		if (map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
 		this.setPosition(nx, ny);
 		return true;
+	}
+
+	public updateAttackCooldown(deltaSec: number) {
+		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 }
