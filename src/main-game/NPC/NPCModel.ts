@@ -104,7 +104,7 @@ export class NPCModel extends EntityModel {
 		} else {
 			this.clearRelations();
 		}
-		let step = this.speed * deltaSec;
+		const step = this.speed * deltaSec;
 		let dirX = 0,
 			dirY = 0,
 			dist = 0;
