@@ -9,6 +9,7 @@ vi.mock('../../main-game/NPC/NPCModel', () => ({
 	NPCModel: class {
 		getPosition = vi.fn(() => ({ x: 0, y: 0 }));
 		setPosition = vi.fn();
+		onDead = vi.fn();
 	},
 }));
 
@@ -91,7 +92,7 @@ describe('NPCController (simple mock test)', () => {
 		};
 
 		const npc_view = new NPCView();
-		const npc_model = new NPCModel(Species.MOUSE, npc_view);
+		const npc_model = new NPCModel(Species.MOUSE);
 		const map_model = new MapModel(config);
 
 		const npc_controller = new NPCController(npc_model, npc_view);

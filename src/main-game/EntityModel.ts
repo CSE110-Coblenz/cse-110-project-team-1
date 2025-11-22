@@ -20,7 +20,7 @@ export class EntityModel {
 
 	public attackRange = 15;
 	public attackCooldown = 0;
-	private attackCooldownMax = 1; // seconds between attacks
+	protected attackCooldownMax = 1; // seconds between attacks
 
 	constructor(
 		species: Species = Species.MOUSE,
@@ -45,12 +45,13 @@ export class EntityModel {
 		this.prey = null;
 	}
 
-	onDead(fn: () => void) {
+	public onDead(fn: () => void) {
 		this.events.on('dead', fn);
 	}
 
-	public die(): void {
+	public die(): boolean {
 		this.events.emit('dead');
+		return true;
 	}
 
 	public getID(): string {
@@ -105,8 +106,8 @@ export class EntityModel {
 
 	public tryAttack(prey_model: EntityModel): void {
 		if (this.attackCooldown <= 0) {
-			prey_model.takeDamage(this.damage);
 			this.attackCooldown = this.attackCooldownMax;
+			prey_model.takeDamage(this.damage);
 		}
 	}
 
@@ -133,9 +134,10 @@ export class EntityModel {
 		return this.color;
 	}
 
-	public takeDamage(damage: number): void {
+	public takeDamage(damage: number): boolean {
 		this.health -= damage;
-		if (this.health <= 0) this.die();
+		if (this.health <= 0) return this.die();
+		return false;
 	}
 
 	public tryMove(map_model: MapModel, dx: number, dy: number) {
@@ -149,5 +151,9 @@ export class EntityModel {
 		if (map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
 		this.setPosition(nx, ny);
 		return true;
+	}
+
+	public updateCooldown(deltaSec: number) {
+		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 }

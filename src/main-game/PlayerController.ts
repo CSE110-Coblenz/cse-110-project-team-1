@@ -65,7 +65,7 @@ export class PlayerController extends EntityController {
 		let dirX = 0,
 			dirY = 0;
 
-		if (this.model.attackCooldown > 0) this.model.attackCooldown -= deltaSec;
+		this.model.updateCooldown(deltaSec);
 		if (this.attackRequested) {
 			const surrounding = this.mapModel.getEntitiesInArea(
 				this.model.getID(),
@@ -112,5 +112,9 @@ export class PlayerController extends EntityController {
 			this.animationFrameId = null;
 		}
 		this.renderCallback = null;
+	}
+
+	public tryMove(dx: number, dy: number): boolean {
+		return this.model.tryMove(this.mapModel, dx, dy);
 	}
 }

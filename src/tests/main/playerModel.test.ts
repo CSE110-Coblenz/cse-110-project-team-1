@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Species } from 'src/common/types/Species';
 import { PlayerModel } from 'src/main-game/PlayerModel';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 describe('PlayerModel', () => {
 	it('initializes with defaults and returns position/copy', () => {
@@ -47,5 +48,12 @@ describe('PlayerModel', () => {
 		expect(p.getExperience()).toBe(25);
 		p.addExperience(10);
 		expect(p.getExperience()).toBe(35);
+	});
+	it('attacks correctly, such that it invokes addExperience', () => {
+		const npc = new NPCModel(Species.MOUSE);
+		const p = new PlayerModel(Species.MOUSE);
+		expect(p.getExperience()).toBe(0);
+		p.tryAttack(npc);
+		expect(p.getExperience()).toBe(40);
 	});
 });
