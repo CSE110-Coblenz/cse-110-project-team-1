@@ -65,12 +65,12 @@ export class PlayerController extends EntityController {
 		let dirX = 0,
 			dirY = 0;
 
-		this.model.updateCooldown(deltaSec);
+		this.model.updateAttackCooldown(deltaSec);
 		if (this.attackRequested) {
 			const surrounding = this.mapModel.getEntitiesInArea(
 				this.model.getID(),
 				this.model.getPosition(),
-				10,
+				this.model.getAttackRange(),
 			);
 			if (surrounding.length != 0) {
 				this.model.tryAttack(surrounding[0]);
@@ -95,7 +95,7 @@ export class PlayerController extends EntityController {
 		const deltaX = dirX * effectiveSpeed * deltaSec;
 		const deltaY = dirY * effectiveSpeed * deltaSec;
 
-		if (this.getModel().tryMove(this.mapModel, deltaX, deltaY)) {
+		if (this.tryMove(deltaX, deltaY)) {
 			this.mapController.centerOn(this.model.getPosition());
 		}
 	}

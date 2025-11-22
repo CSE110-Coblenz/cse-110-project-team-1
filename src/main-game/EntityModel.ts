@@ -18,8 +18,8 @@ export class EntityModel {
 	protected id: string;
 	private events = new EventEmitter();
 
-	public attackRange = 15;
-	public attackCooldown = 0;
+	private attackRange = 15;
+	protected attackCooldown = 0;
 	protected attackCooldownMax = 1; // seconds between attacks
 
 	constructor(
@@ -56,6 +56,10 @@ export class EntityModel {
 
 	public getID(): string {
 		return this.id;
+	}
+
+	public getAttackRange(): number {
+		return this.attackRange;
 	}
 
 	public getPosition(): Position {
@@ -153,7 +157,7 @@ export class EntityModel {
 		return true;
 	}
 
-	public updateCooldown(deltaSec: number) {
+	public updateAttackCooldown(deltaSec: number) {
 		if (this.attackCooldown > 0) this.attackCooldown -= deltaSec;
 	}
 }

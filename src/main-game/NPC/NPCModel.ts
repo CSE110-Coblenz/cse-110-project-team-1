@@ -80,7 +80,7 @@ export class NPCModel extends EntityModel {
 	}
 
 	public update(map_model: MapModel, deltaSec: number): void {
-		this.updateCooldown(deltaSec);
+		this.updateAttackCooldown(deltaSec);
 		const surrounding = map_model.getEntitiesInArea(
 			this.getID(),
 			this.getPosition(),
@@ -98,7 +98,7 @@ export class NPCModel extends EntityModel {
 			dist = 0;
 		if (this.prey) {
 			[dist, dirX, dirY] = this.getDirVector(this.prey.getPosition(), this.pos);
-			if (dist < this.attackRange) {
+			if (dist < this.getAttackRange()) {
 				this.tryAttack(this.prey);
 				return;
 			}
