@@ -53,7 +53,9 @@ describe('PlayerModel', () => {
 		const npc = new NPCModel(Species.MOUSE);
 		const p = new PlayerModel(Species.MOUSE);
 		expect(p.getExperience()).toBe(0);
-		p.tryAttack(npc);
+		while (npc.getHealth() > 0) {
+			p.tryAttack(npc); // As many attacks as it takes
+		}
 		expect(p.getExperience()).toBe(40);
 	});
 });

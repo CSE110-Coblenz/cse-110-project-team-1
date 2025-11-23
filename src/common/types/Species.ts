@@ -165,7 +165,7 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	}),
 	// Primary Consumers
 	...makeAttributesForGroup(PRIMARY_CONSUMERS, {
-		damage: 5, // Set high to see gameaply effect, these all must be tuned eventually
+		damage: 50, // Set high to see gameaply effect, these all must be tuned eventually
 		speed: 150,
 		health: 50,
 		view_radius: 12,
