@@ -12,9 +12,11 @@ export class NPCModel extends EntityModel {
 	private readonly targetDistance = 40 + Math.random() * 40;
 	private distanceTraveled = 0;
 	private started_chase: boolean = false;
+	protected chase_view_radius: number;
 
 	constructor(species: Species) {
 		super(species);
+		this.chase_view_radius = this.base_view_radius * 1.5;
 	}
 
 	private static NextDirection = new Map<Direction, Direction>([
@@ -76,7 +78,7 @@ export class NPCModel extends EntityModel {
 	private setColorRadiusNPC(deltaSec: number): void {
 		this.setColorAndRadius(deltaSec);
 		if (this.prey && !this.started_chase) {
-			this.view_radius = this.view_radius * 1.5;
+			this.view_radius = this.chase_view_radius;
 			this.started_chase = true;
 		} else if (!this.prey && !this.got_attacked) {
 			this.view_radius = this.base_view_radius;

@@ -123,13 +123,7 @@ export class MapModel {
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
 		let new_npc_models = npcs.map((npc) => npc.getModel());
-		// set owner reference so EntityModel can call back to remove itself
 		for (const m of new_npc_models) {
-			try {
-				(m as any).setOwner?.(this);
-			} catch (e) {
-				/* ignore */
-			}
 			m.onDead(() => {
 				this.removeNPCModel(m);
 			});
