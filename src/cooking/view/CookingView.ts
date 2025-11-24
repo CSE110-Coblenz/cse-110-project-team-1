@@ -439,6 +439,8 @@ export class CookingView {
 		if (!this.isDraggingLabel) {
 			this.draggableLabelGroup.x(labelX).y(labelY);
 		}
+		// Refit label text to new card dimensions after resize
+		this.fitLabelTextToCard();
 		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
 		const trashY = this.stageHeight - this.dynTrashSize - 12;
 		this.trashRect!.x(trashX).y(trashY).width(this.dynTrashSize).height(this.dynTrashSize);
