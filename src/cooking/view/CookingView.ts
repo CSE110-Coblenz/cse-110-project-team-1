@@ -357,25 +357,38 @@ export class CookingView {
 			// Check drop on trash
 			const droppedOnTrash = this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect));
 
+			// Clear any remaining highlights
+			this.clearHighlights();
+
 			if (droppedOnCustomer) {
 				console.log('Dropped label on customer:', droppedOnCustomer);
 				if (this.dropHandler) this.dropHandler('customer', droppedOnCustomer);
+				// Instant snap-back when consumed (feels like old label gone, new one appears)
+				this.draggableLabelGroup.x(this.baseLabelX);
+				this.draggableLabelGroup.y(this.baseLabelY);
+				this.draggableLabelGroup.scaleX(1);
+				this.draggableLabelGroup.scaleY(1);
 			} else if (droppedOnTrash) {
 				console.log('Dropped label on trash');
 				if (this.dropHandler) this.dropHandler('trashcan');
+				// Instant snap-back when consumed (feels like old label gone, new one appears)
+				this.draggableLabelGroup.x(this.baseLabelX);
+				this.draggableLabelGroup.y(this.baseLabelY);
+				this.draggableLabelGroup.scaleX(1);
+				this.draggableLabelGroup.scaleY(1);
 			} else {
 				console.log('Dropped label on empty area');
+				// Animated snap-back for invalid drop (visual feedback that drop failed)
+				this.draggableLabelGroup.to({ 
+					x: this.baseLabelX, 
+					y: this.baseLabelY, 
+					scaleX: 1, 
+					scaleY: 1, 
+					duration: 0.08, 
+					easing: Konva.Easings.EaseOut 
+				});
 			}
 
-			// Snap label back to origin
-			this.draggableLabelGroup.to({ 
-				x: this.baseLabelX, 
-				y: this.baseLabelY, 
-				scaleX: 1, 
-				scaleY: 1, 
-				duration: 0.08, 
-				easing: Konva.Easings.EaseOut 
-			});
 			this.isDraggingLabel = false;
 		};
 
@@ -605,12 +618,6 @@ export class CookingView {
 				closeBtn.addEventListener('click', () => {
 					overlay?.remove();
 				});
-			}
-		} else {
-			// Update existing panel text
-			const panel = document.getElementById('game-over-panel');
-			if (panel) {
-				panel.querySelector('div:nth-child(2)')!.innerHTML = `Final Score: <strong>${finalScore}</strong>`;
 			}
 		}
 	}
