@@ -8,10 +8,9 @@ export class PlayerModel extends EntityModel {
 		species: Species = Species.MOUSE,
 		x: number = 0,
 		y: number = 0,
-		speed_boost: boolean = false,
 		experience: number = 0,
 	) {
-		super(species, x, y, speed_boost);
+		super(species, x, y, true);
 		this.experience = experience;
 	}
 

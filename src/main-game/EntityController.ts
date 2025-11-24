@@ -26,6 +26,7 @@ export class EntityController {
 			viewport,
 			this.model.getColor(),
 			this.model.getPosition(),
+			this.model.getSpecies(),
 			this.model.view_radius,
 		);
 	}

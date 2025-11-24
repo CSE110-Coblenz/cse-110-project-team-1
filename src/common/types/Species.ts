@@ -88,9 +88,9 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.MOOSE, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.BISON, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	// Insects
-	[Species.CATERPILLAR, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
-	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
-	[Species.ANT, { prey: PRODUCERS, predators: [...BIRDS, ...RODENTS] }],
+	[Species.CATERPILLAR, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	[Species.ANT, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	// Rodents
 	[Species.MOUSE, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	[Species.SQUIRREL, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
@@ -100,7 +100,7 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
 	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.GARTER_SNAKE, { prey: [...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
 	// birds
 	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
 	[Species.SPARROW, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],

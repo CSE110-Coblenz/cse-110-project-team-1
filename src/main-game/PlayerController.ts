@@ -3,6 +3,7 @@ import { PlayerView } from 'src/main-game/PlayerView';
 import { MapModel } from 'src/main-game/MapModel';
 import { MapController } from 'src/main-game/MapController';
 import { EntityController } from 'src/main-game/EntityController';
+import { NPCModel } from 'src/main-game/NPC/NPCModel';
 
 // key sets used for input handling
 const ATTACK_KEYS = new Set([' ', 'Space']);
@@ -97,6 +98,8 @@ export class PlayerController extends EntityController {
 		const deltaX = dirX * effectiveSpeed * deltaSec;
 		const deltaY = dirY * effectiveSpeed * deltaSec;
 
+		this.model.setColorAndRadius(deltaSec);
+
 		if (this.tryMove(deltaX, deltaY)) {
 			this.mapController.centerOn(this.model.getPosition());
 		}
@@ -114,6 +117,14 @@ export class PlayerController extends EntityController {
 			this.animationFrameId = null;
 		}
 		this.renderCallback = null;
+	}
+
+	public tryAttack(entity: NPCModel) {
+		if (this.model.isPredatorOf(entity)) {
+			entity.clearRelations();
+			entity.predator = this.model;
+			this.model.tryAttack(entity);
+		}
 	}
 
 	public tryMove(dx: number, dy: number): boolean {

@@ -18,9 +18,20 @@ export class EntityModel {
 	protected id: string;
 	private events = new EventEmitter();
 
+	protected got_attacked: boolean = false;
+	protected swelling_down: boolean = false;
+
+	private static FLASH_SPEED: number = 10;
+
 	private attackRange = 15;
 	protected attackCooldown = 0;
 	protected attackCooldownMax = 1; // seconds between attacks
+
+	protected base_view_radius: number;
+	private flash_view_radius: number;
+
+	private base_color: string;
+	private flash_color: string;
 
 	constructor(
 		species: Species = Species.MOUSE,
@@ -38,11 +49,24 @@ export class EntityModel {
 		this.health = attrs.health;
 		this.damage = attrs.damage;
 		this.color = attrs.color;
+		this.base_color = this.color;
+		this.flash_color = this.makeFlashColor(this.base_color, 0.5); // red-tinted;
 		this.view_radius = attrs!.view_radius;
+		this.base_view_radius = this.view_radius;
+		this.flash_view_radius = this.view_radius * 1.5;
 		this.direction = Direction.Up;
 		this.id = IDGenerator.createUniqueHash();
 		this.predator = null;
 		this.prey = null;
+	}
+
+	private makeFlashColor(baseHex: string, intensity = 0.5) {
+		const [r, g, b] = this.colorUtils.hexToRgb(baseHex);
+		return this.colorUtils.rgbToHex(
+			r + (255 - r) * intensity,
+			g * (1 - intensity),
+			b * (1 - intensity),
+		);
 	}
 
 	public onDead(fn: () => void) {
@@ -73,6 +97,16 @@ export class EntityModel {
 	public getHealth(): number {
 		return this.health;
 	}
+
+	public colorUtils = {
+		hexToRgb: (hex: string): [number, number, number] => [
+			parseInt(hex.slice(1, 3), 16),
+			parseInt(hex.slice(3, 5), 16),
+			parseInt(hex.slice(5, 7), 16),
+		],
+		rgbToHex: (r: number, g: number, b: number) =>
+			`#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`,
+	};
 
 	public getSpecies(): Species {
 		return this.species;
@@ -138,8 +172,44 @@ export class EntityModel {
 		return this.color;
 	}
 
+	public setColorAndRadius(deltaSec: number) {
+		const goal = this.got_attacked ? this.flash_view_radius : this.base_view_radius;
+		const speed = EntityModel.FLASH_SPEED;
+
+		if (this.got_attacked) {
+			const next = this.view_radius + (goal - this.view_radius) * deltaSec * speed;
+			this.view_radius = Math.min(next, goal);
+
+			if (Math.abs(goal - this.view_radius) < 0.5) {
+				this.got_attacked = false;
+				this.swelling_down = true;
+			}
+		} else if (this.swelling_down) {
+			const next = this.view_radius + (goal - this.view_radius) * deltaSec * speed;
+			this.view_radius = Math.max(next, goal);
+
+			if (Math.abs(goal - this.view_radius) < 0.5) {
+				this.swelling_down = false;
+			}
+		}
+
+		const goalColor = this.got_attacked ? this.flash_color : this.base_color;
+		const [rCurr, gCurr, bCurr] = this.colorUtils.hexToRgb(this.color);
+		const [rGoal, gGoal, bGoal] = this.colorUtils.hexToRgb(goalColor);
+		const r = rCurr + (rGoal - rCurr) * deltaSec * 10;
+		const g = gCurr + (gGoal - gCurr) * deltaSec * 10;
+		const b = bCurr + (bGoal - bCurr) * deltaSec * 10;
+
+		this.color = this.colorUtils.rgbToHex(r, g, b);
+	}
+
+	public update(mapModel: MapModel, deltaSec: number): void {
+		this.setColorAndRadius(deltaSec);
+	}
+
 	public takeDamage(damage: number): boolean {
 		this.health -= damage;
+		this.got_attacked = true;
 		if (this.health <= 0) return this.die();
 		return false;
 	}
