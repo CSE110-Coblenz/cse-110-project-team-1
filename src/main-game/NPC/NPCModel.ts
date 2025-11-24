@@ -47,9 +47,9 @@ export class NPCModel extends EntityModel {
 		return this.pov_radius;
 	}
 
-	private getDirVector(pos1: Position, pos2: Position): [number, number, number] {
-		let dx = pos1.x - pos2.x;
-		let dy = pos1.y - pos2.y;
+	private getDirVector(prey_pos: Position, predator_pos: Position): [number, number, number] {
+		let dx = prey_pos.x - predator_pos.x;
+		let dy = prey_pos.y - predator_pos.y;
 		const dist = Math.hypot(dx, dy);
 		return [dist, dx / dist, dy / dist];
 	}
