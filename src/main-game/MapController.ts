@@ -76,6 +76,6 @@ export class MapController {
 		for (const npc of this.model.getNPCs()) {
 			npc.getModel().update(this.model, deltaSec);
 		}
-		this.model.main_player!.update(this.model, deltaSec);
+		//this.model.main_player!.update(this.model, deltaSec);
 	}
 }

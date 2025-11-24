@@ -44,7 +44,7 @@ export class EntityModel {
 		this.species = species;
 		this.speed = attrs.speed;
 		if (speed_boost) {
-			this.speed = this.speed * 1.5;
+			this.speed = this.speed * 3;
 		}
 		this.health = attrs.health;
 		this.damage = attrs.damage;
@@ -142,10 +142,19 @@ export class EntityModel {
 		return !this.predator && !this.prey;
 	}
 
+	public clearRelations() {
+		if (this.prey) this.prey.predator = null;
+		this.prey = null;
+		if (this.predator) this.predator.prey = null;
+		this.predator = null;
+	}
+
 	public tryAttack(prey_model: EntityModel): void {
 		if (this.attackCooldown <= 0) {
 			this.attackCooldown = this.attackCooldownMax;
-			prey_model.takeDamage(this.damage);
+			if (prey_model.takeDamage(this.damage)) {
+				this.clearRelations();
+			}
 		}
 	}
 

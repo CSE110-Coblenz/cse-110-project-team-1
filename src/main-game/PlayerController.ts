@@ -3,7 +3,7 @@ import { PlayerView } from 'src/main-game/PlayerView';
 import { MapModel } from 'src/main-game/MapModel';
 import { MapController } from 'src/main-game/MapController';
 import { EntityController } from 'src/main-game/EntityController';
-import { NPCModel } from 'src/main-game/NPC/NPCModel';
+import { EntityModel } from 'src/main-game/EntityModel';
 
 // key sets used for input handling
 const ATTACK_KEYS = new Set([' ', 'Space']);
@@ -74,9 +74,7 @@ export class PlayerController extends EntityController {
 				this.model.getAttackRange(),
 			);
 			if (surrounding.length > 0) {
-				if (this.model.isPredatorOf(surrounding[0])) {
-					this.model.tryAttack(surrounding[0]);
-				}
+				this.tryAttack(surrounding[0]);
 			}
 			this.attackRequested = false;
 		}
@@ -119,7 +117,7 @@ export class PlayerController extends EntityController {
 		this.renderCallback = null;
 	}
 
-	public tryAttack(entity: NPCModel) {
+	public tryAttack(entity: EntityModel) {
 		if (this.model.isPredatorOf(entity)) {
 			entity.clearRelations();
 			entity.predator = this.model;
