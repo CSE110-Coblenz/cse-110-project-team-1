@@ -43,11 +43,13 @@ export async function startGame(container: HTMLElement | null): Promise<GameHand
 		scene = new GameScene(worldLayer, {
 			levelNumber: level,
 			species: pickSpeciesForLevel(level),
-			onHudUpdate: ({ health, progress, species, level: lvl }) => {
+			onHudUpdate: ({ health, progress, species, level: lvl, speed, damage }) => {
 				hud.setHealth(health);
 				hud.setProgress(progress);
 				hud.setSpecies(species);
 				hud.setLevel(lvl);
+				hud.setSpeed(speed);
+				hud.setDamage(damage);
 				uiLayer.batchDraw();
 			},
 			onLevelComplete: () => {

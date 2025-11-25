@@ -54,11 +54,13 @@ export class GameScreenController extends ScreenController {
 		this.scene = new GameScene(this.worldLayer, {
 			levelNumber: level,
 			species: pickSpeciesForLevel(level),
-			onHudUpdate: ({ health, progress, level, species }) => {
+			onHudUpdate: ({ health, progress, level, species, speed, damage }) => {
 				this.view.setHealth(health);
 				this.view.setProgress(progress);
 				this.view.setLevel(level);
 				this.view.setSpecies(species);
+				this.view.setSpeed(speed);
+				this.view.setDamage(damage);
 				this.uiLayer?.batchDraw();
 			},
 			onLevelComplete: () => {
