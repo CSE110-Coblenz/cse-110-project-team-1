@@ -534,38 +534,38 @@ export class CookingView {
 		}
 	}
 
-		/** Ensure the draggable label's text fits within the square card and is vertically centered. */
-		private fitLabelTextToCard(): void {
-			if (!this.draggableLabelGroup) return;
-			const textNode = this.draggableLabelGroup.children[1];
-			if (!textNode) return;
-			const label = this.currentLabel || 'Label';
-			const padding = Math.max(6, Math.floor(this.dynLabelWidth * 0.08));
-			const maxWidth = Math.max(10, this.dynLabelWidth - padding * 2);
-			let fontSize = Math.max(8, Math.floor(this.dynLabelHeight * 0.26));
-			const minFont = 8;
+	/** Ensure the draggable label's text fits within the square card and is vertically centered. */
+	private fitLabelTextToCard(): void {
+		if (!this.draggableLabelGroup) return;
+		const textNode = this.draggableLabelGroup.children[1];
+		if (!textNode) return;
+		const label = this.currentLabel || 'Label';
+		const padding = Math.max(6, Math.floor(this.dynLabelWidth * 0.08));
+		const maxWidth = Math.max(10, this.dynLabelWidth - padding * 2);
+		let fontSize = Math.max(8, Math.floor(this.dynLabelHeight * 0.26));
+		const minFont = 8;
 
-			const measure = (t: string, fs: number): number => {
-				try {
-					if (!this.measureCtx && typeof document !== 'undefined') {
-						const canvas = document.createElement('canvas');
-						this.measureCtx = canvas.getContext('2d');
-					}
-					if (this.measureCtx) {
-						this.measureCtx.font = fs + 'px system-ui, sans-serif';
-						return this.measureCtx.measureText(t).width;
-					}
-				} catch (_) {}
-				return t.length * fs * 0.6;
-			};
+		const measure = (t: string, fs: number): number => {
+			try {
+				if (!this.measureCtx && typeof document !== 'undefined') {
+					const canvas = document.createElement('canvas');
+					this.measureCtx = canvas.getContext('2d');
+				}
+				if (this.measureCtx) {
+					this.measureCtx.font = fs + 'px system-ui, sans-serif';
+					return this.measureCtx.measureText(t).width;
+				}
+			} catch (_) {}
+			return t.length * fs * 0.6;
+		};
 
-			let safety = 40;
-			while (measure(label, fontSize) > maxWidth && fontSize > minFont && safety-- > 0) fontSize -= 1;
+		let safety = 40;
+		while (measure(label, fontSize) > maxWidth && fontSize > minFont && safety-- > 0) fontSize -= 1;
 
-			const centeredY = Math.max(0, Math.floor((this.dynLabelHeight - fontSize) / 2));
-			textNode.fontSize(fontSize).width(this.dynLabelWidth).x(0).y(centeredY);
-			this.gameLayer?.draw();
-		}
+		const centeredY = Math.max(0, Math.floor((this.dynLabelHeight - fontSize) / 2));
+		textNode.fontSize(fontSize).width(this.dynLabelWidth).x(0).y(centeredY);
+		this.gameLayer?.draw();
+	}
 
 	/** Updates the customer display with current customer data */
 	updateCustomers(customerData: CustomerDisplayData[]): void {
@@ -722,7 +722,7 @@ export class CookingView {
 				this.gameLayer.add(barBg);
 				this.gameLayer.add(barFg);
 
-				// Customer species label under the character (restored)
+				// Customer species label under the character
 				const typeText = new Konva.Text({
 					x: spot.x,
 					y: spot.y + 18 + this.dynCustomerSize + 4,
