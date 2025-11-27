@@ -25,6 +25,7 @@ export class EntityController {
 			target,
 			viewport,
 			this.model.redTint,
+			this.model.getColor(),
 			this.model.getPosition(),
 			this.model.view_radius,
 		);

@@ -48,10 +48,10 @@ export class EntityModel {
 		this.health = attrs.health;
 		this.damage = attrs.damage;
 		this.color = attrs.color;
-		this.view_radius = 10;
+		this.view_radius = 15;
 		this.goal_view_radius = this.view_radius;
 		this.base_view_radius = this.view_radius;
-		this.swell_view_radius = this.view_radius * 1.5;
+		this.swell_view_radius = this.view_radius * 1.25;
 		this.direction = Direction.Up;
 		this.id = IDGenerator.createUniqueHash();
 		this.predator = null;
