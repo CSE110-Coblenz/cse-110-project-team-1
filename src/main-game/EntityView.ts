@@ -22,6 +22,8 @@ export class EntityView {
 			fontSize: 12,
 			fontFamily: 'Arial',
 			fill: 'black',
+			shadowColor: 'black',
+			shadowOffset: { x: 1, y: 1 },
 		});
 
 		const imgSrc = `sprites/${species}.png`;
@@ -51,6 +53,7 @@ export class EntityView {
 		layer: Konva.Layer,
 		viewport: Viewport,
 		redTint: number,
+		color: string,
 		position: Position,
 		radius: number,
 	) {
@@ -84,6 +87,7 @@ export class EntityView {
 			x: position.x - viewport.x,
 			y: position.y - viewport.y + (img.height * scale) / 2 + 2,
 		});
+		this.textNode.fill(color);
 		this.textNode.offsetX(this.textNode.width() / 2);
 		if (!this.textNode.getLayer()) {
 			layer.add(this.textNode);

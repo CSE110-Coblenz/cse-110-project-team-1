@@ -154,6 +154,7 @@ export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
+	color: string;
 }
 
 function makeAttributesForGroup(
