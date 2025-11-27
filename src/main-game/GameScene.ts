@@ -5,7 +5,7 @@ import { PlayerModel } from 'src/main-game/PlayerModel';
 import { PlayerView } from 'src/main-game/PlayerView';
 import { PlayerController } from 'src/main-game/PlayerController';
 import { NPCFactory } from 'src/main-game/NPC/NPC';
-import { Species } from 'src/common/types/Species';
+import { Species, SpeciesAttributesMap } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
 
 export type GameSceneOptions = {
@@ -25,6 +25,8 @@ export type GameSceneOptions = {
 		progress: number;
 		level: number;
 		species: Species;
+		speed: number;
+		damage: number;
 	}) => void;
 };
 
@@ -95,9 +97,13 @@ export class GameScene {
 	private pushHud() {
 		const progress = this.playerModel.getExperience?.() ?? 0; // expect 0..100
 		const level = this.options.levelNumber ?? 1;
-		const health = this.playerModel.getHealth?.() ?? 0;
+		const rawHealth = this.playerModel.getHealth?.() ?? 0;
 		const species = this.playerModel.getSpecies?.() ?? Species.MOUSE;
-		this.options.onHudUpdate?.({ health, progress, level, species });
+		const maxHealth = SpeciesAttributesMap.get(species)?.health ?? 100;
+		const health = Math.floor((100 * rawHealth) / maxHealth);
+		const speed = this.playerModel.getSpeed();
+		const damage = this.playerModel.getDamage();
+		this.options.onHudUpdate?.({ health, progress, level, species, speed, damage });
 	}
 
 	private renderOnce() {
@@ -107,7 +113,6 @@ export class GameScene {
 		this.mapView.draw(this.layer, vp, walls);
 		this.playerController.draw(this.layer, vp);
 		this.mapController.drawNPCs(this.layer, vp);
-
 		this.pushHud();
 	}
 
