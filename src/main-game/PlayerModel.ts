@@ -12,6 +12,7 @@ export class PlayerModel extends EntityModel {
 	) {
 		super(species, x, y, true);
 		this.experience = experience;
+		this.attackRange = 30;
 	}
 
 	//primarily for testing

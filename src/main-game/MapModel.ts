@@ -200,12 +200,12 @@ export class MapModel {
 	}
 
 	public isPointInsideWall(px: number, py: number) {
-		let r = 10;
+		let ENTITY_PAD = 20;
 		for (const wall of this.walls) {
-			const minX = wall.points[0].x - r;
-			const maxX = wall.points[2].x + r;
-			const minY = wall.points[0].y - r;
-			const maxY = wall.points[2].y + r;
+			const minX = wall.points[0].x - ENTITY_PAD;
+			const maxX = wall.points[2].x + ENTITY_PAD;
+			const minY = wall.points[0].y - ENTITY_PAD;
+			const maxY = wall.points[2].y + ENTITY_PAD;
 
 			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
 				return true;
