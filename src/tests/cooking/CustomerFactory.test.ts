@@ -22,8 +22,8 @@ describe('CustomerFactory', () => {
 	});
 
 	it('throws error for unknown customer type', () => {
-		expect(() => CustomerFactory.createCustomer(Species.TEST)).toThrow(
-			'Unknown customer type: Test',
+		expect(() => CustomerFactory.createCustomer(Species.ANT)).toThrow(
+			'Unknown customer type: Ant',
 		);
 	});
 });
