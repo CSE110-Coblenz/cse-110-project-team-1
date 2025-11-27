@@ -5,33 +5,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GameScene } from 'src/main-game/GameScene';
 
 // create a minimal fake Konva layer with the API our code touches
-// function makeFakeLayer() {
-// 	return {
-// 		getStage: () => ({}),
-// 		getClassName: () => 'Layer',
-// 		destroyChildren: () => {},
-// 		add: () => {},
-// 		batchDraw: () => {},
-// 		draw: () => {},
-// 	} as any;
-// }
-
 function makeFakeLayer() {
-	const stage = {
-		width: () => 800,
-		height: () => 600,
-		findOne: () => null,
-	};
-
 	return {
-		getStage: () => stage,
+		getStage: () => ({}),
 		getClassName: () => 'Layer',
 		destroyChildren: () => {},
 		add: () => {},
 		batchDraw: () => {},
 		draw: () => {},
-		getContext: () => ({}),
-		getCanvas: () => ({ _canvas: {} }),
 	} as any;
 }
 
