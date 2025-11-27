@@ -47,11 +47,10 @@ export class NPCModel extends EntityModel {
 		return this.pov_radius;
 	}
 
-	private getDirVector(pos1: Position, pos2: Position): [number, number, number] {
-		let dx = pos1.x - pos2.x;
-		let dy = pos1.y - pos2.y;
+	private getDirVector(prey_pos: Position, predator_pos: Position): [number, number, number] {
+		let dx = prey_pos.x - predator_pos.x;
+		let dy = prey_pos.y - predator_pos.y;
 		const dist = Math.hypot(dx, dy);
-		if (dist < 1e-3) return [dist, 0, 0]; // already at the target
 		return [dist, dx / dist, dy / dist];
 	}
 
@@ -59,13 +58,13 @@ export class NPCModel extends EntityModel {
 		if (this.isFree()) {
 			for (const npc of surrounding_npcs) {
 				if (npc.isPreyOf(this)) {
-					if (Math.random() < 0.5 && npc.isFree()) {
+					if (npc.isFree()) {
 						this.prey = npc;
 						npc.predator = this;
 						return;
 					}
 				} else if (npc.isPredatorOf(this)) {
-					if (Math.random() < 0.5 && npc.isFree()) {
+					if (npc.isFree()) {
 						this.predator = npc;
 						npc.prey = this;
 						return;
@@ -82,15 +81,8 @@ export class NPCModel extends EntityModel {
 			this.started_chase = true;
 		} else if (!this.prey && !this.got_attacked) {
 			this.view_radius = this.base_view_radius;
+			this.started_chase = false;
 		}
-	}
-
-	public clearRelations() {
-		if (this.prey) this.prey.predator = null;
-		this.prey = null;
-		if (this.predator) this.predator.prey = null;
-		this.predator = null;
-		this.started_chase = false;
 	}
 
 	public update(map_model: MapModel, deltaSec: number): void {
@@ -102,6 +94,9 @@ export class NPCModel extends EntityModel {
 		);
 		// 1. Determine behavior
 		if (surrounding.length > 0) {
+			if (this.prey && !surrounding.includes(this.prey)) {
+				this.clearRelations();
+			}
 			this.handleSurroundings(surrounding);
 		} else {
 			this.clearRelations();
