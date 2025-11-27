@@ -1,6 +1,6 @@
 import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
-import { CookingGameConfig } from '../config/CookingGameConfig';
+import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
 
 // View constants (avoid magic numbers)
 const PROGRESS_BAR_WIDTH = 400;
