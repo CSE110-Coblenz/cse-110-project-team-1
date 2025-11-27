@@ -40,7 +40,6 @@ export class NPCFactory {
 		const species_list: Species[] = Array.from(
 			{ length: num_npcs },
 			() => ALL_SPECIES[Math.floor(Math.random() * ALL_SPECIES.length)],
-			() => PRODUCERS[Math.floor(Math.random() * PRODUCERS.length)],
 		);
 		let npcs: NPC[] = [];
 		for (const species of species_list) {
