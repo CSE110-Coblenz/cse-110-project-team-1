@@ -50,12 +50,21 @@ describe('PlayerModel', () => {
 		expect(p.getExperience()).toBe(35);
 	});
 	it('attacks correctly, such that it invokes addExperience', () => {
-		const npc = new NPCModel(Species.MOUSE);
-		const p = new PlayerModel(Species.MOUSE);
+		const npc = new NPCModel(Species.BERRY_BUSH); // A prey of Mouse
+		const p = new PlayerModel(Species.MOUSE); // A predator of Berry Bush
+		p.setDamage(50);
+		npc.setHealth(100);
 		expect(p.getExperience()).toBe(0);
-		while (npc.getHealth() > 0) {
-			p.tryAttack(npc); // As many attacks as it takes
-		}
+		// Should take 2 player hits to eat the Berry Bush
+		p.tryAttack(npc);
+		p.resetAttackCooldown();
+		p.tryAttack(npc);
+		p.resetAttackCooldown();
+		expect(p.getExperience()).toBe(40);
+
+		// These attacks shouldn't do anything because the npc is already dead
+		p.tryAttack(npc);
+		p.tryAttack(npc);
 		expect(p.getExperience()).toBe(40);
 	});
 });

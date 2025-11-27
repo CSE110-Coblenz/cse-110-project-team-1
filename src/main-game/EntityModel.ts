@@ -90,12 +90,20 @@ export class EntityModel {
 		return { ...this.pos };
 	}
 
+	public setDamage(damage: number): void {
+		this.damage = damage;
+	}
+
 	public getSpeed(): number {
 		return this.speed;
 	}
 
 	public getHealth(): number {
 		return this.health;
+	}
+
+	public resetAttackCooldown(): void {
+		this.attackCooldown = 0;
 	}
 
 	public colorUtils = {
@@ -134,6 +142,10 @@ export class EntityModel {
 		this.direction = direction;
 	}
 
+	public isAlive(): boolean {
+		return this.health > 0;
+	}
+
 	public getViewRadius(): number {
 		return this.view_radius;
 	}
@@ -150,7 +162,7 @@ export class EntityModel {
 	}
 
 	public tryAttack(prey_model: EntityModel): void {
-		if (this.attackCooldown <= 0) {
+		if (this.attackCooldown <= 0 && prey_model.isAlive()) {
 			this.attackCooldown = this.attackCooldownMax;
 			if (prey_model.takeDamage(this.damage)) {
 				this.clearRelations();
