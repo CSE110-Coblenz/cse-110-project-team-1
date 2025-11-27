@@ -5,6 +5,7 @@ describe('MapModel (rectangles)', () => {
 	it('isPointInsideWall returns true for points inside rectangle bbox and false otherwise', () => {
 		const model = new MapModel({ width: 200, height: 200, wallCount: 0 });
 		// inject a single rectangle wall at 10..30 x and 10..30 y
+		const pad = MapModel.ENTITY_PAD; // takes into account padding around wall coordinates
 		(model as any).walls = [
 			{
 				id: 'w1',
@@ -17,10 +18,10 @@ describe('MapModel (rectangles)', () => {
 			},
 		];
 
-		expect(model.isPointInsideWall(20, 20)).toBe(true);
-		expect(model.isPointInsideWall(10, 10)).toBe(true); // on edge
-		expect(model.isPointInsideWall(-1, -1)).toBe(false);
-		expect(model.isPointInsideWall(41, 20)).toBe(false);
+		expect(model.isPointInsideWall(15, 15)).toBe(true);
+		expect(model.isPointInsideWall(10 - pad, 10 - pad)).toBe(true); // on edge
+		expect(model.isPointInsideWall(10 - pad - 1, 10 - pad - 1)).toBe(false); // outside of edge
+		expect(model.isPointInsideWall(15, 20)).toBe(true);
 	});
 
 	it('getWallsInRegion returns only walls overlapping the region', () => {

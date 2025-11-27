@@ -90,14 +90,29 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	[Species.ANT, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	// Rodents
-	[Species.MOUSE, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
-	[Species.SQUIRREL, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	[
+		Species.MOUSE,
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+	],
+	[
+		Species.SQUIRREL,
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+	],
 
 	// -------- Level 2 - Secondary Consumers
 
-	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[
+		Species.SKUNK,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
+	[
+		Species.RACCOON,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
+	[
+		Species.WEASEL,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
 	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
 	// birds
 	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
@@ -122,14 +137,17 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 
 	[
 		Species.HAWK,
-		{ prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+		{
+			prey: [...RODENTS, ...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT],
+			predators: [],
+		},
 	],
-	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[
 		Species.COUGAR,
-		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, ...SECONDARY_CONSUMERS], predators: [] },
 	],
-	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 ]);
 
 export interface SpeciesAttributes {

@@ -9,7 +9,7 @@ export class EntityView {
 	private offscreenCtx: CanvasRenderingContext2D;
 	private textNode: Konva.Text;
 
-	constructor(species: Species) {
+	constructor(species: Species = Species.MOUSE) {
 		this.imageNode = new Konva.Image();
 		this.offscreenCanvas = document.createElement('canvas');
 		this.offscreenCtx = this.offscreenCanvas.getContext('2d')!;
@@ -88,7 +88,6 @@ export class EntityView {
 		if (!this.textNode.getLayer()) {
 			layer.add(this.textNode);
 		}
-		layer.batchDraw();
 	}
 
 	public undraw() {
