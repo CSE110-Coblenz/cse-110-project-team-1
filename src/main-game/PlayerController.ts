@@ -2,25 +2,26 @@ import { PlayerModel } from 'src/main-game/PlayerModel';
 import { PlayerView } from 'src/main-game/PlayerView';
 import { MapModel } from 'src/main-game/MapModel';
 import { MapController } from 'src/main-game/MapController';
-import { Viewport } from 'src/main-game/types';
+import { EntityController } from 'src/main-game/EntityController';
+import { EntityModel } from 'src/main-game/EntityModel';
 
 // key sets used for input handling
+const ATTACK_KEYS = new Set([' ', 'Space']);
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const WASD_KEYS = new Set(['w', 'a', 's', 'd']);
 const MOD_KEYS = new Set(['Shift']);
-const VALID_KEYS = new Set<string>([...ARROW_KEYS, ...WASD_KEYS, ...MOD_KEYS]);
+const VALID_KEYS = new Set<string>([...ARROW_KEYS, ...WASD_KEYS, ...MOD_KEYS, ...ATTACK_KEYS]);
 
-export class PlayerController {
-	private model: PlayerModel;
-	private view: PlayerView;
+export class PlayerController extends EntityController {
 	private mapModel: MapModel;
 	private mapController: MapController;
 	private keyDownHandler: ((e: KeyboardEvent) => void) | null = null;
 	private keyUpHandler: ((e: KeyboardEvent) => void) | null = null;
 	private pressedKeys: Set<string> = new Set();
 	private animationFrameId: number | null = null;
-	private lastTimestamp: number | null = null;
 	private renderCallback: (() => void) | null = null;
+	private attackRequested = false;
+	protected attackCooldown = 0.25;
 
 	constructor(
 		model: PlayerModel,
@@ -28,8 +29,7 @@ export class PlayerController {
 		mapModel: MapModel,
 		mapController: MapController,
 	) {
-		this.model = model;
-		this.view = view;
+		super(model, view);
 		this.mapModel = mapModel;
 		this.mapController = mapController;
 	}
@@ -45,6 +45,11 @@ export class PlayerController {
 			if (!VALID_KEYS.has(normalized)) return;
 			this.pressedKeys.add(normalized);
 			if (ARROW_KEYS.has(normalized)) e.preventDefault();
+			if (ATTACK_KEYS.has(normalized)) {
+				e.preventDefault(); // space scroll prevention
+				this.attackRequested = true;
+				return; // do NOT add to pressedKeys — we want one-shot action
+			}
 		};
 
 		this.keyUpHandler = (e: KeyboardEvent) => {
@@ -60,6 +65,19 @@ export class PlayerController {
 	public updateFromInput(deltaSec: number) {
 		let dirX = 0,
 			dirY = 0;
+
+		this.model.updateAttackCooldown(deltaSec);
+		if (this.attackRequested) {
+			const surrounding = this.mapModel.getEntitiesInArea(
+				this.model.getID(),
+				this.model.getPosition(),
+				this.model.getAttackRange(),
+			);
+			if (surrounding.length > 0) {
+				this.tryAttack(surrounding[0]);
+			}
+			this.attackRequested = false;
+		}
 
 		if (this.pressedKeys.has('ArrowUp') || this.pressedKeys.has('w')) dirY -= 1;
 		if (this.pressedKeys.has('ArrowDown') || this.pressedKeys.has('s')) dirY += 1;
@@ -78,6 +96,8 @@ export class PlayerController {
 		const deltaX = dirX * effectiveSpeed * deltaSec;
 		const deltaY = dirY * effectiveSpeed * deltaSec;
 
+		this.model.setColorAndRadius(deltaSec);
+
 		if (this.tryMove(deltaX, deltaY)) {
 			this.mapController.centerOn(this.model.getPosition());
 		}
@@ -93,44 +113,19 @@ export class PlayerController {
 		if (this.animationFrameId != null) {
 			cancelAnimationFrame(this.animationFrameId);
 			this.animationFrameId = null;
-			this.lastTimestamp = null;
 		}
 		this.renderCallback = null;
 	}
 
-	private tryMove(dx: number, dy: number) {
-		const pos = this.model.getPosition();
-		const nx = pos.x + dx;
-		const ny = pos.y + dy;
-		const mapW = this.mapModel.getWidth();
-		const mapH = this.mapModel.getHeight();
-		const r = this.model.radius;
-		// prevent moving so that the player circle goes out of world bounds
-		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-
-		// simple collision: ask mapModel whether the new point or nearby points intersect a wall
-		const offsets = [
-			[0, 0],
-			[r * 0.7, 0],
-			[-r * 0.7, 0],
-			[0, r * 0.7],
-			[0, -r * 0.7],
-		];
-		for (const [ox, oy] of offsets) {
-			if (this.mapModel.isPointInsideWall(Math.floor(nx + ox), Math.floor(ny + oy)))
-				return false;
+	public tryAttack(entity: EntityModel) {
+		if (this.model.isPredatorOf(entity)) {
+			entity.clearRelations();
+			entity.predator = this.model;
+			this.model.tryAttack(entity);
 		}
-		this.model.setPosition(nx, ny);
-		return true;
 	}
 
-	public draw(target: CanvasRenderingContext2D | any, viewport: Viewport) {
-		this.view.draw(
-			target,
-			viewport,
-			this.model.getPosition(),
-			this.model.getDirection(),
-			this.model.radius,
-		);
+	public tryMove(dx: number, dy: number): boolean {
+		return this.model.tryMove(this.mapModel, dx, dy);
 	}
 }

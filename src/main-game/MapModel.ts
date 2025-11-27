@@ -1,22 +1,23 @@
-import { MapConfig, Wall, Point, Position, Viewport } from 'src/main-game/types';
+import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-game/types';
 import { NPC } from 'src/main-game/NPC/NPC';
+import { PlayerModel } from 'src/main-game/PlayerModel';
+import { EntityModel } from 'src/main-game/EntityModel';
 
-/**
- * MapModel for a continuous open world where walls are polygonal shapes.
- * It generates non-overlapping-ish polygons and exposes queries for walls in a viewport.
- */
 export class MapModel {
 	private width: number;
 	private height: number;
 	private walls: Wall[] = [];
 	private viewport: Viewport = { x: 0, y: 0, width: 0, height: 0 };
 	private npcs: NPC[] = [];
+	private npc_models: EntityModel[] = [];
+	public main_player: EntityModel | null = null;
 
 	// static defaults
 	public static DEFAULT_SPACING = 80;
 	public static DEFAULT_WALL_COUNT = 40;
 	public static DEFAULT_WALL_MIN_WIDTH = 110;
 	public static DEFAULT_WALL_MAX_WIDTH = 120;
+	public static ENTITY_PAD = 15;
 
 	constructor(config: MapConfig) {
 		this.width = config.width;
@@ -56,6 +57,8 @@ export class MapModel {
 		const maxAttempts = count * 20;
 
 		const randInRange = (min: number, max: number) => min + Math.random() * (max - min);
+		const spawnX = Math.floor(this.getWidth() / 2);
+		const spawnY = Math.floor(this.getHeight() / 2);
 
 		while (walls.length < count && attempts < maxAttempts) {
 			attempts++;
@@ -71,6 +74,16 @@ export class MapModel {
 
 			const x = randInRange(spacing, width - w - spacing);
 			const y = randInRange(spacing, height - h - spacing);
+
+			// check if wall is in player spawn area
+			if (
+				x < spawnX + maxWidth + 50 &&
+				x + w > spawnX - maxWidth - 50 &&
+				y < spawnY + maxWidth + 50 &&
+				y + h > spawnY - maxWidth - 50
+			) {
+				continue; //go to next attempt
+			}
 
 			const newWall: Wall = {
 				id: `wall_${walls.length}`,
@@ -104,8 +117,19 @@ export class MapModel {
 		this.walls = walls;
 	}
 
-	public setNCPs(npcs: NPC[]) {
+	public setMainPlayer(player_model: PlayerModel) {
+		this.main_player = player_model;
+	}
+
+	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
+		let new_npc_models = npcs.map((npc) => npc.getModel());
+		for (const m of new_npc_models) {
+			m.onDead(() => {
+				this.removeNPCModel(m);
+			});
+		}
+		this.npc_models = this.npc_models.concat(new_npc_models);
 	}
 
 	public getNPCs(): NPC[] {
@@ -171,16 +195,56 @@ export class MapModel {
 	public getWidth() {
 		return this.width;
 	}
+
 	public getHeight() {
 		return this.height;
 	}
 
 	public isPointInsideWall(px: number, py: number) {
-		// since walls are axis-aligned rectangles, test against bbox of each wall
 		for (const wall of this.walls) {
-			const b = this.bboxOfPoints(wall.points);
-			if (px >= b.minX && px <= b.maxX && py >= b.minY && py <= b.maxY) return true;
+			const minX = wall.points[0].x - MapModel.ENTITY_PAD;
+			const maxX = wall.points[2].x + MapModel.ENTITY_PAD;
+			const minY = wall.points[0].y - MapModel.ENTITY_PAD;
+			const maxY = wall.points[2].y + MapModel.ENTITY_PAD;
+
+			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
+				return true;
+			}
 		}
 		return false;
+	}
+	public getEntitiesInArea(id: string, position: Position, radius: number) {
+		const entitiesInArea: EntityModel[] = [];
+		for (const entity_model of [...this.npc_models, this.main_player!]) {
+			if (entity_model.getID() == id) {
+				continue;
+			}
+			if (distance(entity_model.getPosition(), position) <= radius) {
+				entitiesInArea.push(entity_model);
+			}
+		}
+		return entitiesInArea;
+	}
+
+	// Remove an NPC model and its wrapper; try to undraw and dispose its view/controller
+	public removeNPCModel(npcModel: EntityModel) {
+		const id = npcModel.getID();
+		const mi = this.npc_models.findIndex((m) => m.getID() === id);
+		if (mi >= 0) this.npc_models.splice(mi, 1);
+
+		const wi = this.npcs.findIndex((w) => w.getModel().getID() === id);
+		if (wi >= 0) {
+			const wrapper = this.npcs.splice(wi, 1)[0];
+			try {
+				wrapper.getView()?.undraw?.();
+			} catch (e) {
+				/* ignore */
+			}
+			try {
+				(wrapper.getController() as any)?.dispose?.();
+			} catch (e) {
+				/* ignore */
+			}
+		}
 	}
 }

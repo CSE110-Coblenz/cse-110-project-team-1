@@ -3,11 +3,13 @@ import { NPCController } from 'src/main-game/NPC/NPCController';
 import { NPCModel } from 'src/main-game/NPC/NPCModel';
 import { NPCView } from 'src/main-game/NPC/NPCView';
 import { MapModel } from 'src/main-game/MapModel';
+import { Species } from 'src/common/types/Species';
 
 vi.mock('../../main-game/NPC/NPCModel', () => ({
 	NPCModel: class {
 		getPosition = vi.fn(() => ({ x: 0, y: 0 }));
 		setPosition = vi.fn();
+		onDead = vi.fn();
 	},
 }));
 
@@ -89,7 +91,7 @@ describe('NPCController (simple mock test)', () => {
 			wallMaxWidth: 160,
 		};
 
-		const npc_model = new NPCModel();
+		const npc_model = new NPCModel(Species.MOUSE);
 		const npc_view = new NPCView();
 		const map_model = new MapModel(config);
 

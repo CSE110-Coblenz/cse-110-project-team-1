@@ -1,5 +1,3 @@
-import { Species } from 'src/common/types/Species';
-
 // Continuous-world types: walls are polygons in pixel coordinates.
 export interface Point {
 	x: number;
@@ -9,6 +7,21 @@ export interface Point {
 export interface Wall {
 	id: string;
 	points: Point[]; // polygon points in world coordinates
+}
+
+type Listener = (...args: any[]) => void;
+
+export class EventEmitter {
+	private listeners: Record<string, Listener[]> = {};
+
+	on(event: string, fn: Listener) {
+		this.listeners[event] ||= [];
+		this.listeners[event].push(fn);
+	}
+
+	emit(event: string, ...args: any[]) {
+		(this.listeners[event] || []).forEach((fn) => fn(...args));
+	}
 }
 
 export interface MapConfig {
@@ -42,9 +55,8 @@ export enum Direction {
 	Right = 3,
 }
 
-export const DEFAULT_ATTRIBUTES = {
-	radius: 12,
-	speed: 500,
-	health: 100,
-	species: Species.SPEC1,
-};
+export function distance(a: Position, b: Position): number {
+	const dx = a.x - b.x;
+	const dy = a.y - b.y;
+	return Math.hypot(dx, dy);
+}
