@@ -98,6 +98,10 @@ export class EntityModel {
 		return this.speed;
 	}
 
+	public getDamage(): number {
+		return this.damage;
+	}
+
 	public getHealth(): number {
 		return this.health;
 	}
