@@ -15,7 +15,6 @@ export enum Species {
 	ANT = 'Ant', // eats grass
 	RABBIT = 'Rabbit',
 	DEER = 'Deer',
-	ELK = 'Elk',
 	GRASSHOPPER = 'Grasshopper', // eats grass
 	CATERPILLAR = 'Caterpillar', // eats grass
 	SQUIRREL = 'Squirrel',
@@ -45,7 +44,7 @@ export enum Species {
 
 const INSECTS = [Species.ANT, Species.CATERPILLAR, Species.GRASSHOPPER];
 const RODENTS = [Species.MOUSE, Species.SQUIRREL];
-const UNGULATES = [Species.BISON, Species.DEER, Species.ELK, Species.MOOSE];
+const UNGULATES = [Species.BISON, Species.DEER, Species.MOOSE];
 const BIRDS = [Species.ROBIN, Species.SPARROW];
 
 export interface SpeciesAttributes {
@@ -84,7 +83,6 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.RABBIT, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	// Ungulates
 	[Species.DEER, { prey: PRODUCERS, predators: APEX_PREDATORS }],
-	[Species.ELK, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.MOOSE, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	[Species.BISON, { prey: PRODUCERS, predators: APEX_PREDATORS }],
 	// Insects
@@ -92,14 +90,29 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.GRASSHOPPER, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	[Species.ANT, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
 	// Rodents
-	[Species.MOUSE, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
-	[Species.SQUIRREL, { prey: PRODUCERS, predators: SECONDARY_CONSUMERS }],
+	[
+		Species.MOUSE,
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+	],
+	[
+		Species.SQUIRREL,
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+	],
 
 	// -------- Level 2 - Secondary Consumers
 
-	[Species.SKUNK, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.RACCOON, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
-	[Species.WEASEL, { prey: [...INSECTS, ...RODENTS], predators: TERTIARY_CONSUMERS }],
+	[
+		Species.SKUNK,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
+	[
+		Species.RACCOON,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
+	[
+		Species.WEASEL,
+		{ prey: [...INSECTS, ...RODENTS], predators: [...TERTIARY_CONSUMERS, ...APEX_PREDATORS] },
+	],
 	[Species.GARTER_SNAKE, { prey: RODENTS, predators: TERTIARY_CONSUMERS }],
 	// birds
 	[Species.ROBIN, { prey: [...INSECTS, ...PRODUCERS], predators: TERTIARY_CONSUMERS }],
@@ -124,21 +137,23 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 
 	[
 		Species.HAWK,
-		{ prey: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+		{
+			prey: [...RODENTS, ...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS, Species.RABBIT],
+			predators: [],
+		},
 	],
-	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[Species.WOLF, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 	[
 		Species.COUGAR,
-		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] },
+		{ prey: [...UNGULATES, ...TERTIARY_CONSUMERS, ...SECONDARY_CONSUMERS], predators: [] },
 	],
-	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS, Species.RABBIT], predators: [] }],
+	[Species.BEAR, { prey: [...UNGULATES, ...TERTIARY_CONSUMERS], predators: [] }],
 ]);
 
 export interface SpeciesAttributes {
 	damage: number;
 	speed: number;
 	health: number;
-	view_radius: number;
 }
 
 function makeAttributesForGroup(
@@ -160,7 +175,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 0,
 		speed: 0,
 		health: 50,
-		view_radius: 10,
 		color: PRODUCER_GREEN,
 	}),
 	// Primary Consumers
@@ -168,7 +182,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 15, // Set high to see gameaply effect, these all must be tuned eventually
 		speed: 60,
 		health: 50,
-		view_radius: 12,
 		color: PRIMARY_CONSUMER_YELLOW,
 	}),
 	// Secondary Consumers
@@ -176,7 +189,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 20,
 		speed: 45,
 		health: 80,
-		view_radius: 12,
 		color: SECONDARY_CONSUMER_ORANGE,
 	}),
 	// Tertiary Consumers
@@ -184,7 +196,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 30,
 		speed: 45,
 		health: 80,
-		view_radius: 12,
 		color: TERTIARY_CONSUMER_RED,
 	}),
 	// Apex Predators
@@ -192,7 +203,6 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 		damage: 30,
 		speed: 45,
 		health: 80,
-		view_radius: 12,
 		color: APEX_PREDATOR_PURPLE,
 	}),
 ]);

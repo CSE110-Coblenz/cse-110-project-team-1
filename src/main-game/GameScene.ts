@@ -75,7 +75,7 @@ export class GameScene {
 		const startX = Math.floor(this.mapModel.getWidth() / 2);
 		const startY = Math.floor(this.mapModel.getHeight() / 2);
 		this.playerModel = new PlayerModel(this.options.species ?? Species.MOUSE, startX, startY);
-		this.playerView = new PlayerView();
+		this.playerView = new PlayerView(this.options.species ?? Species.MOUSE);
 		this.playerController = new PlayerController(
 			this.playerModel,
 			this.playerView,

@@ -16,6 +16,15 @@ function makeFakeLayer() {
 	} as any;
 }
 
+vi.mock('src/main-game/EntityView', () => {
+	return {
+		EntityView: class {
+			draw = vi.fn();
+			undraw = vi.fn();
+		},
+	};
+});
+
 describe('GameScene callbacks', () => {
 	beforeEach(() => {
 		// provide a simple requestAnimationFrame shim so the loop runs once

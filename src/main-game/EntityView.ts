@@ -2,56 +2,96 @@ import Konva from 'konva';
 import { Position, Viewport } from 'src/main-game/types';
 import { Species } from 'src/common/types/Species';
 
-// Later we can accept an image and draw that instead.
 export class EntityView {
-	private circle: Konva.Circle | null = new Konva.Circle();
+	private imageNode: Konva.Image;
+	private loadedImage: HTMLImageElement;
+	private offscreenCanvas: HTMLCanvasElement;
+	private offscreenCtx: CanvasRenderingContext2D;
+	private textNode: Konva.Text;
+
+	constructor(species: Species = Species.MOUSE) {
+		this.imageNode = new Konva.Image();
+		this.offscreenCanvas = document.createElement('canvas');
+		this.offscreenCtx = this.offscreenCanvas.getContext('2d')!;
+
+		// Text node
+		this.textNode = new Konva.Text({
+			x: 0,
+			y: 0,
+			text: species,
+			fontSize: 12,
+			fontFamily: 'Arial',
+			fill: 'black',
+		});
+
+		const imgSrc = `sprites/${species}.png`;
+		let img = new Image();
+		img.src = imgSrc;
+		this.loadedImage = img;
+
+		img.onload = () => {
+			this.loadedImage = img;
+			this.offscreenCanvas.width = img.width;
+			this.offscreenCanvas.height = img.height;
+
+			this.offscreenCtx.clearRect(0, 0, img.width, img.height);
+			this.offscreenCtx.drawImage(img, 0, 0);
+
+			this.imageNode.image(this.offscreenCanvas);
+			this.imageNode.width(img.width);
+			this.imageNode.height(img.height);
+		};
+
+		img.onerror = () => {
+			console.error(`Failed to load entity image at: ${imgSrc}`);
+		};
+	}
 
 	public draw(
-		target: CanvasRenderingContext2D | Konva.Layer,
+		layer: Konva.Layer,
 		viewport: Viewport,
-		color: string,
+		redTint: number,
 		position: Position,
-		species: Species,
 		radius: number,
 	) {
-		// If target looks like a Konva layer, add a simple circle node
-		if (
-			(target as Konva.Layer).getClassName &&
-			(target as Konva.Layer).getClassName() === 'Layer'
-		) {
-			if (this.circle) {
-				const layer = target as Konva.Layer;
-				this.circle = new Konva.Circle({
-					x: position.x - viewport.x,
-					y: position.y - viewport.y,
-					radius,
-					fill: color,
-				});
-				layer.add(this.circle);
+		const img = this.loadedImage;
 
-				const textNode = new Konva.Text({
-					x: position.x - viewport.x,
-					y: position.y - viewport.y,
-					text: species,
-					fontSize: radius,
-					fontFamily: 'Arial',
-					fill: 'black',
-					align: 'center',
-				});
+		this.offscreenCtx.clearRect(0, 0, img.width, img.height);
+		this.offscreenCtx.drawImage(img, 0, 0);
 
-				// center text on the circle
-				textNode.offsetX(textNode.width() / 2);
-				textNode.offsetY(textNode.height() / 2);
+		if (redTint > 0) {
+			this.offscreenCtx.fillStyle = `rgba(255,0,0,${redTint})`;
+			this.offscreenCtx.globalCompositeOperation = 'source-atop';
+			this.offscreenCtx.fillRect(0, 0, img.width, img.height);
+			this.offscreenCtx.globalCompositeOperation = 'source-over';
+		}
 
-				layer.add(textNode);
-			}
+		const scale = (radius * 5) / img.width;
+		this.imageNode.scale({ x: scale, y: scale });
+
+		this.imageNode.position({
+			x: position.x - viewport.x,
+			y: position.y - viewport.y,
+		});
+		this.imageNode.offsetX(img.width / 2);
+		this.imageNode.offsetY(img.height / 2);
+
+		if (!this.imageNode.getLayer()) {
+			layer.add(this.imageNode);
+		}
+
+		this.textNode.position({
+			x: position.x - viewport.x,
+			y: position.y - viewport.y + (img.height * scale) / 2 + 2,
+		});
+		this.textNode.offsetX(this.textNode.width() / 2);
+		if (!this.textNode.getLayer()) {
+			layer.add(this.textNode);
 		}
 	}
 
 	public undraw() {
-		if (this.circle) {
-			this.circle.destroy();
-			this.circle = null;
-		}
+		this.imageNode.destroy();
+		this.textNode.destroy();
 	}
 }

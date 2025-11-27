@@ -17,6 +17,7 @@ export class MapModel {
 	public static DEFAULT_WALL_COUNT = 40;
 	public static DEFAULT_WALL_MIN_WIDTH = 110;
 	public static DEFAULT_WALL_MAX_WIDTH = 120;
+	public static ENTITY_PAD = 15;
 
 	constructor(config: MapConfig) {
 		this.width = config.width;
@@ -200,12 +201,11 @@ export class MapModel {
 	}
 
 	public isPointInsideWall(px: number, py: number) {
-		let r = 10;
 		for (const wall of this.walls) {
-			const minX = wall.points[0].x - r;
-			const maxX = wall.points[2].x + r;
-			const minY = wall.points[0].y - r;
-			const maxY = wall.points[2].y + r;
+			const minX = wall.points[0].x - MapModel.ENTITY_PAD;
+			const maxX = wall.points[2].x + MapModel.ENTITY_PAD;
+			const minY = wall.points[0].y - MapModel.ENTITY_PAD;
+			const maxY = wall.points[2].y + MapModel.ENTITY_PAD;
 
 			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
 				return true;

@@ -75,12 +75,10 @@ export class NPCModel extends EntityModel {
 	}
 
 	private setColorRadiusNPC(deltaSec: number): void {
-		this.setColorAndRadius(deltaSec);
+		this.setColorAndRadius(deltaSec, this.started_chase);
 		if (this.prey && !this.started_chase) {
-			this.view_radius = this.chase_view_radius;
 			this.started_chase = true;
 		} else if (!this.prey && !this.got_attacked) {
-			this.view_radius = this.base_view_radius;
 			this.started_chase = false;
 		}
 	}

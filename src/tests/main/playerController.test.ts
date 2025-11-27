@@ -9,7 +9,7 @@ import { MapController } from 'src/main-game/MapController';
 describe('PlayerController (movement & collision)', () => {
 	it('moves when destination is clear and within bounds', () => {
 		const player = new PlayerModel(Species.MOUSE, 50, 50);
-		const view = new PlayerView();
+		const view = new PlayerView(Species.MOUSE);
 		const mapMock = {
 			getWidth: () => 200,
 			getHeight: () => 200,
@@ -25,7 +25,7 @@ describe('PlayerController (movement & collision)', () => {
 
 	it('prevents movement that would go out of world bounds', () => {
 		const player = new PlayerModel(Species.MOUSE, 190, 100);
-		const view = new PlayerView();
+		const view = new PlayerView(Species.MOUSE);
 		const mapMock = {
 			getWidth: () => 200,
 			getHeight: () => 200,
@@ -41,7 +41,7 @@ describe('PlayerController (movement & collision)', () => {
 
 	it('prevents movement that would intersect a wall', () => {
 		const player = new PlayerModel(Species.MOUSE, 50, 50);
-		const view = new PlayerView();
+		const view = new PlayerView(Species.MOUSE);
 		const mapMock = {
 			getWidth: () => 200,
 			getHeight: () => 200,
