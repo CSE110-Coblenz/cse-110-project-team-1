@@ -43,7 +43,7 @@ export class EntityModel {
 		this.species = species;
 		this.speed = attrs.speed;
 		if (speed_boost) {
-			this.speed = this.speed * 3;
+			this.speed = this.speed * 1.5;
 		}
 		this.health = attrs.health;
 		this.damage = attrs.damage;

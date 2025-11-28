@@ -181,28 +181,28 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Primary Consumers
 	...makeAttributesForGroup(PRIMARY_CONSUMERS, {
 		damage: 15, // Set high to see gameaply effect, these all must be tuned eventually
-		speed: 60,
+		speed: 150,
 		health: 50,
 		color: PRIMARY_CONSUMER_YELLOW,
 	}),
 	// Secondary Consumers
 	...makeAttributesForGroup(SECONDARY_CONSUMERS, {
 		damage: 20,
-		speed: 45,
+		speed: 175,
 		health: 80,
 		color: SECONDARY_CONSUMER_ORANGE,
 	}),
 	// Tertiary Consumers
 	...makeAttributesForGroup(TERTIARY_CONSUMERS, {
 		damage: 30,
-		speed: 45,
+		speed: 190,
 		health: 80,
 		color: TERTIARY_CONSUMER_RED,
 	}),
 	// Apex Predators
 	...makeAttributesForGroup(APEX_PREDATORS, {
 		damage: 30,
-		speed: 45,
+		speed: 200,
 		health: 80,
 		color: APEX_PREDATOR_PURPLE,
 	}),
