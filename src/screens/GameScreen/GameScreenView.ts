@@ -63,7 +63,6 @@ export class GameScreenView implements View {
 
 	constructor(stageWidth = 800, stageHeight = 600) {
 		this.group = new Konva.Group({
-			zIndex: 999, // ensure HUD group is on top of game layers
 			listening: false, // panel/HUD are visual only
 		});
 

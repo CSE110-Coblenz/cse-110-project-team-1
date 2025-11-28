@@ -94,8 +94,8 @@ export class GameScreenController extends ScreenController {
 			this.view.getGroup().remove();
 		} catch {}
 		try {
-			this.uiLayer?.destroyChildren();
-			this.uiLayer?.draw();
+			//this.uiLayer?.destroyChildren();
+			//this.uiLayer?.draw();
 		} catch {}
 		try {
 			this.worldLayer?.draw();
