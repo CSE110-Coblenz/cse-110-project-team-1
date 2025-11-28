@@ -127,11 +127,11 @@ export class CookingView {
 			if (!document.getElementById('view-placeholder')) {
 				const wrapper = document.createElement('div');
 				wrapper.id = 'view-placeholder';
-				// Ensure the whole game fits viewport without scrolling
-				wrapper.style.cssText = 'border: none; padding: 0; margin: 0; height: 100vh; overflow: hidden; box-sizing: border-box;';
+				// Fit within the container bounds with padding and a semi-transparent light background
+				wrapper.style.cssText = 'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px;';
 				wrapper.innerHTML = '' +
-					// Move score to the very top
-					'<div id="score-display" style="margin: 8px 0 6px; font-weight: 600;">Score: <span id="score-value">0</span></div>' +
+					// Move score to the very top - explicitly set color for consistency
+					'<div id="score-display" style="margin: 8px 0 6px; font-weight: 600; color: #111827;">Score: <span id="score-value">0</span></div>' +
 					'<div id="progress-konva-container" style="margin: 6px 0 8px;"></div>' +
 					'<div id="game-stage-container" style="margin: 6px 0 8px;"></div>' +
 					// Hide debug text labels at the bottom while keeping them for tests
@@ -141,7 +141,7 @@ export class CookingView {
 			else {
 				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
 				if (wrapper) {
-					wrapper.style.cssText = 'margin: 0; height: 100vh; overflow: hidden; box-sizing: border-box; border: none; padding: 0;';
+					wrapper.style.cssText = 'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px;';
 				}
 			}
 
@@ -401,9 +401,12 @@ export class CookingView {
 		if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('resize', this.resizeHandler);
 	}
 
-	// Computes available height for the gameplay stage such that the whole screen fits in viewport without scrolling
+	// Computes available height for the gameplay stage such that the whole screen fits in the container without scrolling
 	private computeAvailableGameStageHeight(): number {
-		const vh = (typeof window !== 'undefined' && (window as any).innerHeight) ? (window as any).innerHeight : GAME_STAGE_HEIGHT;
+		// Use container height instead of viewport height for proper nesting
+		const container = document.getElementById('container') as HTMLElement | null;
+		const containerHeight = container?.clientHeight || GAME_STAGE_HEIGHT;
+
 		// Measure actual block heights when possible
 		const progressEl = document.getElementById('progress-konva-container') as HTMLElement | null;
 		const scoreEl = document.getElementById('score-display') as HTMLElement | null;
@@ -414,7 +417,7 @@ export class CookingView {
 		const statsH = (scoreEl?.offsetHeight || 20) + (labelEl?.offsetHeight || 20) + (customersEl?.offsetHeight || 20);
 		// No separate patience section anymore
 		const VERTICAL_MARGINS = 24; // tighter margins: progress(6+6) + game(6+6)
-		const available = vh - progressH - statsH - VERTICAL_MARGINS;
+		const available = containerHeight - progressH - statsH - VERTICAL_MARGINS;
 		return Math.max(140, Math.floor(available));
 	}
 
