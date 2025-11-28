@@ -54,9 +54,9 @@ export class NPCFactory {
 		num_npcs: number,
 		options?: {
 			minPreyPerGroup?: number;
-			playerSpecies?: Species;  
-			preyDepth?: 1 | 2;    // how much down i should go    
-		}
+			playerSpecies?: Species;
+			preyDepth?: 1 | 2; // how much down i should go
+		},
 	): NPC[] {
 		if (num_npcs % 5 !== 0) {
 			throw new Error('Number of NPCs must be divisible by 5');
@@ -90,10 +90,16 @@ export class NPCFactory {
 		if (total !== num_npcs) {
 			let diff = num_npcs - total;
 			if (diff > 0) {
-				for (let i = 0; i < counts.length && diff > 0; i++) { counts[i]++; diff--; }
+				for (let i = 0; i < counts.length && diff > 0; i++) {
+					counts[i]++;
+					diff--;
+				}
 			} else {
 				for (let i = counts.length - 1; i >= 0 && diff < 0; i--) {
-					if (counts[i] > 1) { counts[i]--; diff++; }
+					if (counts[i] > 1) {
+						counts[i]--;
+						diff++;
+					}
 				}
 			}
 		}
@@ -103,7 +109,7 @@ export class NPCFactory {
 		if (options?.playerSpecies) {
 			const playerIdx = findGroupIndex(options.playerSpecies);
 			if (playerIdx >= 0) {
-				const depth = options.preyDepth ?? 1; 
+				const depth = options.preyDepth ?? 1;
 				preyIndexes = [];
 				for (let d = 1; d <= depth; d++) {
 					const idx = playerIdx - d;
@@ -117,7 +123,7 @@ export class NPCFactory {
 		// making sure i have a min num of eatable prey for player
 		const minPreyPerGroup = Math.max(
 			1,
-			options?.minPreyPerGroup ?? Math.floor(num_npcs * 0.08)
+			options?.minPreyPerGroup ?? Math.floor(num_npcs * 0.08),
 		);
 
 		for (const idx of preyIndexes) {
@@ -128,7 +134,8 @@ export class NPCFactory {
 				// Prefer pulling from higher trophic levels first (keeps bottom heavy)
 				for (let donor = counts.length - 1; donor >= 0 && deficit > 0; donor--) {
 					if (donor === idx) continue;
-					if (counts[donor] > 1 && donor !== 0) { // keep producers and each group >=1
+					if (counts[donor] > 1 && donor !== 0) {
+						// keep producers and each group >=1
 						const take = Math.min(deficit, counts[donor] - 1);
 						counts[donor] -= take;
 						counts[idx] += take;
