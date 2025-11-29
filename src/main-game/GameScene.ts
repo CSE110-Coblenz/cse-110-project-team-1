@@ -34,7 +34,7 @@ export class GameScene {
 	private layer: Layer;
 	private mapModel: MapModel;
 	private mapController: MapController;
-	private mapView: MapView;
+	private mapView!: MapView;
 	private playerModel: PlayerModel;
 	private playerView: PlayerView;
 	private playerController: PlayerController;
@@ -68,8 +68,14 @@ export class GameScene {
 			document.documentElement.clientHeight ||
 			document.body.clientHeight;
 
+		const bgImg = new Image();
+		bgImg.src = 'main-game-background.png';
 		this.mapController = new MapController(this.mapModel, vpW, vpH);
-		this.mapView = new MapView(); // keep default; provide color if required by your MapView ctor
+
+		this.mapView = new MapView(bgImg);
+		bgImg.onload = () => {
+			this.mapView = new MapView(bgImg);
+		};
 
 		// Player (new API: species, x, y)
 		const startX = Math.floor(this.mapModel.getWidth() / 2);
@@ -110,7 +116,7 @@ export class GameScene {
 		const vp = this.mapController.getViewport();
 		const walls = this.mapController.getVisibleWalls();
 
-		this.mapView.draw(this.layer, vp, walls);
+		this.mapView!.draw(this.layer, vp, walls);
 		this.playerController.draw(this.layer, vp);
 		this.mapController.drawNPCs(this.layer, vp);
 		this.pushHud();

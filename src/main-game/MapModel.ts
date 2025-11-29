@@ -1,7 +1,8 @@
-import { MapConfig, Wall, Point, Position, Viewport, distance } from 'src/main-game/types';
+import { MapConfig, Wall, Position, Viewport, distance } from 'src/main-game/types';
 import { NPC } from 'src/main-game/NPC/NPC';
 import { PlayerModel } from 'src/main-game/PlayerModel';
 import { EntityModel } from 'src/main-game/EntityModel';
+import Konva from 'konva';
 
 export class MapModel {
 	private width: number;
@@ -30,20 +31,6 @@ export class MapModel {
 		this.generateWalls(this.width, this.height, minWidth, maxWidth, count, spacing);
 	}
 
-	public bboxOfPoints(points: Point[]) {
-		let minX = Infinity,
-			minY = Infinity,
-			maxX = -Infinity,
-			maxY = -Infinity;
-		for (const p of points) {
-			if (p.x < minX) minX = p.x;
-			if (p.y < minY) minY = p.y;
-			if (p.x > maxX) maxX = p.x;
-			if (p.y > maxY) maxY = p.y;
-		}
-		return { minX, minY, maxX, maxY };
-	}
-
 	private generateWalls(
 		width: number,
 		height: number,
@@ -62,12 +49,19 @@ export class MapModel {
 
 		while (walls.length < count && attempts < maxAttempts) {
 			attempts++;
-			const r = Math.random();
-			const aspect = r < 1 / 3 ? 2 : r < 2 / 3 ? 3 : 4;
+			// const r = Math.random();
+			// const aspect = r < 1 / 3 ? 2 : r < 2 / 3 ? 3 : 4;
+
+			const r = Math.random() < 0.5;
+			const aspect = r ? 2 : 3;
+
 			const longSide = randInRange(minWidth, maxWidth);
 			const shortSide = longSide / aspect;
 
 			const horizontal = Math.random() < 0.5;
+			const rock_or_wood = Math.random() < 0.5;
+
+			const file = rock_or_wood ? `obstacles/wall.png` : `obstacles/rock.png`;
 
 			const w = horizontal ? longSide : shortSide;
 			const h = horizontal ? shortSide : longSide;
@@ -85,29 +79,36 @@ export class MapModel {
 				continue; //go to next attempt
 			}
 
+			const img = new Image();
+			img.src = file;
+
+			const konvaImage = new Konva.Image({
+				image: img,
+				x: x,
+				y: y,
+				width: w,
+				height: h,
+				listening: false,
+			});
+
 			const newWall: Wall = {
 				id: `wall_${walls.length}`,
-				points: [
-					{ x, y },
-					{ x: x + w, y },
-					{ x: x + w, y: y + h },
-					{ x, y: y + h },
-				],
+				minX: x,
+				minY: y,
+				maxX: x + w,
+				maxY: y + h,
+				image: konvaImage,
 			};
 
-			const bbox = {
-				minX: x - spacing,
-				minY: y - spacing,
-				maxX: x + w + spacing,
-				maxY: y + h + spacing,
-			};
 			const overlap = walls.some((wall) => {
-				const b = this.bboxOfPoints(wall.points);
-				return !(
-					bbox.maxX < b.minX ||
-					bbox.minX > b.maxX ||
-					bbox.maxY < b.minY ||
-					bbox.minY > b.maxY
+				return this.overlaps(
+					{
+						minX: newWall.minX - spacing,
+						minY: newWall.minY - spacing,
+						maxX: newWall.maxX + spacing,
+						maxY: newWall.maxY + spacing,
+					},
+					{ minX: wall.minX, minY: wall.minY, maxX: wall.maxX, maxY: wall.maxY },
 				);
 			});
 
@@ -190,8 +191,10 @@ export class MapModel {
 	public getWallsInRegion(x: number, y: number, w: number, h: number): Wall[] {
 		const region = { minX: x, minY: y, maxX: x + w, maxY: y + h };
 		return this.walls.filter((wall) => {
-			const b = this.bboxOfPoints(wall.points);
-			return this.overlaps(b, region);
+			return this.overlaps(
+				{ minX: wall.minX, minY: wall.minY, maxX: wall.maxX, maxY: wall.maxY },
+				region,
+			);
 		});
 	}
 
@@ -205,10 +208,10 @@ export class MapModel {
 
 	public isPointInsideWall(px: number, py: number) {
 		for (const wall of this.walls) {
-			const minX = wall.points[0].x - MapModel.ENTITY_PAD;
-			const maxX = wall.points[2].x + MapModel.ENTITY_PAD;
-			const minY = wall.points[0].y - MapModel.ENTITY_PAD;
-			const maxY = wall.points[2].y + MapModel.ENTITY_PAD;
+			const minX = wall.minX - MapModel.ENTITY_PAD;
+			const maxX = wall.maxX + MapModel.ENTITY_PAD;
+			const minY = wall.minY - MapModel.ENTITY_PAD;
+			const maxY = wall.maxY + MapModel.ENTITY_PAD;
 
 			if (px >= minX && px <= maxX && py >= minY && py <= maxY) {
 				return true;
@@ -216,6 +219,7 @@ export class MapModel {
 		}
 		return false;
 	}
+
 	public getEntitiesInArea(id: string, position: Position, radius: number) {
 		const entitiesInArea: EntityModel[] = [];
 		for (const entity_model of [...this.npc_models, this.main_player!]) {

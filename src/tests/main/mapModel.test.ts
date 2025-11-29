@@ -9,12 +9,10 @@ describe('MapModel (rectangles)', () => {
 		(model as any).walls = [
 			{
 				id: 'w1',
-				points: [
-					{ x: 10, y: 10 },
-					{ x: 30, y: 10 },
-					{ x: 30, y: 30 },
-					{ x: 10, y: 30 },
-				],
+				minX: 10,
+				minY: 10,
+				maxX: 30,
+				maxY: 30,
 			},
 		];
 
@@ -29,21 +27,17 @@ describe('MapModel (rectangles)', () => {
 		(model as any).walls = [
 			{
 				id: 'a',
-				points: [
-					{ x: 10, y: 10 },
-					{ x: 50, y: 10 },
-					{ x: 50, y: 50 },
-					{ x: 10, y: 50 },
-				],
+				minX: 10,
+				minY: 10,
+				maxX: 50,
+				maxY: 50,
 			},
 			{
 				id: 'b',
-				points: [
-					{ x: 200, y: 200 },
-					{ x: 240, y: 200 },
-					{ x: 240, y: 240 },
-					{ x: 200, y: 240 },
-				],
+				minX: 200,
+				minY: 200,
+				maxX: 240,
+				maxY: 240,
 			},
 		];
 
