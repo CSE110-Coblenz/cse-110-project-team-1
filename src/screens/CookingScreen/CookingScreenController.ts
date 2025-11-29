@@ -45,7 +45,11 @@ export class CookingScreenController extends ScreenController {
 
 		// Now start the cooking game - it will create its own stages in the container
 		// For demo purposes, use some default customer types
-		const defaultCustomerTypes: Species[] = [Species.RABBIT, Species.SUNFLOWER, Species.MUSHROOM];
+		const defaultCustomerTypes: Species[] = [
+			Species.RABBIT,
+			Species.SUNFLOWER,
+			Species.MUSHROOM,
+		];
 		this.cookingController.startGame(defaultCustomerTypes);
 	}
 

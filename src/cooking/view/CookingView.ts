@@ -40,7 +40,8 @@ export class CookingView {
 	private currentLabel: string = '';
 
 	// Controller-provided drop handler callback
-	private dropHandler: ((target: 'customer' | 'trashcan', customerId?: string) => void) | null = null;
+	private dropHandler: ((target: 'customer' | 'trashcan', customerId?: string) => void) | null =
+		null;
 
 	// Dynamic layout properties (computed at runtime for responsive scaling)
 	private stageWidth: number = GAME_STAGE_WIDTH;
@@ -62,7 +63,9 @@ export class CookingView {
 	private getNodeRect(node: any): { x: number; y: number; width: number; height: number } {
 		try {
 			if (node.getClientRect) return node.getClientRect();
-		} catch (_) { /* ignore */ }
+		} catch (_) {
+			/* ignore */
+		}
 		return { x: node.x(), y: node.y(), width: node.width(), height: node.height() };
 	}
 	/**
@@ -128,8 +131,10 @@ export class CookingView {
 				const wrapper = document.createElement('div');
 				wrapper.id = 'view-placeholder';
 				// Fit within the container bounds with padding and a semi-transparent light background
-				wrapper.style.cssText = 'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px;';
-				wrapper.innerHTML = '' +
+				wrapper.style.cssText =
+					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px;';
+				wrapper.innerHTML =
+					'' +
 					// Move score to the very top - explicitly set color for consistency
 					'<div id="score-display" style="margin: 8px 0 6px; font-weight: 600; color: #111827;">Score: <span id="score-value">0</span></div>' +
 					'<div id="progress-konva-container" style="margin: 6px 0 8px;"></div>' +
@@ -137,11 +142,11 @@ export class CookingView {
 					// Hide debug text labels at the bottom while keeping them for tests
 					''; // Removed test-only hidden debug elements
 				container.appendChild(wrapper);
-			}
-			else {
+			} else {
 				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
 				if (wrapper) {
-					wrapper.style.cssText = 'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px;';
+					wrapper.style.cssText =
+						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px;';
 				}
 			}
 
@@ -164,14 +169,14 @@ export class CookingView {
 		}
 	}
 
-    /**
-     * Creates the Konva-based progress bar
-     */
-    private createKonvaProgressBar(): void {
-        const konvaContainer = document.getElementById('progress-konva-container');
-        if (!konvaContainer) {
-            return;
-        }
+	/**
+	 * Creates the Konva-based progress bar
+	 */
+	private createKonvaProgressBar(): void {
+		const konvaContainer = document.getElementById('progress-konva-container');
+		if (!konvaContainer) {
+			return;
+		}
 
 		this.progressStage = new Konva.Stage({
 			container: 'progress-konva-container',
@@ -179,7 +184,7 @@ export class CookingView {
 			height: 40,
 		});
 
-        const layer = new Konva.Layer();
+		const layer = new Konva.Layer();
 
 		// Progress label text
 		const labelText = new Konva.Text({
@@ -247,9 +252,11 @@ export class CookingView {
 		const stageContainer = document.getElementById('game-stage-container');
 		if (!stageContainer) return;
 
-
 		// Compute responsive sizes using container width; fall back to window for tests
-		const winW = (typeof window !== 'undefined' && (window as any).innerWidth) ? (window as any).innerWidth : GAME_STAGE_WIDTH;
+		const winW =
+			typeof window !== 'undefined' && (window as any).innerWidth
+				? (window as any).innerWidth
+				: GAME_STAGE_WIDTH;
 		const containerWidth = (stageContainer as HTMLElement).clientWidth || winW;
 		this.computeDynamicMetrics(containerWidth);
 
@@ -271,7 +278,8 @@ export class CookingView {
 
 		// Create draggable label group with rect and text
 		const labelRect = new Konva.Rect({
-			x: 0, y: 0,
+			x: 0,
+			y: 0,
 			width: labelWidth,
 			height: this.dynLabelHeight,
 			fill: '#3b82f6',
@@ -279,7 +287,8 @@ export class CookingView {
 			opacity: 0.9,
 		});
 		const labelText = new Konva.Text({
-			x: 0, y: 0,
+			x: 0,
+			y: 0,
 			width: labelWidth,
 			align: 'center',
 			text: 'Drag Label',
@@ -287,14 +296,26 @@ export class CookingView {
 			fill: '#ffffff',
 			wrap: 'none' as any,
 		});
-		this.draggableLabelGroup = new (Konva as any).Group({ x: labelX, y: labelY, draggable: true });
+		this.draggableLabelGroup = new (Konva as any).Group({
+			x: labelX,
+			y: labelY,
+			draggable: true,
+		});
 		this.draggableLabelGroup.add(labelRect);
 		this.draggableLabelGroup.add(labelText);
 
 		// Trash can at bottom-right
 		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
 		const trashY = this.stageHeight - this.dynTrashSize - 12;
-		this.trashRect = new Konva.Rect({ x: trashX, y: trashY, width: this.dynTrashSize, height: this.dynTrashSize, fill: '#ef4444', cornerRadius: 8, opacity: 0.9 });
+		this.trashRect = new Konva.Rect({
+			x: trashX,
+			y: trashY,
+			width: this.dynTrashSize,
+			height: this.dynTrashSize,
+			fill: '#ef4444',
+			cornerRadius: 8,
+			opacity: 0.9,
+		});
 		this.trashText = new Konva.Text({
 			x: trashX,
 			y: trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16),
@@ -314,12 +335,16 @@ export class CookingView {
 		// Fit the label text to the card after nodes are created (initial state)
 		this.fitLabelTextToCard();
 
-
 		// Drag handling for label
 		const onDragStart = () => {
 			this.isDraggingLabel = true;
 			this.clearHighlights();
-			this.draggableLabelGroup.to({ scaleX: 1.05, scaleY: 1.05, duration: 0.06, easing: Konva.Easings.EaseOut });
+			this.draggableLabelGroup.to({
+				scaleX: 1.05,
+				scaleY: 1.05,
+				duration: 0.06,
+				easing: Konva.Easings.EaseOut,
+			});
 		};
 		const onDragMove = () => {
 			const labelBox = this.getNodeRect(this.draggableLabelGroup);
@@ -334,7 +359,11 @@ export class CookingView {
 				}
 			}
 			// Highlight trash if not found on customer
-			if (!found && this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect))) {
+			if (
+				!found &&
+				this.trashRect &&
+				this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect))
+			) {
 				this.highlightTarget(this.trashRect);
 				found = true;
 			}
@@ -355,7 +384,8 @@ export class CookingView {
 			}
 
 			// Check drop on trash
-			const droppedOnTrash = this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect));
+			const droppedOnTrash =
+				this.trashRect && this._rectsIntersect(labelBox, this.getNodeRect(this.trashRect));
 
 			// Clear any remaining highlights
 			this.clearHighlights();
@@ -379,13 +409,13 @@ export class CookingView {
 			} else {
 				console.log('Dropped label on empty area');
 				// Animated snap-back for invalid drop (visual feedback that drop failed)
-				this.draggableLabelGroup.to({ 
-					x: this.baseLabelX, 
-					y: this.baseLabelY, 
-					scaleX: 1, 
-					scaleY: 1, 
-					duration: 0.08, 
-					easing: Konva.Easings.EaseOut 
+				this.draggableLabelGroup.to({
+					x: this.baseLabelX,
+					y: this.baseLabelY,
+					scaleX: 1,
+					scaleY: 1,
+					duration: 0.08,
+					easing: Konva.Easings.EaseOut,
 				});
 			}
 
@@ -397,8 +427,13 @@ export class CookingView {
 		this.draggableLabelGroup.on('dragend', onDragEnd);
 
 		// Handle window resize to recompute layout
-		this.resizeHandler = () => { try { this.layoutGameStage(); } catch (_) {} };
-		if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('resize', this.resizeHandler);
+		this.resizeHandler = () => {
+			try {
+				this.layoutGameStage();
+			} catch (_) {}
+		};
+		if (typeof window !== 'undefined' && window.addEventListener)
+			window.addEventListener('resize', this.resizeHandler);
 	}
 
 	// Computes available height for the gameplay stage such that the whole screen fits in the container without scrolling
@@ -408,13 +443,18 @@ export class CookingView {
 		const containerHeight = container?.clientHeight || GAME_STAGE_HEIGHT;
 
 		// Measure actual block heights when possible
-		const progressEl = document.getElementById('progress-konva-container') as HTMLElement | null;
+		const progressEl = document.getElementById(
+			'progress-konva-container',
+		) as HTMLElement | null;
 		const scoreEl = document.getElementById('score-display') as HTMLElement | null;
 		const labelEl = document.getElementById('label-display') as HTMLElement | null;
 		const customersEl = document.getElementById('customers-display') as HTMLElement | null;
 
 		const progressH = progressEl?.offsetHeight || 40;
-		const statsH = (scoreEl?.offsetHeight || 20) + (labelEl?.offsetHeight || 20) + (customersEl?.offsetHeight || 20);
+		const statsH =
+			(scoreEl?.offsetHeight || 20) +
+			(labelEl?.offsetHeight || 20) +
+			(customersEl?.offsetHeight || 20);
 		// No separate patience section anymore
 		const VERTICAL_MARGINS = 24; // tighter margins: progress(6+6) + game(6+6)
 		const available = containerHeight - progressH - statsH - VERTICAL_MARGINS;
@@ -427,7 +467,10 @@ export class CookingView {
 	private layoutGameStage(): void {
 		if (!this.gameStage || !this.gameLayer) return;
 		const containerEl = document.getElementById('game-stage-container') as HTMLElement | null;
-		const winW = (typeof window !== 'undefined' && (window as any).innerWidth) ? (window as any).innerWidth : GAME_STAGE_WIDTH;
+		const winW =
+			typeof window !== 'undefined' && (window as any).innerWidth
+				? (window as any).innerWidth
+				: GAME_STAGE_WIDTH;
 		this.computeDynamicMetrics(containerEl?.clientWidth || winW);
 		this.computeCustomerSpotPositions();
 
@@ -447,26 +490,46 @@ export class CookingView {
 		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
 		const trashY = this.stageHeight - this.dynTrashSize - 12;
 		this.trashRect!.x(trashX).y(trashY).width(this.dynTrashSize).height(this.dynTrashSize);
-		this.trashText!.x(trashX).y(trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16)).width(this.dynTrashSize);
+		this.trashText!.x(trashX)
+			.y(trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16))
+			.width(this.dynTrashSize);
 
 		// reposition existing customers based on screenSpots
-		const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.10));
+		const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.1));
 		for (let spot = 0; spot < 3; spot++) {
 			const cid = this.screenSpots.get(spot);
 			if (!cid) continue;
 			const pos = this.spotPositions[spot];
 			if (!pos) continue;
-			this.customerRects.get(cid)?.x(pos.x).y(pos.y + 18);
-			this.customerPatienceTexts.get(cid)?.x(pos.x).y(pos.y - 12);
-			this.customerTypeTexts.get(cid)?.x(pos.x).y(pos.y + 18 + this.dynCustomerSize + 4).width(this.dynCustomerSize);
-			this.customerPatienceBarBg.get(cid)?.x(pos.x).y(pos.y).width(this.dynCustomerSize).height(barH);
+			this.customerRects
+				.get(cid)
+				?.x(pos.x)
+				.y(pos.y + 18);
+			this.customerPatienceTexts
+				.get(cid)
+				?.x(pos.x)
+				.y(pos.y - 12);
+			this.customerTypeTexts
+				.get(cid)
+				?.x(pos.x)
+				.y(pos.y + 18 + this.dynCustomerSize + 4)
+				.width(this.dynCustomerSize);
+			this.customerPatienceBarBg
+				.get(cid)
+				?.x(pos.x)
+				.y(pos.y)
+				.width(this.dynCustomerSize)
+				.height(barH);
 			this.customerPatienceBarFg.get(cid)?.x(pos.x).y(pos.y).height(barH);
 		}
 
 		this.gameLayer.draw();
 	}
 
-	private _rectsIntersect(a: { x: number; y: number; width: number; height: number }, b: { x: number; y: number; width: number; height: number }): boolean {
+	private _rectsIntersect(
+		a: { x: number; y: number; width: number; height: number },
+		b: { x: number; y: number; width: number; height: number },
+	): boolean {
 		return (
 			a.x < b.x + b.width &&
 			a.x + a.width > b.x &&
@@ -493,7 +556,9 @@ export class CookingView {
 	}
 
 	// Allow controller to inject a drop handler callback
-	public setDropHandler(handler: (target: 'customer' | 'trashcan', customerId?: string) => void): void {
+	public setDropHandler(
+		handler: (target: 'customer' | 'trashcan', customerId?: string) => void,
+	): void {
 		this.dropHandler = handler;
 	}
 
@@ -511,14 +576,24 @@ export class CookingView {
 
 		const safeTotal = Math.max(0, total);
 		const totalServed = Math.min(correct + incorrect, safeTotal);
-		const percentCorrect = safeTotal > 0 ? Math.min(100, Math.max(0, (correct * 100) / safeTotal)) : 0;
-		const percentTotal = safeTotal > 0 ? Math.min(100, Math.max(0, (totalServed * 100) / safeTotal)) : 0;
+		const percentCorrect =
+			safeTotal > 0 ? Math.min(100, Math.max(0, (correct * 100) / safeTotal)) : 0;
+		const percentTotal =
+			safeTotal > 0 ? Math.min(100, Math.max(0, (totalServed * 100) / safeTotal)) : 0;
 
 		const targetWidthCorrect = (PROGRESS_BAR_WIDTH * percentCorrect) / 100;
 		const targetWidthTotal = (PROGRESS_BAR_WIDTH * percentTotal) / 100;
 
-		this.progressBarIncorrect.to({ width: targetWidthTotal, duration: PROGRESS_ANIM_DURATION, easing: Konva.Easings.EaseOut });
-		this.progressBarCorrect.to({ width: targetWidthCorrect, duration: PROGRESS_ANIM_DURATION, easing: Konva.Easings.EaseOut });
+		this.progressBarIncorrect.to({
+			width: targetWidthTotal,
+			duration: PROGRESS_ANIM_DURATION,
+			easing: Konva.Easings.EaseOut,
+		});
+		this.progressBarCorrect.to({
+			width: targetWidthCorrect,
+			duration: PROGRESS_ANIM_DURATION,
+			easing: Konva.Easings.EaseOut,
+		});
 
 		// Update text to show correct/total with percentage (rounded)
 		const percentDisplay = Math.round(percentCorrect);
@@ -563,7 +638,8 @@ export class CookingView {
 		};
 
 		let safety = 40;
-		while (measure(label, fontSize) > maxWidth && fontSize > minFont && safety-- > 0) fontSize -= 1;
+		while (measure(label, fontSize) > maxWidth && fontSize > minFont && safety-- > 0)
+			fontSize -= 1;
 
 		const centeredY = Math.max(0, Math.floor((this.dynLabelHeight - fontSize) / 2));
 		textNode.fontSize(fontSize).width(this.dynLabelWidth).x(0).y(centeredY);
@@ -579,7 +655,6 @@ export class CookingView {
 	 * Displays a game over message
 	 */
 	showGameOver(finalScore: number): void {
-
 		// Create centered popup overlay
 		const wrapper = document.getElementById('view-placeholder');
 		if (!wrapper) return;
@@ -630,9 +705,9 @@ export class CookingView {
 	/**
 	 * Clears the view
 	 */
-		clear(): void {
-			document.getElementById('view-placeholder')?.remove();
-		}
+	clear(): void {
+		document.getElementById('view-placeholder')?.remove();
+	}
 
 	private getPatienceColor(patience: number): string {
 		return patience >= 50 ? '#22c55e' : patience >= 25 ? '#f59e0b' : '#ef4444';
@@ -646,16 +721,21 @@ export class CookingView {
 		if (!this.gameStage || !this.gameLayer) return;
 
 		// Maintain screen spot mapping: free spots whose customers left, assign new customers to empty spots
-		const incomingIds = new Set(customerData.map(c => c.customerId));
+		const incomingIds = new Set(customerData.map((c) => c.customerId));
 		for (let spot = 0; spot < 3; spot++) {
 			const id = this.screenSpots.get(spot);
 			if (id && !incomingIds.has(id)) this.screenSpots.set(spot, null);
 		}
-		const placed = new Set(Array.from(this.screenSpots.values()).filter((v): v is string => v !== null));
-		const newCustomersToPlace = customerData.filter(c => !placed.has(c.customerId)).map(c => c.customerId);
+		const placed = new Set(
+			Array.from(this.screenSpots.values()).filter((v): v is string => v !== null),
+		);
+		const newCustomersToPlace = customerData
+			.filter((c) => !placed.has(c.customerId))
+			.map((c) => c.customerId);
 		let ni = 0;
 		for (let spot = 0; spot < 3 && ni < newCustomersToPlace.length; spot++) {
-			if (this.screenSpots.get(spot) === null) this.screenSpots.set(spot, newCustomersToPlace[ni++]);
+			if (this.screenSpots.get(spot) === null)
+				this.screenSpots.set(spot, newCustomersToPlace[ni++]);
 		}
 
 		// Build a lookup for active customers by ID
@@ -717,9 +797,29 @@ export class CookingView {
 				this.gameLayer.add(text);
 
 				// Patience progress bar (background + foreground) - thinner
-				const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.10));
-				const barBg = new Konva.Rect({ x: spot.x, y: spot.y, width: this.dynCustomerSize, height: barH, fill: '#e5e7eb', cornerRadius: 4 });
-				const barFg = new Konva.Rect({ x: spot.x, y: spot.y, width: Math.max(0, Math.floor(this.dynCustomerSize * c.patience / CookingGameConfig.INITIAL_PATIENCE)), height: barH, fill: this.getPatienceColor(c.patience), cornerRadius: 4 });
+				const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.1));
+				const barBg = new Konva.Rect({
+					x: spot.x,
+					y: spot.y,
+					width: this.dynCustomerSize,
+					height: barH,
+					fill: '#e5e7eb',
+					cornerRadius: 4,
+				});
+				const barFg = new Konva.Rect({
+					x: spot.x,
+					y: spot.y,
+					width: Math.max(
+						0,
+						Math.floor(
+							(this.dynCustomerSize * c.patience) /
+								CookingGameConfig.INITIAL_PATIENCE,
+						),
+					),
+					height: barH,
+					fill: this.getPatienceColor(c.patience),
+					cornerRadius: 4,
+				});
 				this.customerPatienceBarBg.set(c.customerId, barBg);
 				this.customerPatienceBarFg.set(c.customerId, barFg);
 				this.gameLayer.add(barBg);
@@ -742,7 +842,11 @@ export class CookingView {
 				rect.x(spot.x).y(spot.y + 18);
 				if (text) text.x(spot.x).y(spot.y - 12);
 				const typeText = this.customerTypeTexts.get(c.customerId);
-				if (typeText) typeText.x(spot.x).y(spot.y + 18 + this.dynCustomerSize + 4).width(this.dynCustomerSize);
+				if (typeText)
+					typeText
+						.x(spot.x)
+						.y(spot.y + 18 + this.dynCustomerSize + 4)
+						.width(this.dynCustomerSize);
 			}
 
 			// Update patience display + progress bar width/color and label text
@@ -750,7 +854,12 @@ export class CookingView {
 			if (text) text.text(Math.round(c.patience) + '%').fill(color);
 			const barFg = this.customerPatienceBarFg.get(c.customerId);
 			if (barFg) {
-				const bw = Math.max(0, Math.floor(this.dynCustomerSize * c.patience / CookingGameConfig.INITIAL_PATIENCE));
+				const bw = Math.max(
+					0,
+					Math.floor(
+						(this.dynCustomerSize * c.patience) / CookingGameConfig.INITIAL_PATIENCE,
+					),
+				);
 				barFg.width(bw).fill(color);
 			}
 			const typeText = this.customerTypeTexts.get(c.customerId);
@@ -758,7 +867,8 @@ export class CookingView {
 
 			// Fade-out and remove when patience is depleted
 			if (c.patience <= 0 && rect) {
-				const fadeOut = (node: any) => node?.to({ opacity: 0, duration: 0.12, onFinish: () => node.destroy() });
+				const fadeOut = (node: any) =>
+					node?.to({ opacity: 0, duration: 0.12, onFinish: () => node.destroy() });
 				fadeOut(rect);
 				fadeOut(text);
 				fadeOut(this.customerTypeTexts.get(c.customerId));
@@ -775,5 +885,7 @@ export class CookingView {
 		this.gameLayer.draw();
 	}
 
-	public getCurrentLabel(): string { return this.currentLabel; }
+	public getCurrentLabel(): string {
+		return this.currentLabel;
+	}
 }

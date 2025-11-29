@@ -1,244 +1,273 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>HUD Demo</title>
-    <script src="https://unpkg.com/konva@9.2.3/konva.min.js"></script>
-    <style>
-        body { margin: 0; padding: 20px; font-family: system-ui, -apple-system, sans-serif; }
-        #controls {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.8);
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-        }
-        #container {
-            width: 100%;
-            height: 80vh;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .control-group {
-            margin: 10px 0;
-        }
-        input[type="range"] {
-            width: 200px;
-        }
-        button {
-            padding: 8px 16px;
-            margin: 0 8px;
-            border-radius: 4px;
-            border: none;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <h2>HUD Demo</h2>
-    <div id="container"></div>
-    <div id="controls">
-        <div class="control-group">
-            <label>Health: <span id="healthValue">100</span>%</label><br>
-            <input type="range" id="health" min="0" max="100" value="100">
-        </div>
-        <div class="control-group">
-            <label>Progress: <span id="progressValue">0</span>%</label><br>
-            <input type="range" id="progress" min="0" max="100" value="0">
-        </div>
-        <div class="control-group">
-            <button onclick="setSmallSize()">Small (800x600)</button>
-            <button onclick="setFullSize()">Full Window</button>
-        </div>
-    </div>
+	<head>
+		<title>HUD Demo</title>
+		<script src="https://unpkg.com/konva@9.2.3/konva.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				padding: 20px;
+				font-family:
+					system-ui,
+					-apple-system,
+					sans-serif;
+			}
+			#controls {
+				position: fixed;
+				bottom: 20px;
+				left: 20px;
+				background: rgba(0, 0, 0, 0.8);
+				padding: 15px;
+				border-radius: 8px;
+				color: white;
+			}
+			#container {
+				width: 100%;
+				height: 80vh;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+			.control-group {
+				margin: 10px 0;
+			}
+			input[type='range'] {
+				width: 200px;
+			}
+			button {
+				padding: 8px 16px;
+				margin: 0 8px;
+				border-radius: 4px;
+				border: none;
+				background: #4caf50;
+				color: white;
+				cursor: pointer;
+			}
+			button:hover {
+				background: #45a049;
+			}
+		</style>
+	</head>
+	<body>
+		<h2>HUD Demo</h2>
+		<div id="container"></div>
+		<div id="controls">
+			<div class="control-group">
+				<label>Health: <span id="healthValue">100</span>%</label><br />
+				<input type="range" id="health" min="0" max="100" value="100" />
+			</div>
+			<div class="control-group">
+				<label>Progress: <span id="progressValue">0</span>%</label><br />
+				<input type="range" id="progress" min="0" max="100" value="0" />
+			</div>
+			<div class="control-group">
+				<button onclick="setSmallSize()">Small (800x600)</button>
+				<button onclick="setFullSize()">Full Window</button>
+			</div>
+		</div>
 
-    <script>
-        // Copy of GameScreenView with just the HUD functionality
-        class HUDView {
-            constructor(stageWidth = 800, stageHeight = 600) {
-                this.group = new Konva.Group();
-                this.stageWidth = stageWidth;
-                this.stageHeight = stageHeight;
+		<script>
+			// Copy of GameScreenView with just the HUD functionality
+			class HUDView {
+				constructor(stageWidth = 800, stageHeight = 600) {
+					this.group = new Konva.Group();
+					this.stageWidth = stageWidth;
+					this.stageHeight = stageHeight;
 
-                // create HUD elements
-                this.healthBg = new Konva.Rect({ 
-                    x: 0, y: 0, width: 10, height: 10,
-                    fill: '#333', cornerRadius: 6 
-                });
-                this.healthFill = new Konva.Rect({ 
-                    x: 0, y: 0, width: 10, height: 10,
-                    fill: '#e53935', cornerRadius: 6 
-                });
-                this.healthLabel = new Konva.Text({ 
-                    x: 0, y: 0, text: 'HP: 100%',
-                    fontSize: 12, fill: '#ffffff' 
-                });
+					// create HUD elements
+					this.healthBg = new Konva.Rect({
+						x: 0,
+						y: 0,
+						width: 10,
+						height: 10,
+						fill: '#333',
+						cornerRadius: 6,
+					});
+					this.healthFill = new Konva.Rect({
+						x: 0,
+						y: 0,
+						width: 10,
+						height: 10,
+						fill: '#e53935',
+						cornerRadius: 6,
+					});
+					this.healthLabel = new Konva.Text({
+						x: 0,
+						y: 0,
+						text: 'HP: 100%',
+						fontSize: 12,
+						fill: '#ffffff',
+					});
 
-                this.progressBg = new Konva.Rect({ 
-                    x: 0, y: 0, width: 10, height: 10,
-                    fill: '#333', cornerRadius: 6 
-                });
-                this.progressFill = new Konva.Rect({ 
-                    x: 0, y: 0, width: 0, height: 10,
-                    fill: '#1e88e5', cornerRadius: 6 
-                });
-                this.progressLabel = new Konva.Text({ 
-                    x: 0, y: 0, text: 'Progress: 0%',
-                    fontSize: 12, fill: '#ffffff' 
-                });
+					this.progressBg = new Konva.Rect({
+						x: 0,
+						y: 0,
+						width: 10,
+						height: 10,
+						fill: '#333',
+						cornerRadius: 6,
+					});
+					this.progressFill = new Konva.Rect({
+						x: 0,
+						y: 0,
+						width: 0,
+						height: 10,
+						fill: '#1e88e5',
+						cornerRadius: 6,
+					});
+					this.progressLabel = new Konva.Text({
+						x: 0,
+						y: 0,
+						text: 'Progress: 0%',
+						fontSize: 12,
+						fill: '#ffffff',
+					});
 
-                // add shapes to group
-                this.group.add(this.healthBg);
-                this.group.add(this.healthFill);
-                this.group.add(this.healthLabel);
-                this.group.add(this.progressBg);
-                this.group.add(this.progressFill);
-                this.group.add(this.progressLabel);
+					// add shapes to group
+					this.group.add(this.healthBg);
+					this.group.add(this.healthFill);
+					this.group.add(this.healthLabel);
+					this.group.add(this.progressBg);
+					this.group.add(this.progressFill);
+					this.group.add(this.progressLabel);
 
-                this.currentHealth = 100;
-                this.currentProgress = 0;
+					this.currentHealth = 100;
+					this.currentProgress = 0;
 
-                // initial layout
-                this.resize(stageWidth, stageHeight);
-            }
+					// initial layout
+					this.resize(stageWidth, stageHeight);
+				}
 
-            resize(stageWidth, stageHeight) {
-                this.stageWidth = stageWidth;
-                this.stageHeight = stageHeight;
+				resize(stageWidth, stageHeight) {
+					this.stageWidth = stageWidth;
+					this.stageHeight = stageHeight;
 
-                // compute responsive sizes
-                const margin = Math.max(12, Math.round(this.stageWidth * 0.02));
-                this.hudX = margin;
-                this.hudY = margin;
-                this.barW = Math.max(120, Math.min(360, Math.round(this.stageWidth * 0.22)));
-                this.barH = Math.max(12, Math.round(this.stageHeight * 0.025));
+					// compute responsive sizes
+					const margin = Math.max(12, Math.round(this.stageWidth * 0.02));
+					this.hudX = margin;
+					this.hudY = margin;
+					this.barW = Math.max(120, Math.min(360, Math.round(this.stageWidth * 0.22)));
+					this.barH = Math.max(12, Math.round(this.stageHeight * 0.025));
 
-                // position health bar
-                this.healthBg.x(this.hudX);
-                this.healthBg.y(this.hudY);
-                this.healthBg.width(this.barW);
-                this.healthBg.height(this.barH);
+					// position health bar
+					this.healthBg.x(this.hudX);
+					this.healthBg.y(this.hudY);
+					this.healthBg.width(this.barW);
+					this.healthBg.height(this.barH);
 
-                this.healthFill.x(this.hudX);
-                this.healthFill.y(this.hudY);
-                this.healthFill.height(this.barH);
-                const healthW = (this.currentHealth / 100) * this.barW;
-                this.healthFill.width(healthW);
+					this.healthFill.x(this.hudX);
+					this.healthFill.y(this.hudY);
+					this.healthFill.height(this.barH);
+					const healthW = (this.currentHealth / 100) * this.barW;
+					this.healthFill.width(healthW);
 
-                this.healthLabel.x(this.hudX + 8);
-                this.healthLabel.y(this.hudY - 2);
+					this.healthLabel.x(this.hudX + 8);
+					this.healthLabel.y(this.hudY - 2);
 
-                // position progress bar
-                const progressY = this.hudY + this.barH + Math.round(this.barH * 0.6);
-                this.progressBg.x(this.hudX);
-                this.progressBg.y(progressY);
-                this.progressBg.width(this.barW);
-                this.progressBg.height(Math.max(10, Math.round(this.barH * 0.75)));
+					// position progress bar
+					const progressY = this.hudY + this.barH + Math.round(this.barH * 0.6);
+					this.progressBg.x(this.hudX);
+					this.progressBg.y(progressY);
+					this.progressBg.width(this.barW);
+					this.progressBg.height(Math.max(10, Math.round(this.barH * 0.75)));
 
-                this.progressFill.x(this.hudX);
-                this.progressFill.y(progressY);
-                this.progressFill.height(Math.max(10, Math.round(this.barH * 0.75)));
-                const progressW = (this.currentProgress / 100) * this.barW;
-                this.progressFill.width(progressW);
+					this.progressFill.x(this.hudX);
+					this.progressFill.y(progressY);
+					this.progressFill.height(Math.max(10, Math.round(this.barH * 0.75)));
+					const progressW = (this.currentProgress / 100) * this.barW;
+					this.progressFill.width(progressW);
 
-                this.progressLabel.x(this.hudX + 8);
-                this.progressLabel.y(progressY - 2);
-            }
+					this.progressLabel.x(this.hudX + 8);
+					this.progressLabel.y(progressY - 2);
+				}
 
-            setHealth(pct) {
-                this.currentHealth = Math.max(0, Math.min(100, Math.round(pct)));
-                const w = (this.currentHealth / 100) * this.barW;
-                this.healthFill.width(w);
-                this.healthLabel.text(`HP: ${this.currentHealth}%`);
-            }
+				setHealth(pct) {
+					this.currentHealth = Math.max(0, Math.min(100, Math.round(pct)));
+					const w = (this.currentHealth / 100) * this.barW;
+					this.healthFill.width(w);
+					this.healthLabel.text(`HP: ${this.currentHealth}%`);
+				}
 
-            setProgress(pct) {
-                this.currentProgress = Math.max(0, Math.min(100, Math.round(pct)));
-                const w = (this.currentProgress / 100) * this.barW;
-                this.progressFill.width(w);
-                this.progressLabel.text(`Progress: ${this.currentProgress}%`);
-            }
+				setProgress(pct) {
+					this.currentProgress = Math.max(0, Math.min(100, Math.round(pct)));
+					const w = (this.currentProgress / 100) * this.barW;
+					this.progressFill.width(w);
+					this.progressLabel.text(`Progress: ${this.currentProgress}%`);
+				}
 
-            getGroup() {
-                return this.group;
-            }
-        }
+				getGroup() {
+					return this.group;
+				}
+			}
 
-        // Demo setup
-        const stage = new Konva.Stage({
-            container: 'container',
-            width: 800,
-            height: 600
-        });
+			// Demo setup
+			const stage = new Konva.Stage({
+				container: 'container',
+				width: 800,
+				height: 600,
+			});
 
-        const layer = new Konva.Layer();
-        stage.add(layer);
+			const layer = new Konva.Layer();
+			stage.add(layer);
 
-        // Add a dark background so we can see the HUD
-        const background = new Konva.Rect({
-            x: 0,
-            y: 0,
-            width: stage.width(),
-            height: stage.height(),
-            fill: '#002b36',
-        });
-        layer.add(background);
+			// Add a dark background so we can see the HUD
+			const background = new Konva.Rect({
+				x: 0,
+				y: 0,
+				width: stage.width(),
+				height: stage.height(),
+				fill: '#002b36',
+			});
+			layer.add(background);
 
-        // Create and add the HUD
-        const hud = new HUDView(stage.width(), stage.height());
-        layer.add(hud.getGroup());
-        layer.draw();
+			// Create and add the HUD
+			const hud = new HUDView(stage.width(), stage.height());
+			layer.add(hud.getGroup());
+			layer.draw();
 
-        // Wire up controls
-        const healthSlider = document.getElementById('health');
-        const progressSlider = document.getElementById('progress');
-        const healthValue = document.getElementById('healthValue');
-        const progressValue = document.getElementById('progressValue');
+			// Wire up controls
+			const healthSlider = document.getElementById('health');
+			const progressSlider = document.getElementById('progress');
+			const healthValue = document.getElementById('healthValue');
+			const progressValue = document.getElementById('progressValue');
 
-        healthSlider.oninput = function() {
-            const value = this.value;
-            healthValue.textContent = value;
-            hud.setHealth(value);
-            layer.draw();
-        };
+			healthSlider.oninput = function () {
+				const value = this.value;
+				healthValue.textContent = value;
+				hud.setHealth(value);
+				layer.draw();
+			};
 
-        progressSlider.oninput = function() {
-            const value = this.value;
-            progressValue.textContent = value;
-            hud.setProgress(value);
-            layer.draw();
-        };
+			progressSlider.oninput = function () {
+				const value = this.value;
+				progressValue.textContent = value;
+				hud.setProgress(value);
+				layer.draw();
+			};
 
-        // Size control functions
-        function setSmallSize() {
-            stage.width(800);
-            stage.height(600);
-            background.width(stage.width());
-            background.height(stage.height());
-            hud.resize(stage.width(), stage.height());
-            layer.draw();
-        }
+			// Size control functions
+			function setSmallSize() {
+				stage.width(800);
+				stage.height(600);
+				background.width(stage.width());
+				background.height(stage.height());
+				hud.resize(stage.width(), stage.height());
+				layer.draw();
+			}
 
-        function setFullSize() {
-            stage.width(window.innerWidth - 40); // account for padding
-            stage.height(window.innerHeight * 0.8);
-            background.width(stage.width());
-            background.height(stage.height());
-            hud.resize(stage.width(), stage.height());
-            layer.draw();
-        }
+			function setFullSize() {
+				stage.width(window.innerWidth - 40); // account for padding
+				stage.height(window.innerHeight * 0.8);
+				background.width(stage.width());
+				background.height(stage.height());
+				hud.resize(stage.width(), stage.height());
+				layer.draw();
+			}
 
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (stage.width() === 800) return; // only resize if in full mode
-            setFullSize();
-        });
-    </script>
-</body>
+			// Handle window resize
+			window.addEventListener('resize', () => {
+				if (stage.width() === 800) return; // only resize if in full mode
+				setFullSize();
+			});
+		</script>
+	</body>
 </html>

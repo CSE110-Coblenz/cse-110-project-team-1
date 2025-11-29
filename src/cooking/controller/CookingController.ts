@@ -44,7 +44,6 @@ export default class CookingController {
 				this.stopGame();
 			}
 		}, CookingGameConfig.FRAME_TIME);
-
 	}
 
 	private update(deltaTime: number): void {
@@ -106,7 +105,7 @@ export default class CookingController {
 	// temporary test method to simulate drop events, made it in ms so that it actually shows in testing
 	private testDropEvent(): void {
 		const fullPatienceTime =
-			CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE * 1000;
+			(CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE) * 1000;
 
 		setTimeout(() => {
 			const customerData = this.model.getCustomerData();
