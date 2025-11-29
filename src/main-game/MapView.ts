@@ -3,18 +3,17 @@ import { Viewport, Wall } from 'src/main-game/types';
 
 export class MapView {
 	// static defaults
-	public static DEFAULT_BACKGROUND = '#87ceeb';
 	public static DEFAULT_WALL_COLOR = '#333333';
+	private bg: Konva.Rect;
+	private bgImage: HTMLImageElement;
 
-	private backgroundColor: string;
-	private wallColor: string;
+	constructor(bgImage: HTMLImageElement) {
+		this.bgImage = bgImage;
 
-	constructor(
-		backgroundColor = MapView.DEFAULT_BACKGROUND,
-		wallColor = MapView.DEFAULT_WALL_COLOR,
-	) {
-		this.backgroundColor = backgroundColor;
-		this.wallColor = wallColor;
+		this.bg = new Konva.Rect({
+			fillPatternImage: this.bgImage,
+			fillPatternRepeat: 'repeat',
+		});
 	}
 
 	public draw(
@@ -30,16 +29,26 @@ export class MapView {
 			const layer = ctxOrLayer as Konva.Layer;
 			layer.removeChildren();
 
-			const bg = new Konva.Rect({
-				x: 0,
-				y: 0,
-				width: viewport.width,
-				height: viewport.height,
-				fill: this.backgroundColor,
+			const texW = this.bgImage.width || 1;
+			const texH = this.bgImage.height || 1;
+
+			const offsetX = viewport.x % texW;
+			const offsetY = viewport.y % texH;
+
+			this.bg.fillPatternOffset({
+				x: offsetX,
+				y: offsetY,
 			});
-			layer.add(bg);
+
+			this.bg.width(viewport.width);
+			this.bg.height(viewport.height);
+			layer.add(this.bg);
 
 			for (const wall of walls) {
+				wall.image.x(wall.minX - viewport.x);
+				wall.image.y(wall.minY - viewport.y);
+				// layer.add(wall.image);
+
 				if (!wall.points || wall.points.length === 0) continue;
 				const points: number[] = [];
 				for (const p of wall.points) {
@@ -48,36 +57,15 @@ export class MapView {
 				const line = new Konva.Line({
 					points,
 					closed: true,
-					fill: this.wallColor,
+					fill: '#333333',
 				});
 				layer.add(line);
+
+				layer.add(wall.image);
 			}
 
 			layer.batchDraw();
 			return;
 		}
-
-		const ctx = ctxOrLayer as CanvasRenderingContext2D;
-		ctx.clearRect(0, 0, viewport.width, viewport.height);
-		ctx.fillStyle = this.backgroundColor;
-		ctx.fillRect(0, 0, viewport.width, viewport.height);
-
-		ctx.save();
-		ctx.translate(-viewport.x, -viewport.y);
-		for (const wall of walls) {
-			if (!wall.points.length) continue;
-			ctx.beginPath();
-			ctx.moveTo(wall.points[0].x, wall.points[0].y);
-			for (let i = 1; i < wall.points.length; i++) {
-				ctx.lineTo(wall.points[i].x, wall.points[i].y);
-			}
-			ctx.closePath();
-			ctx.fillStyle = this.wallColor;
-			ctx.fill();
-			ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-			ctx.lineWidth = 2;
-			ctx.stroke();
-		}
-		ctx.restore();
 	}
 }

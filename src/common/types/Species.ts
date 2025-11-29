@@ -58,13 +58,14 @@ export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, 
 
 export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS, Species.RABBIT];
 
-export const SECONDARY_CONSUMERS = [
-	...BIRDS,
+const SECONDARY_CONSUMER_NON_BIRDS = [
 	Species.SKUNK,
 	Species.RACCOON,
 	Species.WEASEL,
 	Species.GARTER_SNAKE,
 ];
+
+export const SECONDARY_CONSUMERS = [...BIRDS, ...SECONDARY_CONSUMER_NON_BIRDS];
 
 export const TERTIARY_CONSUMERS = [Species.FOX, Species.COYOTE, Species.LYNX];
 
@@ -92,11 +93,11 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	// Rodents
 	[
 		Species.MOUSE,
-		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMER_NON_BIRDS, ...TERTIARY_CONSUMERS] },
 	],
 	[
 		Species.SQUIRREL,
-		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMERS, ...TERTIARY_CONSUMERS] },
+		{ prey: PRODUCERS, predators: [...SECONDARY_CONSUMER_NON_BIRDS, ...TERTIARY_CONSUMERS] },
 	],
 
 	// -------- Level 2 - Secondary Consumers
@@ -181,28 +182,32 @@ export const SpeciesAttributesMap = new Map<Species, SpeciesAttributes>([
 	// Primary Consumers
 	...makeAttributesForGroup(PRIMARY_CONSUMERS, {
 		damage: 15, // Set high to see gameaply effect, these all must be tuned eventually
-		speed: 150,
+		speed: 60,
+		//speed: 150,
 		health: 50,
 		color: PRIMARY_CONSUMER_YELLOW,
 	}),
 	// Secondary Consumers
 	...makeAttributesForGroup(SECONDARY_CONSUMERS, {
 		damage: 20,
-		speed: 175,
+		speed: 45,
+		//speed: 175,
 		health: 80,
 		color: SECONDARY_CONSUMER_ORANGE,
 	}),
 	// Tertiary Consumers
 	...makeAttributesForGroup(TERTIARY_CONSUMERS, {
 		damage: 30,
-		speed: 190,
+		speed: 45,
+		//speed: 190,
 		health: 80,
 		color: TERTIARY_CONSUMER_RED,
 	}),
 	// Apex Predators
 	...makeAttributesForGroup(APEX_PREDATORS, {
 		damage: 30,
-		speed: 200,
+		speed: 45,
+		//speed: 200,
 		health: 80,
 		color: APEX_PREDATOR_PURPLE,
 	}),

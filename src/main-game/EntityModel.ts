@@ -43,7 +43,7 @@ export class EntityModel {
 		this.species = species;
 		this.speed = attrs.speed;
 		if (speed_boost) {
-			this.speed = this.speed * 1.5;
+			this.speed = this.speed * 3;
 		}
 		this.health = attrs.health;
 		this.damage = attrs.damage;
@@ -211,16 +211,33 @@ export class EntityModel {
 	}
 
 	public tryMove(map_model: MapModel, dx: number, dy: number) {
-		const nx = this.pos.x + dx;
-		const ny = this.pos.y + dy;
 		const mapW = map_model.getWidth();
 		const mapH = map_model.getHeight();
 		const r = this.getViewRadius();
-		// prevent moving so that the player circle goes out of world bounds
-		if (nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH) return false;
-		if (map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) return false;
-		this.setPosition(nx, ny);
-		return true;
+
+		let moved = false;
+		if (dx !== 0) {
+			const nx = this.pos.x + dx;
+			const ny = this.pos.y;
+			if (!(nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH)) {
+				if (!map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) {
+					this.setPosition(nx, ny);
+					moved = true;
+				}
+			}
+		}
+
+		if (dy !== 0) {
+			const nx = this.pos.x;
+			const ny = this.pos.y + dy;
+			if (!(nx - r < 0 || ny - r < 0 || nx + r > mapW || ny + r > mapH)) {
+				if (!map_model.isPointInsideWall(Math.floor(nx), Math.floor(ny))) {
+					this.setPosition(nx, ny);
+					moved = true;
+				}
+			}
+		}
+		return moved;
 	}
 
 	public updateAttackCooldown(deltaSec: number) {
