@@ -28,7 +28,7 @@ export class MapView {
 			(ctxOrLayer as Konva.Layer).getClassName() === 'Layer'
 		) {
 			const layer = ctxOrLayer as Konva.Layer;
-			layer.destroyChildren();
+			layer.removeChildren();
 
 			const bg = new Konva.Rect({
 				x: 0,

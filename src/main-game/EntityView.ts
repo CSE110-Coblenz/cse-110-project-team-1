@@ -59,6 +59,10 @@ export class EntityView {
 	) {
 		const img = this.loadedImage;
 
+		if (!img || img.width === 0 || img.height === 0) {
+			return;
+		}
+
 		this.offscreenCtx.clearRect(0, 0, img.width, img.height);
 		this.offscreenCtx.drawImage(img, 0, 0);
 

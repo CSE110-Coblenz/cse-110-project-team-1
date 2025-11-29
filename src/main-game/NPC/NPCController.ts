@@ -8,7 +8,7 @@ import { EntityController } from 'src/main-game/EntityController';
  * the NPCs onto the screen
  */
 export class NPCController extends EntityController {
-	public static SPAWN_RADIUS: number = 50;
+	public static SPAWN_RADIUS: number = 100;
 
 	public spawn(map_model: MapModel, existingNPCPositions: Position[]): Position | void {
 		const NPC_RADIUS = NPCController.SPAWN_RADIUS;
