@@ -1,12 +1,17 @@
-// Continuous-world types: walls are polygons in pixel coordinates.
-export interface Point {
+import Konva from 'konva';
+
+export interface Position {
 	x: number;
 	y: number;
 }
 
 export interface Wall {
 	id: string;
-	points: Point[]; // polygon points in world coordinates
+	minX: number;
+	minY: number;
+	maxX: number;
+	maxY: number;
+	image: Konva.Image;
 }
 
 type Listener = (...args: any[]) => void;
@@ -41,11 +46,6 @@ export interface Viewport {
 	y: number; // top-left y in world pixels
 	width: number; // viewport width in pixels
 	height: number; // viewport height in pixels
-}
-
-export interface Position {
-	x: number;
-	y: number;
 }
 
 export enum Direction {

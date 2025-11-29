@@ -29,16 +29,11 @@ describe('MapModel spawn safety', () => {
 
 			const walls = model.getWalls();
 			for (const wall of walls) {
-				const bminX = Math.min(...wall.points.map((p) => p.x));
-				const bmaxX = Math.max(...wall.points.map((p) => p.x));
-				const bminY = Math.min(...wall.points.map((p) => p.y));
-				const bmaxY = Math.max(...wall.points.map((p) => p.y));
-
 				const overlaps = !(
-					bmaxX < spawnRect.minX ||
-					bminX > spawnRect.maxX ||
-					bmaxY < spawnRect.minY ||
-					bminY > spawnRect.maxY
+					wall.maxX < spawnRect.minX ||
+					wall.minX > spawnRect.maxX ||
+					wall.maxY < spawnRect.minY ||
+					wall.minY > spawnRect.maxY
 				);
 				expect(overlaps).toBe(false);
 			}
