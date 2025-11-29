@@ -10,6 +10,7 @@ function makeFakeLayer() {
 		getStage: () => ({}),
 		getClassName: () => 'Layer',
 		destroyChildren: () => {},
+		removeChildren: () => {},
 		add: () => {},
 		batchDraw: () => {},
 		draw: () => {},

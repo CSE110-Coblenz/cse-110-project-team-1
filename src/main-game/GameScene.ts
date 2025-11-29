@@ -86,7 +86,7 @@ export class GameScene {
 		this.mapModel.setMainPlayer(this.playerModel);
 
 		// NPCs
-		const npcs = NPCFactory.createNRandomNPCs(options.npcCount ?? 150);
+		const npcs = NPCFactory.createNRandomNPCs(options.npcCount ?? 100);
 		this.mapController.placeNPCs(npcs);
 	}
 

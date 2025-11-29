@@ -123,13 +123,16 @@ export class MapModel {
 
 	public setNPCs(npcs: NPC[]) {
 		this.npcs = npcs;
-		let new_npc_models = npcs.map((npc) => npc.getModel());
-		for (const m of new_npc_models) {
-			m.onDead(() => {
-				this.removeNPCModel(m);
+		const newModels: EntityModel[] = [];
+		for (const npc of npcs) {
+			const model = npc.getModel();
+			newModels.push(model);
+
+			model.onDead(() => {
+				this.removeNPC(npc);
 			});
 		}
-		this.npc_models = this.npc_models.concat(new_npc_models);
+		this.npc_models = this.npc_models.concat(newModels);
 	}
 
 	public getNPCs(): NPC[] {
@@ -226,25 +229,11 @@ export class MapModel {
 		return entitiesInArea;
 	}
 
-	// Remove an NPC model and its wrapper; try to undraw and dispose its view/controller
-	public removeNPCModel(npcModel: EntityModel) {
-		const id = npcModel.getID();
-		const mi = this.npc_models.findIndex((m) => m.getID() === id);
-		if (mi >= 0) this.npc_models.splice(mi, 1);
-
-		const wi = this.npcs.findIndex((w) => w.getModel().getID() === id);
-		if (wi >= 0) {
-			const wrapper = this.npcs.splice(wi, 1)[0];
-			try {
-				wrapper.getView()?.undraw?.();
-			} catch (e) {
-				/* ignore */
-			}
-			try {
-				(wrapper.getController() as any)?.dispose?.();
-			} catch (e) {
-				/* ignore */
-			}
-		}
+	public removeNPC(npc: NPC) {
+		const model = npc.getModel();
+		this.npcs = this.npcs.filter((n) => n !== npc);
+		this.npc_models = this.npc_models.filter((m) => m !== model);
+		npc.getView()?.undraw?.();
+		(npc.getController() as any)?.dispose?.();
 	}
 }
