@@ -93,12 +93,6 @@ export class MapModel {
 
 			const newWall: Wall = {
 				id: `wall_${walls.length}`,
-				points: [
-					{ x, y },
-					{ x: x + w, y },
-					{ x: x + w, y: y + h },
-					{ x, y: y + h },
-				],
 				minX: x,
 				minY: y,
 				maxX: x + w,

@@ -43,24 +43,9 @@ export class MapView {
 			this.bg.width(viewport.width);
 			this.bg.height(viewport.height);
 			layer.add(this.bg);
-
 			for (const wall of walls) {
 				wall.image.x(wall.minX - viewport.x);
 				wall.image.y(wall.minY - viewport.y);
-				// layer.add(wall.image);
-
-				if (!wall.points || wall.points.length === 0) continue;
-				const points: number[] = [];
-				for (const p of wall.points) {
-					points.push(p.x - viewport.x, p.y - viewport.y);
-				}
-				const line = new Konva.Line({
-					points,
-					closed: true,
-					fill: '#333333',
-				});
-				layer.add(line);
-
 				layer.add(wall.image);
 			}
 

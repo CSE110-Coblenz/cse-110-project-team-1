@@ -7,7 +7,6 @@ export interface Position {
 
 export interface Wall {
 	id: string;
-	points: Position[]; // polygon points in world coordinates
 	minX: number;
 	minY: number;
 	maxX: number;
