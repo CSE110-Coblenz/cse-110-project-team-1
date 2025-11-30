@@ -2,7 +2,7 @@ import { NPCView } from 'src/main-game/NPC/NPCView';
 import { NPCModel } from 'src/main-game/NPC/NPCModel';
 import { NPCController } from 'src/main-game/NPC/NPCController';
 import {
-	ALL_SPECIES,
+	ALL_ALLOWED_SPECIES,
 	Species,
 	PRODUCERS,
 	PRIMARY_CONSUMERS,
@@ -35,9 +35,13 @@ export class NPC {
 
 export class NPCFactory {
 	static createNRandomNPCs(num_npcs: number): NPC[] {
+		// const species_list: Species[] = Array.from(
+		// 	{ length: num_npcs },
+		// 	() => ALL_SPECIES[Math.floor(Math.random() * ALL_SPECIES.length)],
+		// );
 		const species_list: Species[] = Array.from(
 			{ length: num_npcs },
-			() => ALL_SPECIES[Math.floor(Math.random() * ALL_SPECIES.length)],
+			() => ALL_ALLOWED_SPECIES[Math.floor(Math.random() * ALL_ALLOWED_SPECIES.length)],
 		);
 		const npcs: NPC[] = [];
 		for (const species of species_list) {

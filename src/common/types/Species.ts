@@ -72,6 +72,14 @@ export const TERTIARY_CONSUMERS = [Species.FOX, Species.COYOTE, Species.LYNX];
 
 export const APEX_PREDATORS = [Species.HAWK, Species.WOLF, Species.COUGAR, Species.BEAR];
 
+export const ALL_ALLOWED_SPECIES = [
+	...PRODUCERS,
+	...PRIMARY_CONSUMERS,
+	...SECONDARY_CONSUMERS,
+	...TERTIARY_CONSUMERS,
+	...APEX_PREDATORS,
+];
+
 export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: Species[] }>([
 	// -------- Level 0 - Producers
 
