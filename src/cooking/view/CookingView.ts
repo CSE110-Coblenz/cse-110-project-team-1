@@ -136,7 +136,7 @@ export class CookingView {
 				wrapper.id = 'view-placeholder';
 				// Fit within the container bounds with padding and a semi-transparent light background
 				wrapper.style.cssText =
-					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px; background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
+					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				wrapper.innerHTML =
 					'' +
 					// Move score to the very top - explicitly set color for consistency
@@ -150,7 +150,7 @@ export class CookingView {
 				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
 				if (wrapper) {
 					wrapper.style.cssText =
-						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px; background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
+						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				}
 			}
 
