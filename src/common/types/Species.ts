@@ -9,7 +9,7 @@ export enum Species {
 	GRASS = 'Grass',
 	SUNFLOWER = 'Sunflower',
 	BERRY_BUSH = 'BerryBush',
-	MUSHROOM = 'Mushroom',
+	WILLOW = 'Willow',
 
 	// Primary Consumers
 	ANT = 'Ant', // eats grass
@@ -54,7 +54,7 @@ export interface SpeciesAttributes {
 	color: string;
 }
 
-export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
+export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.WILLOW];
 
 export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS, Species.RABBIT];
 
@@ -77,7 +77,7 @@ export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: S
 	[Species.GRASS, { prey: [], predators: PRIMARY_CONSUMERS }],
 	[Species.SUNFLOWER, { prey: [], predators: PRIMARY_CONSUMERS }],
 	[Species.BERRY_BUSH, { prey: [], predators: PRIMARY_CONSUMERS }],
-	[Species.MUSHROOM, { prey: [], predators: PRIMARY_CONSUMERS }],
+	[Species.WILLOW, { prey: [], predators: PRIMARY_CONSUMERS }],
 
 	// -------- Level 1 - Primary Consumers
 
