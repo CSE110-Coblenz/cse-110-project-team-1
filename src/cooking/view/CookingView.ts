@@ -36,6 +36,8 @@ export class CookingView {
 	private customerPatienceBarFg: Map<string, Konva.Rect> = new Map();
 	private spotPositions: Array<{ x: number; y: number }> = [];
 	private draggableLabelGroup: any | null = null;
+	// A faint placeholder rectangle showing where the draggable label returns after drag
+	private labelHomeRect: Konva.Rect | null = null;
 	private trashRect: Konva.Image | Konva.Rect | null = null;
 	// no separate trash text - the image now contains the label
     
@@ -302,6 +304,21 @@ export class CookingView {
 			fill: '#ffffff',
 			wrap: 'none' as any,
 		});
+		// Placeholder behind the label to show the home position
+		this.labelHomeRect = new Konva.Rect({
+			x: labelX,
+			y: labelY,
+			width: labelWidth,
+			height: this.dynLabelHeight,
+			fill: '#0f172a',
+			opacity: 0.5,
+			cornerRadius: 12,
+			stroke: 'black',
+			strokeWidth: 2,
+			listening: false,
+		});
+		this.gameLayer.add(this.labelHomeRect);
+
 		this.draggableLabelGroup = new (Konva as any).Group({
 			x: labelX,
 			y: labelY,
@@ -513,6 +530,10 @@ export class CookingView {
 		}
 		// Refit label text to new card dimensions after resize
 		this.fitLabelTextToCard();
+		// Update the home placeholder position/size as well
+		if (this.labelHomeRect) {
+			this.labelHomeRect.x(labelX).y(labelY).width(labelWidth).height(this.dynLabelHeight);
+		}
 		const trashWidth = Math.floor(this.dynTrashSize * TRASH_SCALE_X);
 		const trashHeight = Math.floor(this.dynTrashSize * TRASH_SCALE_Y);
 		const trashX = Math.max(4, this.stageWidth - trashWidth - 12);
