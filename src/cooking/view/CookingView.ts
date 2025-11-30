@@ -986,7 +986,9 @@ export class CookingView {
 			}
 			const typeText = this.customerTypeTexts.get(c.customerId);
 			if (typeText)
-				typeText.text(formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%');
+				typeText.text(
+					formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%',
+				);
 
 			// Fade-out and remove when patience is depleted
 			if (c.patience <= 0 && rect) {
