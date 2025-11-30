@@ -40,7 +40,6 @@ export class CookingView {
 	private labelHomeRect: Konva.Rect | null = null;
 	private trashRect: Konva.Image | Konva.Rect | null = null;
 	// no separate trash text - the image now contains the label
-    
 
 	// Track current label value for event details and display
 	private currentLabel: string = '';
