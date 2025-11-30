@@ -1,5 +1,6 @@
 import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
+import { formatSpeciesName } from 'src/common/types/Species';
 import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
 
 // View constants (avoid magic numbers)
@@ -16,6 +17,9 @@ const CUSTOMER_TOP_Y = 16; // top padding
 const CUSTOMER_GAP = 24;
 const LABEL_HEIGHT = 36;
 const TRASH_SIZE = 48;
+// Scale factors applied to the trash asset to make it wider and slightly taller
+const TRASH_SCALE_X = 2;
+const TRASH_SCALE_Y = 2.4;
 
 export class CookingView {
 	private progressStage: Konva.Stage | null = null;
@@ -26,15 +30,18 @@ export class CookingView {
 	// Gameplay stage (customers + draggable label + trash)
 	private gameStage: Konva.Stage | null = null;
 	private gameLayer: Konva.Layer | null = null;
-	private customerRects: Map<string, Konva.Rect> = new Map();
+	// Can be Konva.Rect (fallback) OR Konva.Image when assets are available
+	private customerRects: Map<string, Konva.Shape> = new Map();
 	private customerPatienceTexts: Map<string, Konva.Text> = new Map();
 	private customerTypeTexts: Map<string, Konva.Text> = new Map();
 	private customerPatienceBarBg: Map<string, Konva.Rect> = new Map();
 	private customerPatienceBarFg: Map<string, Konva.Rect> = new Map();
 	private spotPositions: Array<{ x: number; y: number }> = [];
 	private draggableLabelGroup: any | null = null;
-	private trashRect: Konva.Rect | null = null;
-	private trashText: Konva.Text | null = null;
+	// A faint placeholder rectangle showing where the draggable label returns after drag
+	private labelHomeRect: Konva.Rect | null = null;
+	private trashRect: Konva.Image | Konva.Rect | null = null;
+	// no separate trash text - the image now contains the label
 
 	// Track current label value for event details and display
 	private currentLabel: string = '';
@@ -132,7 +139,7 @@ export class CookingView {
 				wrapper.id = 'view-placeholder';
 				// Fit within the container bounds with padding and a semi-transparent light background
 				wrapper.style.cssText =
-					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px;';
+					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				wrapper.innerHTML =
 					'' +
 					// Move score to the very top - explicitly set color for consistency
@@ -146,7 +153,7 @@ export class CookingView {
 				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
 				if (wrapper) {
 					wrapper.style.cssText =
-						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px;';
+						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				}
 			}
 
@@ -284,7 +291,9 @@ export class CookingView {
 			height: this.dynLabelHeight,
 			fill: '#3b82f6',
 			cornerRadius: 12,
-			opacity: 0.9,
+			opacity: 1,
+			stroke: '#0f172a',
+			strokeWidth: 3,
 		});
 		const labelText = new Konva.Text({
 			x: 0,
@@ -296,6 +305,21 @@ export class CookingView {
 			fill: '#ffffff',
 			wrap: 'none' as any,
 		});
+		// Placeholder behind the label to show the home position
+		this.labelHomeRect = new Konva.Rect({
+			x: labelX,
+			y: labelY,
+			width: labelWidth,
+			height: this.dynLabelHeight,
+			fill: '#0f172a',
+			opacity: 0.5,
+			cornerRadius: 12,
+			stroke: 'black',
+			strokeWidth: 2,
+			listening: false,
+		});
+		this.gameLayer.add(this.labelHomeRect);
+
 		this.draggableLabelGroup = new (Konva as any).Group({
 			x: labelX,
 			y: labelY,
@@ -305,31 +329,51 @@ export class CookingView {
 		this.draggableLabelGroup.add(labelText);
 
 		// Trash can at bottom-right
-		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
-		const trashY = this.stageHeight - this.dynTrashSize - 12;
-		this.trashRect = new Konva.Rect({
-			x: trashX,
-			y: trashY,
-			width: this.dynTrashSize,
-			height: this.dynTrashSize,
-			fill: '#ef4444',
-			cornerRadius: 8,
-			opacity: 0.9,
-		});
-		this.trashText = new Konva.Text({
-			x: trashX,
-			y: trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16),
-			width: this.dynTrashSize,
-			align: 'center',
-			text: 'Trash',
-			fontSize: Math.max(10, Math.floor(this.dynTrashSize * 0.2)),
-			fill: '#ffffff',
-		});
+		const trashWidth = Math.floor(this.dynTrashSize * TRASH_SCALE_X);
+		const trashHeight = Math.floor(this.dynTrashSize * TRASH_SCALE_Y);
+		const trashX = Math.max(4, this.stageWidth - trashWidth - 12);
+		const trashY = this.stageHeight - trashHeight - 12;
+		// Try to use a real image for trash if running in the browser; otherwise fall back to a colored rect for tests
+		if (typeof window !== 'undefined') {
+			try {
+				const trashImg = new Image();
+				trashImg.src = 'trash.png';
+				this.trashRect = new Konva.Image({
+					image: trashImg,
+					x: trashX,
+					y: trashY,
+					width: trashWidth,
+					height: trashHeight,
+					opacity: 1,
+					listening: true,
+				});
+				trashImg.onload = () => this.gameLayer?.draw();
+			} catch (_) {
+				this.trashRect = new Konva.Rect({
+					x: trashX,
+					y: trashY,
+					width: trashWidth,
+					height: trashHeight,
+					fill: '#ef4444',
+					cornerRadius: 8,
+					opacity: 1,
+				});
+			}
+		} else {
+			this.trashRect = new Konva.Rect({
+				x: trashX,
+				y: trashY,
+				width: trashWidth,
+				height: trashHeight,
+				fill: '#ef4444',
+				cornerRadius: 8,
+				opacity: 0.9,
+			});
+		}
 
 		// Add items to layer and stage
 		this.gameLayer.add(this.draggableLabelGroup);
 		this.gameLayer.add(this.trashRect);
-		this.gameLayer.add(this.trashText);
 		this.gameStage.add(this.gameLayer);
 
 		// Fit the label text to the card after nodes are created (initial state)
@@ -487,12 +531,15 @@ export class CookingView {
 		}
 		// Refit label text to new card dimensions after resize
 		this.fitLabelTextToCard();
-		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
-		const trashY = this.stageHeight - this.dynTrashSize - 12;
-		this.trashRect!.x(trashX).y(trashY).width(this.dynTrashSize).height(this.dynTrashSize);
-		this.trashText!.x(trashX)
-			.y(trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16))
-			.width(this.dynTrashSize);
+		// Update the home placeholder position/size as well
+		if (this.labelHomeRect) {
+			this.labelHomeRect.x(labelX).y(labelY).width(labelWidth).height(this.dynLabelHeight);
+		}
+		const trashWidth = Math.floor(this.dynTrashSize * TRASH_SCALE_X);
+		const trashHeight = Math.floor(this.dynTrashSize * TRASH_SCALE_Y);
+		const trashX = Math.max(4, this.stageWidth - trashWidth - 12);
+		const trashY = this.stageHeight - trashHeight - 12;
+		this.trashRect!.x(trashX).y(trashY).width(trashWidth).height(trashHeight);
 
 		// reposition existing customers based on screenSpots
 		const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.1));
@@ -504,7 +551,10 @@ export class CookingView {
 			this.customerRects
 				.get(cid)
 				?.x(pos.x)
-				.y(pos.y + 18);
+				.y(pos.y + 18)
+				// Ensure the node width/height matches the computed dynCustomerSize (works for both Rect and Image)
+				.width(this.dynCustomerSize)
+				.height(this.dynCustomerSize);
 			this.customerPatienceTexts
 				.get(cid)
 				?.x(pos.x)
@@ -713,6 +763,12 @@ export class CookingView {
 		return patience >= 50 ? '#22c55e' : patience >= 25 ? '#f59e0b' : '#ef4444';
 	}
 
+	// Helper: build an image path for a given species. This mirrors main-game `EntityView` path usage.
+	private getSpritePathForSpecies(species: string): string {
+		// species is a string from the Species enum, e.g., 'Rabbit' => 'sprites/Rabbit.png'
+		return `sprites/${species}.png`;
+	}
+
 	/**
 	 * Update or create the three customer placeholders at the top of the gameplay stage.
 	 * Shows patience above each customer and handles fade-out on zero patience.
@@ -770,18 +826,78 @@ export class CookingView {
 			let text = this.customerPatienceTexts.get(c.customerId);
 
 			if (!rect) {
-				// Create a new placeholder character (simple rectangle)
-				rect = new Konva.Rect({
-					x: spot.x,
-					y: spot.y + 18,
-					width: this.dynCustomerSize,
-					height: this.dynCustomerSize,
-					fill: '#94a3b8',
-					cornerRadius: 12,
-					opacity: 1,
-				});
-				this.customerRects.set(c.customerId, rect);
-				this.gameLayer.add(rect);
+				// Create a new placeholder character. Prefer an image sprite if environment supports it.
+				const spritePath = this.getSpritePathForSpecies(c.customerType);
+				const canUseImage =
+					typeof window !== 'undefined' &&
+					typeof Image !== 'undefined' &&
+					(Konva as any).Image;
+				if (canUseImage) {
+					try {
+						const imgEl = new Image();
+						imgEl.src = spritePath;
+						const kImage = new Konva.Image({
+							x: spot.x,
+							y: spot.y + 18,
+							image: imgEl,
+							width: this.dynCustomerSize,
+							height: this.dynCustomerSize,
+							opacity: 1,
+						});
+						// ensure the svg/png loads if available and redraw
+						imgEl.onload = () => this.gameLayer?.draw();
+						imgEl.onerror = () => {
+							// If the sprite fails to load, replace the Konva.Image with a simple Rect fallback
+							try {
+								const fallbackRect = new Konva.Rect({
+									x: spot.x,
+									y: spot.y + 18,
+									width: this.dynCustomerSize,
+									height: this.dynCustomerSize,
+									fill: '#94a3b8',
+									cornerRadius: 12,
+									opacity: 1,
+								});
+								// Remove the image node if it exists and swap
+								kImage.destroy();
+								this.customerRects.set(
+									c.customerId,
+									fallbackRect as unknown as Konva.Shape,
+								);
+								this.gameLayer?.add(fallbackRect);
+								this.gameLayer?.draw();
+							} catch (_) {}
+						};
+						rect = kImage as unknown as Konva.Shape;
+						this.customerRects.set(c.customerId, rect);
+						this.gameLayer.add(kImage);
+					} catch (_) {
+						// Fall back to rect if Konva.Image or Image() not usable
+						rect = new Konva.Rect({
+							x: spot.x,
+							y: spot.y + 18,
+							width: this.dynCustomerSize,
+							height: this.dynCustomerSize,
+							fill: '#94a3b8',
+							cornerRadius: 12,
+							opacity: 1,
+						});
+						this.customerRects.set(c.customerId, rect);
+						this.gameLayer.add(rect);
+					}
+				} else {
+					rect = new Konva.Rect({
+						x: spot.x,
+						y: spot.y + 18,
+						width: this.dynCustomerSize,
+						height: this.dynCustomerSize,
+						fill: '#94a3b8',
+						cornerRadius: 12,
+						opacity: 1,
+					});
+					this.customerRects.set(c.customerId, rect);
+					this.gameLayer.add(rect);
+				}
 
 				// Patience text above (slightly above the bar)
 				text = new Konva.Text({
@@ -792,6 +908,8 @@ export class CookingView {
 					text: Math.round(c.patience) + '%',
 					fontSize: 14,
 					fill: this.getPatienceColor(c.patience),
+					stroke: 'black',
+					strokeWidth: 0.5,
 				});
 				this.customerPatienceTexts.set(c.customerId, text);
 				this.gameLayer.add(text);
@@ -805,6 +923,8 @@ export class CookingView {
 					height: barH,
 					fill: '#e5e7eb',
 					cornerRadius: 4,
+					stroke: 'black',
+					strokeWidth: 0.5,
 				});
 				const barFg = new Konva.Rect({
 					x: spot.x,
@@ -818,6 +938,8 @@ export class CookingView {
 					),
 					height: barH,
 					fill: this.getPatienceColor(c.patience),
+					stroke: 'black',
+					strokeWidth: 0.5,
 					cornerRadius: 4,
 				});
 				this.customerPatienceBarBg.set(c.customerId, barBg);
@@ -831,7 +953,7 @@ export class CookingView {
 					y: spot.y + 18 + this.dynCustomerSize + 4,
 					width: this.dynCustomerSize,
 					align: 'center',
-					text: c.customerType + ' — ' + Math.round(c.patience) + '%',
+					text: formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%',
 					fontSize: 12,
 					fill: '#111827',
 				});
@@ -863,7 +985,10 @@ export class CookingView {
 				barFg.width(bw).fill(color);
 			}
 			const typeText = this.customerTypeTexts.get(c.customerId);
-			if (typeText) typeText.text(c.customerType + ' — ' + Math.round(c.patience) + '%');
+			if (typeText)
+				typeText.text(
+					formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%',
+				);
 
 			// Fade-out and remove when patience is depleted
 			if (c.patience <= 0 && rect) {
