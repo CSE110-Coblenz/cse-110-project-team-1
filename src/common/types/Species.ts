@@ -10,6 +10,7 @@ export enum Species {
 	SUNFLOWER = 'Sunflower',
 	BERRY_BUSH = 'BerryBush',
 	WILLOW = 'Willow',
+	MUSHROOM = 'Mushroom',
 
 	// Primary Consumers
 	ANT = 'Ant', // eats grass
