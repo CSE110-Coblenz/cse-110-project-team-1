@@ -838,6 +838,8 @@ export class CookingView {
 					text: Math.round(c.patience) + '%',
 					fontSize: 14,
 					fill: this.getPatienceColor(c.patience),
+					stroke: 'black',
+					strokeWidth: 0.5,
 				});
 				this.customerPatienceTexts.set(c.customerId, text);
 				this.gameLayer.add(text);
@@ -851,6 +853,8 @@ export class CookingView {
 					height: barH,
 					fill: '#e5e7eb',
 					cornerRadius: 4,
+					stroke: 'black',
+					strokeWidth: 0.5,
 				});
 				const barFg = new Konva.Rect({
 					x: spot.x,
@@ -864,6 +868,8 @@ export class CookingView {
 					),
 					height: barH,
 					fill: this.getPatienceColor(c.patience),
+					stroke: 'rgba(0,0,0,0.12)',
+					strokeWidth: 1,
 					cornerRadius: 4,
 				});
 				this.customerPatienceBarBg.set(c.customerId, barBg);
