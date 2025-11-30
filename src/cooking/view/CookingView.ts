@@ -16,6 +16,9 @@ const CUSTOMER_TOP_Y = 16; // top padding
 const CUSTOMER_GAP = 24;
 const LABEL_HEIGHT = 36;
 const TRASH_SIZE = 48;
+// Scale factors applied to the trash asset to make it wider and slightly taller
+const TRASH_SCALE_X = 2;
+const TRASH_SCALE_Y = 2.4;
 
 export class CookingView {
 	private progressStage: Konva.Stage | null = null;
@@ -33,8 +36,9 @@ export class CookingView {
 	private customerPatienceBarFg: Map<string, Konva.Rect> = new Map();
 	private spotPositions: Array<{ x: number; y: number }> = [];
 	private draggableLabelGroup: any | null = null;
-	private trashRect: Konva.Rect | null = null;
-	private trashText: Konva.Text | null = null;
+	private trashRect: Konva.Image | Konva.Rect | null = null;
+	// no separate trash text - the image now contains the label
+    
 
 	// Track current label value for event details and display
 	private currentLabel: string = '';
@@ -132,7 +136,7 @@ export class CookingView {
 				wrapper.id = 'view-placeholder';
 				// Fit within the container bounds with padding and a semi-transparent light background
 				wrapper.style.cssText =
-					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px;';
+					'border: none; padding: 16px; margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; background-color: rgb(248, 250, 252); border-radius: 8px; background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				wrapper.innerHTML =
 					'' +
 					// Move score to the very top - explicitly set color for consistency
@@ -146,7 +150,7 @@ export class CookingView {
 				const wrapper = document.getElementById('view-placeholder') as HTMLDivElement;
 				if (wrapper) {
 					wrapper.style.cssText =
-						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px;';
+						'margin: 0; height: 100%; overflow: hidden; box-sizing: border-box; border: none; padding: 16px; background-color: rgb(248, 250, 252); border-radius: 8px; background-image: url("cooking-background.png"); background-size: cover; background-repeat: no-repeat; background-position: center center;';
 				}
 			}
 
@@ -284,7 +288,9 @@ export class CookingView {
 			height: this.dynLabelHeight,
 			fill: '#3b82f6',
 			cornerRadius: 12,
-			opacity: 0.9,
+			opacity: 1,
+			stroke: '#0f172a',
+			strokeWidth: 3,
 		});
 		const labelText = new Konva.Text({
 			x: 0,
@@ -305,31 +311,51 @@ export class CookingView {
 		this.draggableLabelGroup.add(labelText);
 
 		// Trash can at bottom-right
-		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
-		const trashY = this.stageHeight - this.dynTrashSize - 12;
-		this.trashRect = new Konva.Rect({
-			x: trashX,
-			y: trashY,
-			width: this.dynTrashSize,
-			height: this.dynTrashSize,
-			fill: '#ef4444',
-			cornerRadius: 8,
-			opacity: 0.9,
-		});
-		this.trashText = new Konva.Text({
-			x: trashX,
-			y: trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16),
-			width: this.dynTrashSize,
-			align: 'center',
-			text: 'Trash',
-			fontSize: Math.max(10, Math.floor(this.dynTrashSize * 0.2)),
-			fill: '#ffffff',
-		});
+		const trashWidth = Math.floor(this.dynTrashSize * TRASH_SCALE_X);
+		const trashHeight = Math.floor(this.dynTrashSize * TRASH_SCALE_Y);
+		const trashX = Math.max(4, this.stageWidth - trashWidth - 12);
+		const trashY = this.stageHeight - trashHeight - 12;
+		// Try to use a real image for trash if running in the browser; otherwise fall back to a colored rect for tests
+		if (typeof window !== 'undefined') {
+			try {
+				const trashImg = new Image();
+				trashImg.src = 'trash.png';
+				this.trashRect = new Konva.Image({
+					image: trashImg,
+					x: trashX,
+					y: trashY,
+					width: trashWidth,
+					height: trashHeight,
+					opacity: 1,
+					listening: true,
+				});
+				trashImg.onload = () => this.gameLayer?.draw();
+			} catch (_) {
+				this.trashRect = new Konva.Rect({
+					x: trashX,
+					y: trashY,
+					width: trashWidth,
+					height: trashHeight,
+					fill: '#ef4444',
+					cornerRadius: 8,
+					opacity: 1,
+				});
+			}
+		} else {
+			this.trashRect = new Konva.Rect({
+				x: trashX,
+				y: trashY,
+				width: trashWidth,
+				height: trashHeight,
+				fill: '#ef4444',
+				cornerRadius: 8,
+				opacity: 0.9,
+			});
+		}
 
 		// Add items to layer and stage
 		this.gameLayer.add(this.draggableLabelGroup);
 		this.gameLayer.add(this.trashRect);
-		this.gameLayer.add(this.trashText);
 		this.gameStage.add(this.gameLayer);
 
 		// Fit the label text to the card after nodes are created (initial state)
@@ -487,12 +513,11 @@ export class CookingView {
 		}
 		// Refit label text to new card dimensions after resize
 		this.fitLabelTextToCard();
-		const trashX = Math.max(4, this.stageWidth - this.dynTrashSize - 12);
-		const trashY = this.stageHeight - this.dynTrashSize - 12;
-		this.trashRect!.x(trashX).y(trashY).width(this.dynTrashSize).height(this.dynTrashSize);
-		this.trashText!.x(trashX)
-			.y(trashY + Math.floor(this.dynTrashSize / 2) - Math.floor(this.dynTrashSize * 0.16))
-			.width(this.dynTrashSize);
+		const trashWidth = Math.floor(this.dynTrashSize * TRASH_SCALE_X);
+		const trashHeight = Math.floor(this.dynTrashSize * TRASH_SCALE_Y);
+		const trashX = Math.max(4, this.stageWidth - trashWidth - 12);
+		const trashY = this.stageHeight - trashHeight - 12;
+		this.trashRect!.x(trashX).y(trashY).width(trashWidth).height(trashHeight);
 
 		// reposition existing customers based on screenSpots
 		const barH = Math.max(4, Math.floor(this.dynCustomerSize * 0.1));
