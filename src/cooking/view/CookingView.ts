@@ -1,5 +1,6 @@
 import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
+import { formatSpeciesName } from 'src/common/types/Species';
 import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
 
 // View constants (avoid magic numbers)
@@ -952,7 +953,7 @@ export class CookingView {
 					y: spot.y + 18 + this.dynCustomerSize + 4,
 					width: this.dynCustomerSize,
 					align: 'center',
-					text: c.customerType + ' — ' + Math.round(c.patience) + '%',
+					text: formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%',
 					fontSize: 12,
 					fill: '#111827',
 				});
@@ -984,7 +985,8 @@ export class CookingView {
 				barFg.width(bw).fill(color);
 			}
 			const typeText = this.customerTypeTexts.get(c.customerId);
-			if (typeText) typeText.text(c.customerType + ' — ' + Math.round(c.patience) + '%');
+			if (typeText)
+				typeText.text(formatSpeciesName(c.customerType) + ' — ' + Math.round(c.patience) + '%');
 
 			// Fade-out and remove when patience is depleted
 			if (c.patience <= 0 && rect) {

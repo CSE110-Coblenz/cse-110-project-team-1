@@ -227,3 +227,17 @@ export function pickSpeciesForLevel(level: number): Species {
 			return APEX_PREDATORS[Math.floor(Math.random() * APEX_PREDATORS.length)];
 	}
 }
+
+/**
+ * Format a species name (enum value) for display by splitting camel-case words.
+ * Example: 'BerryBush' -> 'Berry Bush'
+ */
+export function formatSpeciesName(species: string | Species): string {
+	const s = String(species);
+	// Split camelCase or PascalCase into words: insert space before capital letters when preceded by lower-case or number
+	// Also handle consecutive capitals followed by lowercase (e.g., 'XMLHttp' -> 'XML Http')
+	return s
+		.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+		.replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+		.trim();
+}
