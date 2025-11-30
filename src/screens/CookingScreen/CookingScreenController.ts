@@ -1,7 +1,7 @@
 import { ScreenController, type ScreenSwitcher, type View } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
 import CookingController from 'src/cooking/controller/CookingController';
-import { Species } from 'src/common/types/Species';
+import { Species, ALL_SPECIES } from 'src/common/types/Species';
 import Konva from 'konva';
 
 /**
@@ -44,13 +44,8 @@ export class CookingScreenController extends ScreenController {
 		}
 
 		// Now start the cooking game - it will create its own stages in the container
-		// For demo purposes, use some default customer types
-		const defaultCustomerTypes: Species[] = [
-			Species.RABBIT,
-			Species.SUNFLOWER,
-			Species.MUSHROOM,
-		];
-		this.cookingController.startGame(defaultCustomerTypes);
+		// For demo purposes: start with ALL_SPECIES so the cooking minigame can handle all types
+		this.cookingController.startGame(ALL_SPECIES as Species[]);
 	}
 
 	show(): void {

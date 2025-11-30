@@ -1,14 +1,29 @@
 import { Customer } from 'src/cooking/model/Customer';
 import { Label, LabelType } from 'src/cooking/model/Label';
-import { Species } from 'src/common/types/Species';
+import { Species, ALL_SPECIES } from 'src/common/types/Species';
 
 export class CustomerFactory {
-	private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> = {
-		// Define your customer type to label mappings here
-		[Species.MUSHROOM]: 'decomposer',
-		[Species.RABBIT]: 'consumer',
-		[Species.SUNFLOWER]: 'producer',
-	};
+	// TEMP Map all Species to a label type so the cooking minigame can accept any species.
+	// Default mapping:
+	//  - producers map to 'producer' label
+	//  - mushroom maps to 'decomposer'
+	//  - all other species map to 'consumer'
+	private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> =
+		((): Partial<Record<Species, LabelType>> => {
+			const map: Partial<Record<Species, LabelType>> = {};
+			// Producers
+			map[Species.GRASS] = 'producer';
+			map[Species.SUNFLOWER] = 'producer';
+			map[Species.BERRY_BUSH] = 'producer';
+			// MUSHROOM is a decomposer (treated specially)
+			map[Species.MUSHROOM] = 'decomposer';
+			// All other species considered consumers in this activity
+			for (const s of ALL_SPECIES as Species[]) {
+				if (map[s]) continue; // skip if already assigned
+				map[s] = 'consumer';
+			}
+			return map;
+		})();
 
 	static createCustomer(customerType: Species): Customer {
 		const labelType = this.customerToLabelMap[customerType];

@@ -29,7 +29,8 @@ export class CookingView {
 	// Gameplay stage (customers + draggable label + trash)
 	private gameStage: Konva.Stage | null = null;
 	private gameLayer: Konva.Layer | null = null;
-	private customerRects: Map<string, Konva.Rect> = new Map();
+	// Can be Konva.Rect (fallback) OR Konva.Image when assets are available
+	private customerRects: Map<string, Konva.Shape> = new Map();
 	private customerPatienceTexts: Map<string, Konva.Text> = new Map();
 	private customerTypeTexts: Map<string, Konva.Text> = new Map();
 	private customerPatienceBarBg: Map<string, Konva.Rect> = new Map();
@@ -549,7 +550,10 @@ export class CookingView {
 			this.customerRects
 				.get(cid)
 				?.x(pos.x)
-				.y(pos.y + 18);
+				.y(pos.y + 18)
+				// Ensure the node width/height matches the computed dynCustomerSize (works for both Rect and Image)
+				.width(this.dynCustomerSize)
+				.height(this.dynCustomerSize);
 			this.customerPatienceTexts
 				.get(cid)
 				?.x(pos.x)
@@ -758,6 +762,12 @@ export class CookingView {
 		return patience >= 50 ? '#22c55e' : patience >= 25 ? '#f59e0b' : '#ef4444';
 	}
 
+	// Helper: build an image path for a given species. This mirrors main-game `EntityView` path usage.
+	private getSpritePathForSpecies(species: string): string {
+		// species is a string from the Species enum, e.g., 'Rabbit' => 'sprites/Rabbit.png'
+		return `sprites/${species}.png`;
+	}
+
 	/**
 	 * Update or create the three customer placeholders at the top of the gameplay stage.
 	 * Shows patience above each customer and handles fade-out on zero patience.
@@ -815,18 +825,73 @@ export class CookingView {
 			let text = this.customerPatienceTexts.get(c.customerId);
 
 			if (!rect) {
-				// Create a new placeholder character (simple rectangle)
-				rect = new Konva.Rect({
-					x: spot.x,
-					y: spot.y + 18,
-					width: this.dynCustomerSize,
-					height: this.dynCustomerSize,
-					fill: '#94a3b8',
-					cornerRadius: 12,
-					opacity: 1,
-				});
-				this.customerRects.set(c.customerId, rect);
-				this.gameLayer.add(rect);
+				// Create a new placeholder character. Prefer an image sprite if environment supports it.
+				const spritePath = this.getSpritePathForSpecies(c.customerType);
+				const canUseImage =
+					typeof window !== 'undefined' && typeof Image !== 'undefined' && (Konva as any).Image;
+				if (canUseImage) {
+					try {
+						const imgEl = new Image();
+						imgEl.src = spritePath;
+						const kImage = new Konva.Image({
+							x: spot.x,
+							y: spot.y + 18,
+							image: imgEl,
+							width: this.dynCustomerSize,
+							height: this.dynCustomerSize,
+							opacity: 1,
+						});
+						// ensure the svg/png loads if available and redraw
+						imgEl.onload = () => this.gameLayer?.draw();
+						imgEl.onerror = () => {
+							// If the sprite fails to load, replace the Konva.Image with a simple Rect fallback
+							try {
+								const fallbackRect = new Konva.Rect({
+									x: spot.x,
+									y: spot.y + 18,
+									width: this.dynCustomerSize,
+									height: this.dynCustomerSize,
+									fill: '#94a3b8',
+									cornerRadius: 12,
+									opacity: 1,
+								});
+								// Remove the image node if it exists and swap
+								kImage.destroy();
+								this.customerRects.set(c.customerId, fallbackRect as unknown as Konva.Shape);
+								this.gameLayer?.add(fallbackRect);
+								this.gameLayer?.draw();
+							} catch (_) {}
+						};
+						rect = kImage as unknown as Konva.Shape;
+						this.customerRects.set(c.customerId, rect);
+						this.gameLayer.add(kImage);
+					} catch (_) {
+						// Fall back to rect if Konva.Image or Image() not usable
+						rect = new Konva.Rect({
+							x: spot.x,
+							y: spot.y + 18,
+							width: this.dynCustomerSize,
+							height: this.dynCustomerSize,
+							fill: '#94a3b8',
+							cornerRadius: 12,
+							opacity: 1,
+						});
+						this.customerRects.set(c.customerId, rect);
+						this.gameLayer.add(rect);
+					}
+				} else {
+					rect = new Konva.Rect({
+						x: spot.x,
+						y: spot.y + 18,
+						width: this.dynCustomerSize,
+						height: this.dynCustomerSize,
+						fill: '#94a3b8',
+						cornerRadius: 12,
+						opacity: 1,
+					});
+					this.customerRects.set(c.customerId, rect);
+					this.gameLayer.add(rect);
+				}
 
 				// Patience text above (slightly above the bar)
 				text = new Konva.Text({
