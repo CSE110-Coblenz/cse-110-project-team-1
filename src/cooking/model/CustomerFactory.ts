@@ -18,4 +18,12 @@ export class CustomerFactory {
 		const label = Label.getLabel(labelType);
 		return new Customer(customerType, label);
 	}
+
+	static getLabelTypeForCustomer(customerType: Species): LabelType {
+		const labelType = this.customerToLabelMap[customerType];
+		if (!labelType) {
+			throw new Error(`Unknown customer type: ${customerType}`);
+		}
+		return labelType;
+	}
 }

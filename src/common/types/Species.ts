@@ -9,6 +9,7 @@ export enum Species {
 	GRASS = 'Grass',
 	SUNFLOWER = 'Sunflower',
 	BERRY_BUSH = 'BerryBush',
+	WILLOW = 'Willow',
 	MUSHROOM = 'Mushroom',
 
 	// Primary Consumers
@@ -54,7 +55,7 @@ export interface SpeciesAttributes {
 	color: string;
 }
 
-export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.MUSHROOM];
+export const PRODUCERS = [Species.GRASS, Species.SUNFLOWER, Species.BERRY_BUSH, Species.WILLOW];
 
 export const PRIMARY_CONSUMERS = [...INSECTS, ...UNGULATES, ...RODENTS, Species.RABBIT];
 
@@ -71,13 +72,21 @@ export const TERTIARY_CONSUMERS = [Species.FOX, Species.COYOTE, Species.LYNX];
 
 export const APEX_PREDATORS = [Species.HAWK, Species.WOLF, Species.COUGAR, Species.BEAR];
 
+export const ALL_ALLOWED_SPECIES = [
+	...PRODUCERS,
+	...PRIMARY_CONSUMERS,
+	...SECONDARY_CONSUMERS,
+	...TERTIARY_CONSUMERS,
+	...APEX_PREDATORS,
+];
+
 export const SpeciesRelations = new Map<Species, { prey: Species[]; predators: Species[] }>([
 	// -------- Level 0 - Producers
 
 	[Species.GRASS, { prey: [], predators: PRIMARY_CONSUMERS }],
 	[Species.SUNFLOWER, { prey: [], predators: PRIMARY_CONSUMERS }],
 	[Species.BERRY_BUSH, { prey: [], predators: PRIMARY_CONSUMERS }],
-	[Species.MUSHROOM, { prey: [], predators: PRIMARY_CONSUMERS }],
+	[Species.WILLOW, { prey: [], predators: PRIMARY_CONSUMERS }],
 
 	// -------- Level 1 - Primary Consumers
 

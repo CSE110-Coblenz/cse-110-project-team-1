@@ -15,10 +15,10 @@ export class Customer {
 
 	/**
 	 * Updates the customer's patience based on elapsed time
-	 * @param deltaTime - Time elapsed in seconds
+	 * @param deltaSeconds - Time elapsed in seconds
 	 */
-	updatePatience(deltaTime: number): void {
-		this.patience -= CookingGameConfig.PATIENCE_DECREASE_RATE * deltaTime;
+	updatePatience(deltaSeconds: number): void {
+		this.patience -= CookingGameConfig.PATIENCE_DECREASE_RATE * deltaSeconds;
 		if (this.patience < 0) {
 			this.patience = 0;
 		}
@@ -26,5 +26,9 @@ export class Customer {
 
 	isImpatient(): boolean {
 		return this.patience <= 0;
+	}
+
+	public isCorrectLabel(labelType: string): boolean {
+		return this.correctLabel.type === labelType;
 	}
 }

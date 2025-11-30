@@ -117,20 +117,10 @@ export class CookingModel {
 	 * @param labelType - The type of label being assigned
 	 * @returns Object with updated progress and whether assignment was correct
 	 */
-	handleAssignment(
-		customerId: string,
-		labelType: string,
-	): { correct: number; incorrect: number; total: number; wasCorrect: boolean } {
-		const total = CookingGameConfig.NUM_CUSTOMERS;
-		const totalServed = this.customersCorrect + this.customersIncorrect;
-
-		if (totalServed >= total) {
-			return {
-				correct: this.customersCorrect,
-				incorrect: this.customersIncorrect,
-				total,
-				wasCorrect: false,
-			};
+	handleAssignment(customerId: string): void {
+		// Check if label exists
+		if (!this.currentLabel) {
+			throw new Error('No current label available - initialize() must be called first');
 		}
 
 		// Find the customer by ID
@@ -142,43 +132,72 @@ export class CookingModel {
 				break;
 			}
 		}
-
 		if (!targetCustomer) {
-			return {
-				correct: this.customersCorrect,
-				incorrect: this.customersIncorrect,
-				total,
-				wasCorrect: false,
-			};
+			throw new Error(`Customer with ID ${customerId} not found among active customers`);
 		}
 
-		// Check if the assignment is correct
-		const isCorrect = this.isLabelCorrectForCustomer(targetCustomer, labelType);
-
+		// Check if the assignment is correct, and update state
+		const isCorrect = targetCustomer.isCorrectLabel(this.currentLabel.type);
 		if (isCorrect) {
-			this.customersCorrect = this.customersCorrect + 1;
-			this.score = this.score + 10;
+			this.customersCorrect += 1;
+			this.score += 10;
 		} else {
-			this.customersIncorrect = this.customersIncorrect + 1;
+			this.customersIncorrect += 1;
 		}
-
-		return {
-			correct: this.customersCorrect,
-			incorrect: this.customersIncorrect,
-			total,
-			wasCorrect: isCorrect,
-		};
+		const index = this.activeCustomers.indexOf(targetCustomer);
+		this.activeCustomers.splice(index, 1);
+		this.fillActiveCustomers();
+		// Generate a new label guaranteed different from the one just used when possible
+		this.currentLabel = DeckLogic.generateRandomLabelDifferent(this.currentLabel.type);
 	}
 
 	/**
-	 * Determines if a label is correct for a given customer.
-	 * This is where the business logic for correctness lives.
-	 * @param customer - The customer to check
-	 * @param labelType - The label type being assigned
-	 * @returns true if the label matches the customer's type
+	 * Handle discarding the current label and generating a new one.
 	 */
-	private isLabelCorrectForCustomer(customer: Customer, labelType: string): boolean {
-		// label is correct if it matches the customer's correctLabel.type
-		return customer.correctLabel.type === labelType;
+	public discardLabel(): void {
+		if (!this.currentLabel) {
+			this.currentLabel = DeckLogic.generateRandomLabel();
+			return;
+		}
+		this.currentLabel = DeckLogic.generateRandomLabelDifferent(this.currentLabel.type);
+	}
+
+	/**
+	 * Updates the model state, including customer patience.
+	 * Should be called every frame with the elapsed time since last update.
+	 * @param deltaSeconds - Time elapsed in seconds since last update
+	 */
+	public updatePatience(deltaSeconds: number): void {
+		// Iterate backwards to safely remove items
+		for (let i = this.activeCustomers.length - 1; i >= 0; i--) {
+			const customer = this.activeCustomers[i];
+			customer.updatePatience(deltaSeconds);
+			if (customer.isImpatient()) {
+				this.customersIncorrect += 1;
+				this.activeCustomers.splice(i, 1);
+			}
+		}
+
+		this.fillActiveCustomers();
+	}
+
+	/**
+	 * Checks if the game is over (all customers served)
+	 * @returns true if all customers have been served
+	 */
+	isGameOver(): boolean {
+		return this.customersCorrect + this.customersIncorrect >= CookingGameConfig.NUM_CUSTOMERS;
+	}
+
+	/**
+	 * Decrease patience for all active customers by deltaSeconds.
+	 * This is a simple time step used for visual testing of patience bars.
+	 */
+	tick(deltaSeconds: number): void {
+		if (deltaSeconds <= 0) {
+			return;
+		}
+		// Delegate to the main update method to keep logic in one place
+		this.updatePatience(deltaSeconds);
 	}
 }

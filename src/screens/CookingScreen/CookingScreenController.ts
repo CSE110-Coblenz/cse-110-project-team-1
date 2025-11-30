@@ -1,44 +1,79 @@
-import { ScreenController, type ScreenSwitcher } from 'src/types';
+import { ScreenController, type ScreenSwitcher, type View } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
-import { CookingScreenView } from 'src/screens/CookingScreen/CookingScreenView';
+import CookingController from 'src/cooking/controller/CookingController';
+import { Species } from 'src/common/types/Species';
+import Konva from 'konva';
 
 /**
- * Basic Cooking screen controller that plugs into ScreenManager.
- * Handles layer mounting, cleanup, and transitions using the provided ScreenSwitcher.
+ * Cooking screen controller that integrates the actual cooking minigame.
+ * The cooking game creates its own Konva stages in the DOM container.
  */
 export class CookingScreenController extends ScreenController {
-	private layer?: Layer;
-	private view: CookingScreenView;
+	private cookingController: CookingController;
+	private hiddenStage: Konva.Stage | null = null;
 	private screenSwitcher: ScreenSwitcher;
 
 	constructor(screenSwitcher: ScreenSwitcher) {
 		super();
 		this.screenSwitcher = screenSwitcher;
-		this.view = new CookingScreenView({
-			onFinish: () => this.screenSwitcher.switchToScreen({ type: 'ending' }),
-		});
+		this.cookingController = new CookingController();
 	}
 
-	getView(): CookingScreenView {
-		return this.view;
+	getView(): View {
+		// The cooking view manages its own DOM, so we return a dummy view
+		// that satisfies the interface but doesn't actually do anything
+		return {
+			getGroup: () => {
+				throw new Error('CookingView manages its own DOM');
+			},
+			show: () => {},
+			hide: () => {},
+		};
 	}
 
 	mount(layer?: Layer): void {
-		this.layer = layer;
-		if (this.layer) {
-			this.layer.add(this.view.getGroup());
-			this.layer.draw();
+		// The cooking game creates its own Konva stages in the container
+		// We need to hide the existing stage (but not destroy it) so the cooking game
+		// can take over the container
+		if (layer) {
+			const stage = layer.getStage();
+			if (stage) {
+				this.hiddenStage = stage;
+				stage.hide();
+			}
 		}
+
+		// Now start the cooking game - it will create its own stages in the container
+		// For demo purposes, use some default customer types
+		const defaultCustomerTypes: Species[] = [
+			Species.RABBIT,
+			Species.SUNFLOWER,
+			Species.MUSHROOM,
+		];
+		this.cookingController.startGame(defaultCustomerTypes);
+	}
+
+	show(): void {
+		// Game already started in mount
 	}
 
 	dispose(): void {
-		if (this.layer) {
-			try {
-				this.view.getGroup().remove();
-				this.layer.draw();
-			} catch (e) {
-				// ignore removal errors if the layer was already cleared
+		// Stop the game and clean up
+		this.cookingController.stopGame();
+
+		// Clear the cooking view from the DOM
+		const container = document.getElementById('container');
+		if (container) {
+			const viewPlaceholder = document.getElementById('view-placeholder');
+			if (viewPlaceholder) {
+				viewPlaceholder.remove();
 			}
+		}
+
+		// Restore and show the hidden stage for the next screen
+		if (this.hiddenStage) {
+			this.hiddenStage.show();
+			this.hiddenStage = null;
 		}
 	}
 }
