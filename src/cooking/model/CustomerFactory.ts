@@ -8,22 +8,23 @@ export class CustomerFactory {
 	//  - producers map to 'producer' label
 	//  - mushroom maps to 'decomposer'
 	//  - all other species map to 'consumer'
-	private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> =
-		((): Partial<Record<Species, LabelType>> => {
-			const map: Partial<Record<Species, LabelType>> = {};
-			// Producers
-			map[Species.GRASS] = 'producer';
-			map[Species.SUNFLOWER] = 'producer';
-			map[Species.BERRY_BUSH] = 'producer';
-			// MUSHROOM is a decomposer (treated specially)
-			map[Species.MUSHROOM] = 'decomposer';
-			// All other species considered consumers in this activity
-			for (const s of ALL_SPECIES as Species[]) {
-				if (map[s]) continue; // skip if already assigned
-				map[s] = 'consumer';
-			}
-			return map;
-		})();
+	private static readonly customerToLabelMap: Partial<Record<Species, LabelType>> = ((): Partial<
+		Record<Species, LabelType>
+	> => {
+		const map: Partial<Record<Species, LabelType>> = {};
+		// Producers
+		map[Species.GRASS] = 'producer';
+		map[Species.SUNFLOWER] = 'producer';
+		map[Species.BERRY_BUSH] = 'producer';
+		// MUSHROOM is a decomposer (treated specially)
+		map[Species.MUSHROOM] = 'decomposer';
+		// All other species considered consumers in this activity
+		for (const s of ALL_SPECIES as Species[]) {
+			if (map[s]) continue; // skip if already assigned
+			map[s] = 'consumer';
+		}
+		return map;
+	})();
 
 	static createCustomer(customerType: Species): Customer {
 		const labelType = this.customerToLabelMap[customerType];

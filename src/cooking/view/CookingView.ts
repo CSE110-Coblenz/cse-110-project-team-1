@@ -828,7 +828,9 @@ export class CookingView {
 				// Create a new placeholder character. Prefer an image sprite if environment supports it.
 				const spritePath = this.getSpritePathForSpecies(c.customerType);
 				const canUseImage =
-					typeof window !== 'undefined' && typeof Image !== 'undefined' && (Konva as any).Image;
+					typeof window !== 'undefined' &&
+					typeof Image !== 'undefined' &&
+					(Konva as any).Image;
 				if (canUseImage) {
 					try {
 						const imgEl = new Image();
@@ -857,7 +859,10 @@ export class CookingView {
 								});
 								// Remove the image node if it exists and swap
 								kImage.destroy();
-								this.customerRects.set(c.customerId, fallbackRect as unknown as Konva.Shape);
+								this.customerRects.set(
+									c.customerId,
+									fallbackRect as unknown as Konva.Shape,
+								);
 								this.gameLayer?.add(fallbackRect);
 								this.gameLayer?.draw();
 							} catch (_) {}
