@@ -83,7 +83,11 @@ export class ScreenManager implements ScreenSwitcher {
 				break;
 			}
 			case 'cooking': {
-				const cookingController = new CookingScreenController(this, screen.species, screen.nextLevel);
+				const cookingController = new CookingScreenController(
+					this,
+					screen.species,
+					screen.nextLevel,
+				);
 				this.current = cookingController as unknown as ScreenController;
 				this.current.mount(this.layer);
 				cookingController.show();
