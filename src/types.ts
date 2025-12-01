@@ -1,5 +1,6 @@
 import type { Group } from 'konva/lib/Group';
 import type { Layer } from 'konva/lib/Layer';
+import type { Species } from 'src/common/types/Species';
 
 export interface View {
 	getGroup(): Group;
@@ -13,14 +14,14 @@ export interface View {
  * - "menu": Main menu screen
  * - "intro": Tutorial/intro screen
  * - "game": Gameplay screen
- * - "cooking": Cooking minigame screen
+ * - "cooking": Cooking minigame screen (species: all species that appeared in the last level)
  * - "result": Results screen with final score (score: number)
  */
 export type Screen =
 	| { type: 'menu' }
 	| { type: 'intro' }
-	| { type: 'game' }
-	| { type: 'cooking' }
+	| { type: 'game'; level?: number }
+	| { type: 'cooking'; species: Species[]; nextLevel: number }
 	| { type: 'defeat' }
 	| { type: 'ending' }
 	| { type: 'victory'; score?: number }
