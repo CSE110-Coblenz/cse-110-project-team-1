@@ -1,7 +1,6 @@
 import Konva from 'konva';
 import type { Group } from 'konva/lib/Group';
 import type { View } from 'src/types';
-import TutorialScreenController from './TutorialScreenController';
 
 type TutorialScreenOptions = {
 	onContinue: () => void;
