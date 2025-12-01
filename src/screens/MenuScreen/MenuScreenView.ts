@@ -40,7 +40,7 @@ export class MenuScreenView implements View {
 			y: 100,
 			text: 'An Oddesy of Change',
 			fontSize: 64,
-			fill: 'blue',
+			fill: 'white',
 			align: 'center',
 			fontFamily: 'bold',
 		});
