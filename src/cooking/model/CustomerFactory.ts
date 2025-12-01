@@ -16,6 +16,7 @@ export class CustomerFactory {
 		map[Species.GRASS] = 'producer';
 		map[Species.SUNFLOWER] = 'producer';
 		map[Species.BERRY_BUSH] = 'producer';
+		map[Species.WILLOW] = 'producer';
 		// MUSHROOM is a decomposer (treated specially)
 		map[Species.MUSHROOM] = 'decomposer';
 		// All other species considered consumers in this activity
