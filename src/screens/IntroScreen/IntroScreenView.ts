@@ -72,7 +72,6 @@ export class IntroScreenView implements View {
 			width: 260,
 			align: 'center',
 			text: 'Start Game',
-			fontStyle: 'bold',
 			fontSize: 24,
 			fill: '#ffffff',
 		});
@@ -92,7 +91,6 @@ export class IntroScreenView implements View {
 			width: 260,
 			align: 'center',
 			text: 'Tutorial',
-			fontStyle: 'bold',
 			fontSize: 24,
 			fill: '#ffffff',
 		});
