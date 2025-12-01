@@ -5,6 +5,7 @@ import TutorialScreenController from './TutorialScreenController';
 
 type TutorialScreenOptions = {
     onContinue: () => void;
+    onStart: () => void;
 };
 
 /**
@@ -15,9 +16,11 @@ type TutorialScreenOptions = {
 export class TutorialScreenView implements View {
     private group: Group;
     private onContinue: () => void;
+    private onStart: () => void;
 
     constructor(options: TutorialScreenOptions) {
         this.onContinue = options.onContinue;
+        this.onStart = options.onStart; // could be different action in future
         this.group = new Konva.Group();
 
         // background image for instructions
@@ -40,8 +43,8 @@ export class TutorialScreenView implements View {
             }
         };
 
-        const continueButton = new Konva.Rect({
-            x: 580,
+        const returnButton = new Konva.Rect({
+            x: 430,
             y: 710,
             width: 260,
             height: 60,
@@ -49,8 +52,8 @@ export class TutorialScreenView implements View {
             fill: '#ef5807ff',
         });
 
-        const continueLabel = new Konva.Text({
-            x: 580,
+        const returnLabel = new Konva.Text({
+            x: 430,
             y: 730,
             width: 260,
             align: 'center',
@@ -59,12 +62,36 @@ export class TutorialScreenView implements View {
             fill: '#ffffff',
         });
 
-        continueButton.on('click tap', () => this.onContinue());
-        continueLabel.on('click tap', () => this.onContinue());
+        const startButton = new Konva.Rect({
+            x: 740,
+            y: 710,
+            width: 260,
+            height: 60,
+            cornerRadius: 8,
+            fill: '#ef5807ff',
+        });
+
+        const startLabel = new Konva.Text({
+            x: 740,
+            y: 730,
+            width: 260,
+            align: 'center',
+            text: 'Start Game',
+            fontSize: 24,
+            fill: '#ffffff',
+        });
+
+        returnButton.on('click tap', () => this.onContinue());
+        returnLabel.on('click tap', () => this.onContinue());
+
+        startButton.on('click tap', () => this.onStart());
+        startLabel.on('click tap', () => this.onStart());
 
         this.group.add(backdrop);
-        this.group.add(continueButton);
-        this.group.add(continueLabel);
+        this.group.add(returnButton);
+        this.group.add(returnLabel);
+        this.group.add(startButton);
+        this.group.add(startLabel);
     }
 
     getGroup(): Group {
