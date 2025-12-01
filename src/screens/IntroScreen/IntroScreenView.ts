@@ -57,14 +57,6 @@ export class IntroScreenView implements View {
 			fill: '#dddddd',
 		});
 
-		const instructions = new Konva.Text({
-			x: 120,
-			y: 380,
-			text: 'Use the Arrow Keys or W-A-S-D to Navigate. \nNotice the Creatures Around You and be Careful to Avoid Your Predators and Catch Your Prey. \nPress the Spacebar to Attack Once Close to Your Prey.',
-			fontSize: 24,
-			fill: '#dddddd',
-		});
-
 		const continueButton = new Konva.Rect({
 			x: 120,
 			y: 600,
@@ -80,6 +72,7 @@ export class IntroScreenView implements View {
 			width: 260,
 			align: 'center',
 			text: 'Start Game',
+			fontStyle: 'bold',
 			fontSize: 24,
 			fill: '#ffffff',
 		});
@@ -99,6 +92,7 @@ export class IntroScreenView implements View {
 			width: 260,
 			align: 'center',
 			text: 'Tutorial',
+			fontStyle: 'bold',
 			fontSize: 24,
 			fill: '#ffffff',
 		});
@@ -112,7 +106,6 @@ export class IntroScreenView implements View {
 		this.group.add(backdrop);
 		this.group.add(title);
 		this.group.add(story);
-		this.group.add(instructions);
 		this.group.add(continueButton);
 		this.group.add(continueLabel);
 		this.group.add(tutorialButton);
