@@ -6,6 +6,7 @@ import { VictoryScreenController } from 'src/screens/VictoryScreen/VictoryScreen
 import { DeathScreenController } from 'src/screens/DeathScreen/DeathScreenController';
 import { IntroScreenController } from 'src/screens/IntroScreen/IntroScreenController';
 import { CookingScreenController } from 'src/screens/CookingScreen/CookingScreenController';
+import { TutorialScreenController } from 'src/screens/TutorialScreen/TutorialScreenController';
 
 /**
  * ScreenManager: simple manager that switches between screens.
@@ -87,6 +88,13 @@ export class ScreenManager implements ScreenSwitcher {
 				this.current = cookingController as unknown as ScreenController;
 				this.current.mount(this.layer);
 				cookingController.show();
+				break;
+			}
+			case 'tutorial': {
+				const tutorialController = new TutorialScreenController(this);
+				this.current = tutorialController as unknown as ScreenController;
+				this.current.mount(this.layer);
+				tutorialController.show();
 				break;
 			}
 			default:

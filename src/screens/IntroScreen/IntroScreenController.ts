@@ -18,6 +18,7 @@ export class IntroScreenController extends ScreenController {
 		this.screenSwitcher = screenSwitcher;
 		this.view = new IntroScreenView({
 			onContinue: () => this.screenSwitcher.switchToScreen({ type: 'game' }),
+			onTutorial: () => this.screenSwitcher.switchToScreen({ type: 'tutorial' }),
 		});
 	}
 

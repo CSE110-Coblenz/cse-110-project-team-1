@@ -4,6 +4,7 @@ import type { View } from 'src/types';
 
 type IntroScreenOptions = {
 	onContinue: () => void;
+	onTutorial: () => void;
 };
 
 /**
@@ -14,9 +15,11 @@ type IntroScreenOptions = {
 export class IntroScreenView implements View {
 	private group: Group;
 	private onContinue: () => void;
+	private onTutorial: () => void;
 
 	constructor(options: IntroScreenOptions) {
 		this.onContinue = options.onContinue;
+		this.onTutorial = options.onTutorial;
 		this.group = new Konva.Group();
 
 		// background image for story/intro
@@ -64,7 +67,7 @@ export class IntroScreenView implements View {
 
 		const continueButton = new Konva.Rect({
 			x: 120,
-			y: 520,
+			y: 600,
 			width: 260,
 			height: 60,
 			cornerRadius: 8,
@@ -73,7 +76,7 @@ export class IntroScreenView implements View {
 
 		const continueLabel = new Konva.Text({
 			x: 120,
-			y: 540,
+			y: 620,
 			width: 260,
 			align: 'center',
 			text: 'Start Game',
@@ -81,8 +84,30 @@ export class IntroScreenView implements View {
 			fill: '#ffffff',
 		});
 
+		const tutorialButton = new Konva.Rect({
+			x: 120,
+			y: 520,
+			width: 260,
+			height: 60,
+			cornerRadius: 8,
+			fill: '#4caf50',
+		});
+
+		const tutorialLabel = new Konva.Text({
+			x: 120,
+			y: 540,
+			width: 260,
+			align: 'center',
+			text: 'Tutorial',
+			fontSize: 24,
+			fill: '#ffffff',
+		});
+
 		continueButton.on('click tap', () => this.onContinue());
 		continueLabel.on('click tap', () => this.onContinue());
+
+		tutorialButton.on('click tap', () => this.onTutorial());
+		tutorialLabel.on('click tap', () => this.onTutorial());
 
 		this.group.add(backdrop);
 		this.group.add(title);
@@ -90,6 +115,8 @@ export class IntroScreenView implements View {
 		this.group.add(instructions);
 		this.group.add(continueButton);
 		this.group.add(continueLabel);
+		this.group.add(tutorialButton);
+		this.group.add(tutorialLabel);
 	}
 
 	getGroup(): Group {

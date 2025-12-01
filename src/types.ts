@@ -18,6 +18,7 @@ export interface View {
  */
 export type Screen =
 	| { type: 'menu' }
+	| { type: 'tutorial' }
 	| { type: 'intro' }
 	| { type: 'game' }
 	| { type: 'cooking' }
