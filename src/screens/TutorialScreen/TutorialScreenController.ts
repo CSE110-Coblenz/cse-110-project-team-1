@@ -17,8 +17,8 @@ export class TutorialScreenController extends ScreenController {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.view = new TutorialScreenView({
-			onContinue: () => this.screenSwitcher.switchToScreen({ type: 'intro' }), 
-			onStart: () => this.screenSwitcher.switchToScreen({ type: 'game' }), 
+			onContinue: () => this.screenSwitcher.switchToScreen({ type: 'intro' }),
+			onStart: () => this.screenSwitcher.switchToScreen({ type: 'game' }),
 		});
 	}
 
