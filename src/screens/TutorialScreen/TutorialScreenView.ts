@@ -19,7 +19,7 @@ export class TutorialScreenView implements View {
 
 	constructor(options: TutorialScreenOptions) {
 		this.onContinue = options.onContinue;
-		this.onStart = options.onStart; // could be different action in future
+		this.onStart = options.onStart; 
 		this.group = new Konva.Group();
 
 		// background image for instructions
