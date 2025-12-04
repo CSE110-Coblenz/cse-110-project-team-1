@@ -75,8 +75,13 @@ export class CookingScreenController extends ScreenController {
 	}
 
 	private calculateSpeedBoost(score: number): number {
-		// +50 speed on cooking game success
-		return 20;
+		// Proportional boost: score/50 * 20 (max score is 50, max boost is 20)
+		// Score 50/50 = 20 boost, Score 40/50 = 16 boost, Score 30/50 = 12 boost, etc
+		const maxScore = 50;
+		const maxBoost = 20;
+		const boost = (score / maxScore) * maxBoost;
+		console.log(`Cooking score: ${score}/${maxScore}, calculated boost: ${boost}`);
+		return boost;
 	}
 
 	private showHelpPopup(): void {
