@@ -96,7 +96,9 @@ export class GameScreenController extends ScreenController {
 			const player = this.scene.getPlayerModel();
 			const baseSpeed = player.getSpeed();
 			const newSpeed = baseSpeed + GameScreenController.cumulativeSpeedBoost;
-			console.log(`Applying cumulative speed boost: ${baseSpeed} + ${GameScreenController.cumulativeSpeedBoost} = ${newSpeed}`);
+			console.log(
+				`Applying cumulative speed boost: ${baseSpeed} + ${GameScreenController.cumulativeSpeedBoost} = ${newSpeed}`,
+			);
 			player.setSpeed(newSpeed);
 		}
 		// Always reset current level's boost after applying so it doesn't get added twice

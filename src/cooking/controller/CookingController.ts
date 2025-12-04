@@ -78,7 +78,7 @@ export default class CookingController {
 
 		const finalScore = this.model.getScore();
 		const callback = this.onGameComplete;
-		
+
 		// Pass the completion callback to showGameOver so it's called when user clicks close
 		this.view.showGameOver(finalScore, () => {
 			callback?.(finalScore);
@@ -115,7 +115,7 @@ export default class CookingController {
 	// temporary test method to simulate drop events, made it in ms so that it actually shows in testing
 	private testDropEvent(): void {
 		const fullPatienceTime =
-			CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE * 1000;
+			(CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE) * 1000;
 
 		setTimeout(() => {
 			const customerData = this.model.getCustomerData();
