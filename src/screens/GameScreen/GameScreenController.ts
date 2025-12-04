@@ -15,12 +15,14 @@ export class GameScreenController extends ScreenController {
 	private currentLevel = 0;
 	private maxLevels = 4;
 	private onResize?: () => void;
+	private speedBoost = 0;
 
-	constructor(screenSwitcher: ScreenSwitcher, startLevel?: number) {
+	constructor(screenSwitcher: ScreenSwitcher, startLevel?: number, speedBoost?: number) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.view = new GameScreenView();
 		this.currentLevel = startLevel ?? 1;
+		this.speedBoost = speedBoost ?? 0;
 	}
 
 	mount(layer?: Layer): void {
@@ -83,6 +85,15 @@ export class GameScreenController extends ScreenController {
 				this.screenSwitcher.switchToScreen({ type: 'death' });
 			},
 		});
+
+		// Apply speed boost from cooking game if present
+		if (this.speedBoost > 0) {
+			const player = this.scene.getPlayerModel();
+			// Set speed to base + boost (230 = 180 + 50)
+			player.setSpeed(230);
+		}
+		// Always reset boost after applying so it doesn't carry to next level
+		this.speedBoost = 0;
 
 		this.scene.start();
 		this.worldLayer.draw();
