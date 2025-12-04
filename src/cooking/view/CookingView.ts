@@ -706,7 +706,11 @@ export class CookingView {
 	 * @param finalScore - The final score to display
 	 * @param onClose - Optional callback to run when the close button is clicked
 	 */
-	showGameOver(finalScore: number, onClose?: () => void, boostInfo?: { boost: number; newSpeed: number; baseSpeed: number }): void {
+	showGameOver(
+		finalScore: number,
+		onClose?: () => void,
+		boostInfo?: { boost: number; newSpeed: number; baseSpeed: number },
+	): void {
 		// Create centered popup overlay
 		const wrapper = document.getElementById('view-placeholder');
 		if (!wrapper) return;

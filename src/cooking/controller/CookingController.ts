@@ -100,9 +100,13 @@ export default class CookingController {
 		};
 
 		// Pass the completion callback to showGameOver so it's called when user clicks close
-		this.view.showGameOver(finalScore, () => {
-			callback?.(finalScore);
-		}, this.boostInfo);
+		this.view.showGameOver(
+			finalScore,
+			() => {
+				callback?.(finalScore);
+			},
+			this.boostInfo,
+		);
 		this.onGameComplete = undefined;
 	}
 
@@ -267,7 +271,7 @@ export default class CookingController {
 	// 		const customerData = this.model.getCustomerData();
 	// 		if (customerData.length > 0) {
 	// 			this.handleAssignment(customerData[0].customerId, 'wrongLabel');
-	// 		}r
+	// 		}
 	// 	}, 3700);
 
 	// 	setTimeout(() => {
