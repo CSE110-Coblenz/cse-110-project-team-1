@@ -8,6 +8,7 @@ export default class CookingController {
 	private view: CookingView;
 	private lastUpdateTime: number = Date.now();
 	private gameLoopInterval: number | null = null;
+	private onGameComplete?: () => void;
 
 	constructor() {
 		this.model = new CookingModel();
@@ -17,8 +18,10 @@ export default class CookingController {
 	/**
 	 * Starts the cooking game with the given customer types that's passed from the main game
 	 * @param customerTypes - Array of customer species from main game
+	 * @param onComplete - Optional callback to run when the game is over
 	 */
-	public startGame(customerTypes: Species[]): void {
+	public startGame(customerTypes: Species[], onComplete?: () => void): void {
+		this.onGameComplete = onComplete;
 		// Clear any existing game loop
 		if (this.gameLoopInterval !== null) {
 			this.stopGame();
@@ -73,7 +76,9 @@ export default class CookingController {
 			this.gameLoopInterval = null;
 		}
 
-		this.view.showGameOver(this.model.getScore());
+		// Pass the completion callback to showGameOver so it's called when user clicks close
+		this.view.showGameOver(this.model.getScore(), this.onGameComplete);
+		this.onGameComplete = undefined;
 	}
 
 	public handleDrop(dropTarget: 'customer' | 'trashcan', customerId?: string): void {

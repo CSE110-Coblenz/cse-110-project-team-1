@@ -7,6 +7,7 @@ import { DeathScreenController } from 'src/screens/DeathScreen/DeathScreenContro
 import { IntroScreenController } from 'src/screens/IntroScreen/IntroScreenController';
 import { CookingScreenController } from 'src/screens/CookingScreen/CookingScreenController';
 import { TutorialScreenController } from 'src/screens/TutorialScreen/TutorialScreenController';
+import { CookingTutorialScreenController } from 'src/screens/CookingTutorialScreen/CookingTutorialScreenController';
 
 /**
  * ScreenManager: simple manager that switches between screens.
@@ -39,7 +40,7 @@ export class ScreenManager implements ScreenSwitcher {
 		switch (screen.type) {
 			case 'game': {
 				// create the game screen and start it
-				const controller = new GameScreenController(this);
+				const controller = new GameScreenController(this, screen.level);
 				this.current = controller as unknown as ScreenController;
 				// Mount the controller to the layer (if provided)
 				this.current.mount(this.layer);
@@ -83,8 +84,23 @@ export class ScreenManager implements ScreenSwitcher {
 				introController.show();
 				break;
 			}
+			case 'cooking-tutorial': {
+				const tutorialController = new CookingTutorialScreenController(
+					this,
+					screen.species,
+					screen.nextLevel,
+				);
+				this.current = tutorialController as unknown as ScreenController;
+				this.current.mount(this.layer);
+				tutorialController.show();
+				break;
+			}
 			case 'cooking': {
-				const cookingController = new CookingScreenController(this);
+				const cookingController = new CookingScreenController(
+					this,
+					screen.species,
+					screen.nextLevel,
+				);
 				this.current = cookingController as unknown as ScreenController;
 				this.current.mount(this.layer);
 				cookingController.show();

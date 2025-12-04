@@ -100,6 +100,18 @@ export class GameScene {
 		return this.playerModel;
 	}
 
+	public getUniqueNPCSpecies(): Species[] {
+		const npcs = this.mapModel.getNPCs();
+		const allSpecies = npcs.map((npc) => npc.getModel().getSpecies());
+		return [...new Set(allSpecies)];
+	}
+
+	public getAllLevelSpecies(): Species[] {
+		const playerSpecies = this.playerModel.getSpecies();
+		const npcSpecies = this.getUniqueNPCSpecies();
+		return [...new Set([playerSpecies, ...npcSpecies])];
+	}
+
 	private pushHud() {
 		const progress = this.playerModel.getExperience?.() ?? 0; // expect 0..100
 		const level = this.options.levelNumber ?? 1;

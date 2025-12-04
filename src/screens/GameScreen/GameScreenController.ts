@@ -6,6 +6,7 @@ import { pickSpeciesForLevel } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
 
 export class GameScreenController extends ScreenController {
+	private static tutorialSeen = false;
 	private worldLayer?: Layer;
 	private uiLayer?: Layer;
 	private view: GameScreenView;
@@ -15,10 +16,11 @@ export class GameScreenController extends ScreenController {
 	private maxLevels = 4;
 	private onResize?: () => void;
 
-	constructor(screenSwitcher: ScreenSwitcher) {
+	constructor(screenSwitcher: ScreenSwitcher, startLevel?: number) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.view = new GameScreenView();
+		this.currentLevel = startLevel ?? 1;
 	}
 
 	mount(layer?: Layer): void {
@@ -36,7 +38,6 @@ export class GameScreenController extends ScreenController {
 		this.uiLayer.draw();
 
 		// Start level loop
-		this.currentLevel = 1;
 		this.startLevel(this.currentLevel);
 
 		// Keep HUD responsive
@@ -65,8 +66,15 @@ export class GameScreenController extends ScreenController {
 			},
 			onLevelComplete: () => {
 				if (level < this.maxLevels) {
-					this.currentLevel = level + 1;
-					this.startLevel(this.currentLevel);
+					// Collect all species from the completed level
+					const allSpecies = this.scene?.getAllLevelSpecies() ?? [];
+
+					// Go to cooking tutorial on first visit, or directly to cooking
+					this.screenSwitcher.switchToScreen({
+						type: GameScreenController.tutorialSeen ? 'cooking' : 'cooking-tutorial',
+						species: allSpecies,
+						nextLevel: level + 1,
+					});
 				} else {
 					this.screenSwitcher.switchToScreen({ type: 'victory' });
 				}

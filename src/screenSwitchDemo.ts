@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import ScreenManager from 'src/screens/ScreenManager';
 import type { Screen } from 'src/types';
+import { ALL_ALLOWED_SPECIES } from 'src/common/types/Species';
 
 const stage = new Konva.Stage({
 	container: 'container',
@@ -31,7 +32,7 @@ buttons.forEach((button) => {
 					: target === 'menu'
 						? { type: 'menu' }
 						: target === 'cooking'
-							? { type: 'cooking' }
+							? { type: 'cooking', species: ALL_ALLOWED_SPECIES, nextLevel: 1 }
 							: { type: 'intro' };
 
 		screenManager.switchToScreen(screen);

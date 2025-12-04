@@ -703,8 +703,10 @@ export class CookingView {
 
 	/**
 	 * Displays a game over message
+	 * @param finalScore - The final score to display
+	 * @param onClose - Optional callback to run when the close button is clicked
 	 */
-	showGameOver(finalScore: number): void {
+	showGameOver(finalScore: number, onClose?: () => void): void {
 		// Create centered popup overlay
 		const wrapper = document.getElementById('view-placeholder');
 		if (!wrapper) return;
@@ -747,6 +749,10 @@ export class CookingView {
 			if (closeBtn) {
 				closeBtn.addEventListener('click', () => {
 					overlay?.remove();
+					// Call the onClose callback if provided
+					if (onClose) {
+						onClose();
+					}
 				});
 			}
 		}
