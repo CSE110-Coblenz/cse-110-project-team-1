@@ -76,7 +76,7 @@ export class CookingScreenController extends ScreenController {
 
 	private calculateSpeedBoost(score: number): number {
 		// +50 speed on cooking game success
-		return 50;
+		return 20;
 	}
 
 	private showHelpPopup(): void {
