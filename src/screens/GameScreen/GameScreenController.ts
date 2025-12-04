@@ -6,6 +6,7 @@ import { pickSpeciesForLevel } from 'src/common/types/Species';
 import type { Layer } from 'konva/lib/Layer';
 
 export class GameScreenController extends ScreenController {
+	private static tutorialSeen = false;
 	private worldLayer?: Layer;
 	private uiLayer?: Layer;
 	private view: GameScreenView;
@@ -68,9 +69,9 @@ export class GameScreenController extends ScreenController {
 					// Collect all species from the completed level
 					const allSpecies = this.scene?.getAllLevelSpecies() ?? [];
 
-					// Go to cooking screen with species and next level info
+					// Go to cooking tutorial on first visit, or directly to cooking
 					this.screenSwitcher.switchToScreen({
-						type: 'cooking',
+						type: GameScreenController.tutorialSeen ? 'cooking' : 'cooking-tutorial',
 						species: allSpecies,
 						nextLevel: level + 1,
 					});

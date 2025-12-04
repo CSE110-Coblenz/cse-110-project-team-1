@@ -2,6 +2,8 @@ import { ScreenController, type ScreenSwitcher, type View } from 'src/types';
 import type { Layer } from 'konva/lib/Layer';
 import CookingController from 'src/cooking/controller/CookingController';
 import { Species } from 'src/common/types/Species';
+import { CookingInfoButtonView } from 'src/screens/CookingScreen/CookingInfoButtonView';
+import { CookingHelpPopupView } from 'src/screens/CookingScreen/CookingHelpPopupView';
 import Konva from 'konva';
 
 /**
@@ -14,6 +16,8 @@ export class CookingScreenController extends ScreenController {
 	private screenSwitcher: ScreenSwitcher;
 	private species: Species[];
 	private nextLevel: number;
+	private infoButtonView: CookingInfoButtonView;
+	private helpPopupView: CookingHelpPopupView;
 
 	constructor(screenSwitcher: ScreenSwitcher, species: Species[], nextLevel: number) {
 		super();
@@ -21,6 +25,8 @@ export class CookingScreenController extends ScreenController {
 		this.species = species;
 		this.nextLevel = nextLevel;
 		this.cookingController = new CookingController();
+		this.infoButtonView = new CookingInfoButtonView(() => this.showHelpPopup());
+		this.helpPopupView = new CookingHelpPopupView();
 	}
 
 	getView(): View {
@@ -50,7 +56,10 @@ export class CookingScreenController extends ScreenController {
 		// Add cooking-screen class to body for scoped CSS
 		document.body.classList.add('cooking-screen');
 
-		// Now start the cooking game with species from the completed level
+		// Show info button
+		this.infoButtonView.show();
+
+		// Start the cooking game
 		this.cookingController.startGame(this.species, () => {
 			// When cooking is complete, go to the next level
 			this.screenSwitcher.switchToScreen({ type: 'game', level: this.nextLevel });
@@ -59,6 +68,10 @@ export class CookingScreenController extends ScreenController {
 
 	show(): void {
 		// Game already started in mount
+	}
+
+	private showHelpPopup(): void {
+		this.helpPopupView.show();
 	}
 
 	dispose(): void {
@@ -76,6 +89,10 @@ export class CookingScreenController extends ScreenController {
 				viewPlaceholder.remove();
 			}
 		}
+
+		// Hide info button and help popup
+		this.infoButtonView.hide();
+		this.helpPopupView.hide();
 
 		// Restore and show the hidden stage for the next screen
 		if (this.hiddenStage) {
