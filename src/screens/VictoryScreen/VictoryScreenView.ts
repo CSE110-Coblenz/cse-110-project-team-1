@@ -31,8 +31,8 @@ export class VictoryScreenView implements View {
 		this.title = new Konva.Text({
 			x: (window.innerWidth * 0.95) / 2,
 			y: 100,
-			text: `Congratulations!\nYou've Survived and Learned to Appreciate the Natural World!\nYou've Evolved Back into a Human and are Once Again \nat the Top of the Food Chain.`,
-			fontSize: 48,
+			text: `Congratulations!\nYou've Survived and Learned to Appreciate\n the Natural World!\nYou've Evolved Back into a Human and are\n Once Again at the\n Top of the Food Chain.`,
+			fontSize: 36,
 			fill: 'black',
 			align: 'center',
 			fontFamily: 'bold',
