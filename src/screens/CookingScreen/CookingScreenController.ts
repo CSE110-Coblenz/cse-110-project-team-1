@@ -59,15 +59,19 @@ export class CookingScreenController extends ScreenController {
 		// Show info button
 		this.infoButtonView.show();
 
-		// Start the cooking game
-		this.cookingController.startGame(this.species, (score: number) => {
-			// When cooking is complete, go to the next level with speed boost
-			this.screenSwitcher.switchToScreen({
-				type: 'game',
-				level: this.nextLevel,
-				speedBoost: this.calculateSpeedBoost(score),
+		// Use setTimeout to ensure DOM is ready before starting the game
+		setTimeout(() => {
+			// Start the cooking game
+			this.cookingController.startGame(this.species, (score: number) => {
+				// When cooking is complete, go to the next level with speed boost
+				const boost = this.calculateSpeedBoost(score);
+				this.screenSwitcher.switchToScreen({
+					type: 'game',
+					level: this.nextLevel,
+					speedBoost: boost,
+				});
 			});
-		});
+		}, 0);
 	}
 
 	show(): void {
