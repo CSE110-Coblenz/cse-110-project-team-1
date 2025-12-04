@@ -14,6 +14,7 @@ export interface View {
  * - "menu": Main menu screen
  * - "intro": Tutorial/intro screen
  * - "game": Gameplay screen
+ * - "cooking-tutorial": Cooking minigame tutorial screen
  * - "cooking": Cooking minigame screen (species: all species that appeared in the last level)
  * - "result": Results screen with final score (score: number)
  */
@@ -21,6 +22,7 @@ export type Screen =
 	| { type: 'menu' }
 	| { type: 'intro' }
 	| { type: 'game'; level?: number }
+	| { type: 'cooking-tutorial'; species: Species[]; nextLevel: number }
 	| { type: 'cooking'; species: Species[]; nextLevel: number }
 	| { type: 'defeat' }
 	| { type: 'ending' }
