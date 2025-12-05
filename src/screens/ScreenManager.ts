@@ -39,7 +39,7 @@ export class ScreenManager implements ScreenSwitcher {
 		switch (screen.type) {
 			case 'game': {
 				// create the game screen and start it
-				const controller = new GameScreenController(this, screen.level);
+				const controller = new GameScreenController(this, screen.level, screen.speedBoost);
 				this.current = controller as unknown as ScreenController;
 				// Mount the controller to the layer (if provided)
 				this.current.mount(this.layer);
@@ -88,6 +88,7 @@ export class ScreenManager implements ScreenSwitcher {
 					this,
 					screen.species,
 					screen.nextLevel,
+					screen.speedBoost,
 				);
 				this.current = tutorialController as unknown as ScreenController;
 				this.current.mount(this.layer);
@@ -99,6 +100,7 @@ export class ScreenManager implements ScreenSwitcher {
 					this,
 					screen.species,
 					screen.nextLevel,
+					screen.speedBoost,
 				);
 				this.current = cookingController as unknown as ScreenController;
 				this.current.mount(this.layer);

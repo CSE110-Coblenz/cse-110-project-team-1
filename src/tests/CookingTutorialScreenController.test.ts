@@ -49,6 +49,7 @@ describe('CookingTutorialScreenController', () => {
 			screenSwitcher as any,
 			species as any,
 			2,
+			0,
 		);
 
 		// mount with mock layer/stage
@@ -68,6 +69,7 @@ describe('CookingTutorialScreenController', () => {
 			type: 'cooking',
 			species,
 			nextLevel: 2,
+			speedBoost: 0,
 		});
 	});
 });

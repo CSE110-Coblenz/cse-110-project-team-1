@@ -14,12 +14,13 @@ export class CookingModel {
 	private score: number = 0;
 	private customersCorrect: number = 0;
 	private customersIncorrect: number = 0;
+	private speedBoost: number = 0;
 
 	constructor() {
 		// Empty constructor - actual initialization happens in initialize()
 	}
 
-	initialize(customerTypes: Species[]) {
+	initialize(customerTypes: Species[], speedBoost: number): void {
 		// Initialize all customers based on the config
 		// Randomly select NUM_CUSTOMERS from the provided customerTypes
 		this.customerQueue = [];
@@ -44,6 +45,8 @@ export class CookingModel {
 		this.score = 0;
 		this.customersCorrect = 0;
 		this.customersIncorrect = 0;
+
+		this.speedBoost = speedBoost;
 	}
 
 	/**
@@ -140,7 +143,7 @@ export class CookingModel {
 		const isCorrect = targetCustomer.isCorrectLabel(this.currentLabel.type);
 		if (isCorrect) {
 			this.customersCorrect += 1;
-			this.score += 10;
+			this.score += CookingGameConfig.POINTS_PER_CORRECT;
 		} else {
 			this.customersIncorrect += 1;
 		}
@@ -199,5 +202,15 @@ export class CookingModel {
 		}
 		// Delegate to the main update method to keep logic in one place
 		this.updatePatience(deltaSeconds);
+	}
+
+	AddSpeedBoost(): void {
+		const maxScore = CookingGameConfig.NUM_CUSTOMERS * CookingGameConfig.POINTS_PER_CORRECT;
+		this.speedBoost =
+			this.speedBoost + (this.score / maxScore) * CookingGameConfig.MAX_SPEED_BOOST_PER_ROUND;
+	}
+
+	getSpeedBoost(): number {
+		return this.speedBoost;
 	}
 }

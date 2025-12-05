@@ -706,7 +706,7 @@ export class CookingView {
 	 * @param finalScore - The final score to display
 	 * @param onClose - Optional callback to run when the close button is clicked
 	 */
-	showGameOver(finalScore: number, onClose?: () => void): void {
+	showGameOver(finalScore: number, onClose?: () => void, boost?: number): void {
 		// Create centered popup overlay
 		const wrapper = document.getElementById('view-placeholder');
 		if (!wrapper) return;
@@ -737,11 +737,19 @@ export class CookingView {
 				'text-align: center',
 				'font-family: system-ui, sans-serif',
 			].join(';');
-			panel.innerHTML = `
+			panel.innerHTML =
+				boost !== undefined
+					? `
+				<div style="font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 12px;">Game Over</div>
+				<div style="font-size: 16px; color: #4b5563; margin-bottom: 4px;">You’ve gained a new speed boost!</div>
+				<div style="font-size: 18px; color: #111827; margin-bottom: 12px;">Your overall speed boost is now <strong style="color: #3b82f6;">${boost.toFixed(0)}</strong></div>
+				<button id="game-over-close" style="margin-top: 4px; padding: 8px 12px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; font-weight: 600; cursor: pointer;">Close</button>
+				`
+					: `
 				<div style="font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 8px;">Game Over</div>
 				<div style="font-size: 16px; color: #374151; margin-bottom: 12px;">Final Score: <strong>${finalScore}</strong></div>
 				<button id="game-over-close" style="margin-top: 4px; padding: 8px 12px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; font-weight: 600; cursor: pointer;">Close</button>
-			`;
+				`;
 			overlay.appendChild(panel);
 			wrapper.appendChild(overlay);
 

@@ -32,7 +32,12 @@ buttons.forEach((button) => {
 					: target === 'menu'
 						? { type: 'menu' }
 						: target === 'cooking'
-							? { type: 'cooking', species: ALL_ALLOWED_SPECIES, nextLevel: 1 }
+							? {
+									type: 'cooking',
+									species: ALL_ALLOWED_SPECIES,
+									nextLevel: 1,
+									speedBoost: 0,
+								}
 							: { type: 'intro' };
 
 		screenManager.switchToScreen(screen);

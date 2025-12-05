@@ -18,8 +18,14 @@ export class CookingScreenController extends ScreenController {
 	private nextLevel: number;
 	private infoButtonView: CookingInfoButtonView;
 	private helpPopupView: CookingHelpPopupView;
+	private speedBoost: number = 0;
 
-	constructor(screenSwitcher: ScreenSwitcher, species: Species[], nextLevel: number) {
+	constructor(
+		screenSwitcher: ScreenSwitcher,
+		species: Species[],
+		nextLevel: number,
+		speedBoost: number,
+	) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.species = species;
@@ -27,6 +33,7 @@ export class CookingScreenController extends ScreenController {
 		this.cookingController = new CookingController();
 		this.infoButtonView = new CookingInfoButtonView(() => this.showHelpPopup());
 		this.helpPopupView = new CookingHelpPopupView();
+		this.speedBoost = speedBoost;
 	}
 
 	getView(): View {
@@ -59,11 +66,23 @@ export class CookingScreenController extends ScreenController {
 		// Show info button
 		this.infoButtonView.show();
 
-		// Start the cooking game
-		this.cookingController.startGame(this.species, () => {
-			// When cooking is complete, go to the next level
-			this.screenSwitcher.switchToScreen({ type: 'game', level: this.nextLevel });
-		});
+		// Use setTimeout to ensure DOM is ready before starting the game
+		setTimeout(() => {
+			// Start the cooking game
+			this.cookingController.startGame(
+				this.species,
+				(boost: number) => {
+					// When cooking is complete, go to the next level with speed boost
+					this.speedBoost = boost;
+					this.screenSwitcher.switchToScreen({
+						type: 'game',
+						level: this.nextLevel,
+						speedBoost: this.speedBoost,
+					});
+				},
+				this.speedBoost,
+			);
+		}, 0);
 	}
 
 	show(): void {
