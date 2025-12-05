@@ -7,7 +7,6 @@ import type { Layer } from 'konva/lib/Layer';
 
 export class GameScreenController extends ScreenController {
 	private static tutorialSeen = false;
-	private static cumulativeSpeedBoost = 0;
 	private worldLayer?: Layer;
 	private uiLayer?: Layer;
 	private view: GameScreenView;
@@ -24,10 +23,6 @@ export class GameScreenController extends ScreenController {
 		this.view = new GameScreenView();
 		this.currentLevel = startLevel ?? 1;
 		this.speedBoost = speedBoost ?? 0;
-		// Add new boost to cumulative total
-		if (this.speedBoost > 0) {
-			GameScreenController.cumulativeSpeedBoost += this.speedBoost;
-		}
 	}
 
 	mount(layer?: Layer): void {
@@ -81,6 +76,7 @@ export class GameScreenController extends ScreenController {
 						type: GameScreenController.tutorialSeen ? 'cooking' : 'cooking-tutorial',
 						species: allSpecies,
 						nextLevel: level + 1,
+						speedBoost: this.speedBoost,
 					});
 				} else {
 					this.screenSwitcher.switchToScreen({ type: 'victory' });
@@ -92,17 +88,12 @@ export class GameScreenController extends ScreenController {
 		});
 
 		// Apply cumulative speed boost from cooking game
-		if (GameScreenController.cumulativeSpeedBoost > 0) {
+		if (this.speedBoost > 0) {
 			const player = this.scene.getPlayerModel();
 			const baseSpeed = player.getSpeed();
-			const newSpeed = baseSpeed + GameScreenController.cumulativeSpeedBoost;
-			console.log(
-				`Applying cumulative speed boost: ${baseSpeed} + ${GameScreenController.cumulativeSpeedBoost} = ${newSpeed}`,
-			);
+			const newSpeed = baseSpeed + this.speedBoost;
 			player.setSpeed(newSpeed);
 		}
-		// Always reset current level's boost after applying so it doesn't get added twice
-		this.speedBoost = 0;
 
 		this.scene.start();
 		this.worldLayer.draw();

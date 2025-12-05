@@ -88,6 +88,7 @@ export class ScreenManager implements ScreenSwitcher {
 					this,
 					screen.species,
 					screen.nextLevel,
+					screen.speedBoost,
 				);
 				this.current = tutorialController as unknown as ScreenController;
 				this.current.mount(this.layer);
@@ -99,6 +100,7 @@ export class ScreenManager implements ScreenSwitcher {
 					this,
 					screen.species,
 					screen.nextLevel,
+					screen.speedBoost,
 				);
 				this.current = cookingController as unknown as ScreenController;
 				this.current.mount(this.layer);

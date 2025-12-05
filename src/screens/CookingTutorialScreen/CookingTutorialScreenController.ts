@@ -13,12 +13,19 @@ export class CookingTutorialScreenController extends ScreenController {
 	private species: Species[];
 	private nextLevel: number;
 	private group: Konva.Group | null = null;
+	private speedBoost: number = 0;
 
-	constructor(screenSwitcher: ScreenSwitcher, species: Species[], nextLevel: number) {
+	constructor(
+		screenSwitcher: ScreenSwitcher,
+		species: Species[],
+		nextLevel: number,
+		speedBoost: number,
+	) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.species = species;
 		this.nextLevel = nextLevel;
+		this.speedBoost = speedBoost;
 	}
 
 	getView(): View {
@@ -79,6 +86,7 @@ export class CookingTutorialScreenController extends ScreenController {
 				type: 'cooking',
 				species: this.species,
 				nextLevel: this.nextLevel,
+				speedBoost: this.speedBoost,
 			});
 		});
 

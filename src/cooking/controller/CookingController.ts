@@ -2,7 +2,6 @@ import { CookingModel } from 'src/cooking/model/CookingModel';
 import { CookingView } from 'src/cooking/view/CookingView';
 import { Species } from 'src/common/types/Species';
 import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
-import { GameScreenController } from 'src/screens/GameScreen/GameScreenController';
 
 export default class CookingController {
 	private model: CookingModel;
@@ -10,7 +9,6 @@ export default class CookingController {
 	private lastUpdateTime: number = Date.now();
 	private gameLoopInterval: number | null = null;
 	private onGameComplete?: (score: number) => void;
-	private boostInfo?: { boost: number; newSpeed: number; baseSpeed: number };
 
 	constructor() {
 		this.model = new CookingModel();
@@ -18,25 +16,22 @@ export default class CookingController {
 	}
 
 	/**
-	 * Set boost info to display on game over screen
-	 */
-	public setBoostInfo(boostInfo: { boost: number; newSpeed: number; baseSpeed: number }): void {
-		this.boostInfo = boostInfo;
-	}
-
-	/**
 	 * Starts the cooking game with the given customer types that's passed from the main game
 	 * @param customerTypes - Array of customer species from main game
 	 * @param onComplete - Optional callback to run when the game is over, receives final score
 	 */
-	public startGame(customerTypes: Species[], onComplete?: (score: number) => void): void {
+	public startGame(
+		customerTypes: Species[],
+		onComplete?: (score: number) => void,
+		speedBoost: number = 0,
+	): void {
 		this.onGameComplete = onComplete;
 		// Clear any existing game loop
 		if (this.gameLoopInterval !== null) {
 			this.stopGame();
 		}
 		// Initialize model and view
-		this.model.initialize(customerTypes);
+		this.model.initialize(customerTypes, speedBoost);
 		this.view.initialize(
 			this.model.getCustomerData(),
 			this.model.getLabel(),
@@ -88,24 +83,15 @@ export default class CookingController {
 		const finalScore = this.model.getScore();
 		const callback = this.onGameComplete;
 
-		// Calculate and set boost info before showing game over
-		const boost = (finalScore / 50) * 20;
-		const baseSpeed = 135;
-		// Get the cumulative boost from GameScreenController to show the full total speed
-		const currentCumulativeBoost = (GameScreenController as any).cumulativeSpeedBoost || 0;
-		this.boostInfo = {
-			boost: boost,
-			baseSpeed: baseSpeed,
-			newSpeed: baseSpeed + currentCumulativeBoost + boost,
-		};
+		// Calculate new speed for main game based on cooking performance
+		this.model.AddSpeedBoost();
+		const boost = this.model.getSpeedBoost();
 
 		// Pass the completion callback to showGameOver so it's called when user clicks close
 		this.view.showGameOver(
 			finalScore,
-			() => {
-				callback?.(finalScore);
-			},
-			this.boostInfo,
+			callback ? () => callback(boost) : undefined,
+			callback ? boost : undefined,
 		);
 		this.onGameComplete = undefined;
 	}

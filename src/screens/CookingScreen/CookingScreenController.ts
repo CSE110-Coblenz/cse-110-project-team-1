@@ -18,8 +18,14 @@ export class CookingScreenController extends ScreenController {
 	private nextLevel: number;
 	private infoButtonView: CookingInfoButtonView;
 	private helpPopupView: CookingHelpPopupView;
+	private speedBoost: number = 0;
 
-	constructor(screenSwitcher: ScreenSwitcher, species: Species[], nextLevel: number) {
+	constructor(
+		screenSwitcher: ScreenSwitcher,
+		species: Species[],
+		nextLevel: number,
+		speedBoost: number,
+	) {
 		super();
 		this.screenSwitcher = screenSwitcher;
 		this.species = species;
@@ -27,6 +33,7 @@ export class CookingScreenController extends ScreenController {
 		this.cookingController = new CookingController();
 		this.infoButtonView = new CookingInfoButtonView(() => this.showHelpPopup());
 		this.helpPopupView = new CookingHelpPopupView();
+		this.speedBoost = speedBoost;
 	}
 
 	getView(): View {
@@ -62,30 +69,24 @@ export class CookingScreenController extends ScreenController {
 		// Use setTimeout to ensure DOM is ready before starting the game
 		setTimeout(() => {
 			// Start the cooking game
-			this.cookingController.startGame(this.species, (score: number) => {
-				// When cooking is complete, go to the next level with speed boost
-				const boost = this.calculateSpeedBoost(score);
-				this.screenSwitcher.switchToScreen({
-					type: 'game',
-					level: this.nextLevel,
-					speedBoost: boost,
-				});
-			});
+			this.cookingController.startGame(
+				this.species,
+				(boost: number) => {
+					// When cooking is complete, go to the next level with speed boost
+					this.speedBoost = boost;
+					this.screenSwitcher.switchToScreen({
+						type: 'game',
+						level: this.nextLevel,
+						speedBoost: this.speedBoost,
+					});
+				},
+				this.speedBoost,
+			);
 		}, 0);
 	}
 
 	show(): void {
 		// Game already started in mount
-	}
-
-	private calculateSpeedBoost(score: number): number {
-		// Proportional boost: score/50 * 20 (max score is 50, max boost is 20)
-		// Score 50/50 = 20 boost, Score 40/50 = 16 boost, Score 30/50 = 12 boost, etc
-		const maxScore = 50;
-		const maxBoost = 20;
-		const boost = (score / maxScore) * maxBoost;
-		console.log(`Cooking score: ${score}/${maxScore}, calculated boost: ${boost}`);
-		return boost;
 	}
 
 	private showHelpPopup(): void {

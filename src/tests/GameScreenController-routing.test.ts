@@ -196,6 +196,7 @@ describe('GameScreenController routing to cooking/tutorial', () => {
 			type: 'cooking-tutorial',
 			species: [{ id: 's1' }, { id: 's2' }],
 			nextLevel: 2,
+			speedBoost: 0,
 		});
 	});
 
@@ -215,6 +216,7 @@ describe('GameScreenController routing to cooking/tutorial', () => {
 			type: 'cooking',
 			species: [{ id: 's1' }, { id: 's2' }],
 			nextLevel: 2,
+			speedBoost: 0,
 		});
 	});
 });

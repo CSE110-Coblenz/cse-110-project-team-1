@@ -22,8 +22,8 @@ export type Screen =
 	| { type: 'menu' }
 	| { type: 'intro' }
 	| { type: 'game'; level?: number; speedBoost?: number }
-	| { type: 'cooking-tutorial'; species: Species[]; nextLevel: number }
-	| { type: 'cooking'; species: Species[]; nextLevel: number }
+	| { type: 'cooking-tutorial'; species: Species[]; nextLevel: number; speedBoost: number }
+	| { type: 'cooking'; species: Species[]; nextLevel: number; speedBoost: number }
 	| { type: 'defeat' }
 	| { type: 'ending' }
 	| { type: 'victory'; score?: number }

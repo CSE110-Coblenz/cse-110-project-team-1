@@ -12,7 +12,7 @@ describe('CookingModel', () => {
 
 	it('should initialize correctly with given customer types', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER, Species.MUSHROOM];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		const customerData = model.getCustomerData();
 		if (CookingGameConfig.MAX_ACTIVE_CUSTOMERS <= CookingGameConfig.NUM_CUSTOMERS) {
@@ -42,7 +42,7 @@ describe('CookingModel', () => {
 
 	it('should update patience of active customers', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		const deltaTime =
 			CookingGameConfig.INITIAL_PATIENCE / CookingGameConfig.PATIENCE_DECREASE_RATE / 2; // half the time to deplete patience
@@ -56,7 +56,7 @@ describe('CookingModel', () => {
 
 	it('should fill active customers from the queue when some become impatient', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		// Get initial active customers's IDs
 		const initialCustomerData = model.getCustomerData();
@@ -95,7 +95,7 @@ describe('CookingModel', () => {
 
 	it('should correctly report game over state due to all customers becoming impatient', () => {
 		const customerTypes = [Species.RABBIT];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		// Initially, game should not be over
 		expect(model.isGameOver()).toBe(false);
@@ -115,7 +115,7 @@ describe('CookingModel', () => {
 
 	it('should correctly report game over state due to all customers being served', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER, Species.MUSHROOM];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		// Serve the current label to the first active customer until all customers are served
 		const totalCustomers = CookingGameConfig.NUM_CUSTOMERS;
@@ -132,7 +132,7 @@ describe('CookingModel', () => {
 
 	it('should correctly report game over state when all customers are either served or impatient', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER, Species.MUSHROOM];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		// Serve half the customers
 		const totalCustomers = CookingGameConfig.NUM_CUSTOMERS;
@@ -159,7 +159,7 @@ describe('CookingModel', () => {
 
 	it('should handle assignment correctly, update score and progress, and refill customers when possible', () => {
 		const customerTypes = [Species.RABBIT, Species.SUNFLOWER, Species.MUSHROOM];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 
 		var correct_label_count = 0;
 		var incorrect_label_count = 0;
@@ -193,7 +193,7 @@ describe('CookingModel', () => {
 
 	it('should handle label discard correctly', () => {
 		const customerTypes = [Species.RABBIT];
-		model.initialize(customerTypes);
+		model.initialize(customerTypes, 0);
 		model.discardLabel();
 		expect(model.getLabel()).toBeDefined();
 	});
