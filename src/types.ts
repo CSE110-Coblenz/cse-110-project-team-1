@@ -20,6 +20,7 @@ export interface View {
  */
 export type Screen =
 	| { type: 'menu' }
+	| { type: 'tutorial' }
 	| { type: 'intro' }
 	| { type: 'game'; level?: number; speedBoost?: number }
 	| { type: 'cooking-tutorial'; species: Species[]; nextLevel: number; speedBoost: number }

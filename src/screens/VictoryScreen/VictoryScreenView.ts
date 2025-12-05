@@ -31,8 +31,8 @@ export class VictoryScreenView implements View {
 		this.title = new Konva.Text({
 			x: (window.innerWidth * 0.95) / 2,
 			y: 100,
-			text: `Congratulations! You've Survived!`,
-			fontSize: 48,
+			text: `Congratulations!\nYou've Survived and Learned to Appreciate\n the Natural World!\nYou've Evolved Back into a Human and are\n Once Again at the\n Top of the Food Chain.`,
+			fontSize: 36,
 			fill: 'black',
 			align: 'center',
 			fontFamily: 'bold',
@@ -43,7 +43,7 @@ export class VictoryScreenView implements View {
 		const centerX = (window.innerWidth * 0.95) / 2;
 		this.playAgainButton = new Konva.Rect({
 			x: centerX,
-			y: 220,
+			y: 420,
 			width: 240,
 			height: 56,
 			cornerRadius: 8,
@@ -53,7 +53,7 @@ export class VictoryScreenView implements View {
 
 		this.playAgainLabel = new Konva.Text({
 			x: centerX,
-			y: 236,
+			y: 436,
 			width: 240,
 			align: 'center',
 			text: 'Play Again',

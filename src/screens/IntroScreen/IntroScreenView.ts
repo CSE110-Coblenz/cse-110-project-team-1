@@ -4,6 +4,7 @@ import type { View } from 'src/types';
 
 type IntroScreenOptions = {
 	onContinue: () => void;
+	onTutorial: () => void;
 };
 
 /**
@@ -14,9 +15,11 @@ type IntroScreenOptions = {
 export class IntroScreenView implements View {
 	private group: Group;
 	private onContinue: () => void;
+	private onTutorial: () => void;
 
 	constructor(options: IntroScreenOptions) {
 		this.onContinue = options.onContinue;
+		this.onTutorial = options.onTutorial;
 		this.group = new Konva.Group();
 
 		// background image for story/intro
@@ -42,22 +45,21 @@ export class IntroScreenView implements View {
 		const title = new Konva.Text({
 			x: 120,
 			y: 120,
-			text: 'Welcome to the Tutorial',
+			text: 'Welcome to the Wild',
 			fontSize: 36,
 			fill: '#ffffff',
 		});
-
-		const instructions = new Konva.Text({
+		const story = new Konva.Text({
 			x: 120,
-			y: 200,
-			text: 'Quick overview of the gameplay goes here.',
+			y: 180,
+			text: 'You Were Once a Hunter in rural Arkansas, but One Fateful Night, \nYou Were Transformed into a Creature of the Wild by a Vengeful Witch, \nAngry at Your Overhunting of Local Wildlife. Now, You Must Navigate This New Existence, \nLearning to Survive Among Predators and Prey Alike. Embrace Your Instincts, \nAdapt to Your Surroundings, and Discover the True Meaning of Survival in a World Where the \nRules Have Changed. Your Journey from Hunter to Hunted Begins Now.',
 			fontSize: 24,
 			fill: '#dddddd',
 		});
 
 		const continueButton = new Konva.Rect({
 			x: 120,
-			y: 320,
+			y: 600,
 			width: 260,
 			height: 60,
 			cornerRadius: 8,
@@ -66,7 +68,7 @@ export class IntroScreenView implements View {
 
 		const continueLabel = new Konva.Text({
 			x: 120,
-			y: 340,
+			y: 620,
 			width: 260,
 			align: 'center',
 			text: 'Start Game',
@@ -74,14 +76,38 @@ export class IntroScreenView implements View {
 			fill: '#ffffff',
 		});
 
+		const tutorialButton = new Konva.Rect({
+			x: 120,
+			y: 520,
+			width: 260,
+			height: 60,
+			cornerRadius: 8,
+			fill: '#4caf50',
+		});
+
+		const tutorialLabel = new Konva.Text({
+			x: 120,
+			y: 540,
+			width: 260,
+			align: 'center',
+			text: 'Tutorial',
+			fontSize: 24,
+			fill: '#ffffff',
+		});
+
 		continueButton.on('click tap', () => this.onContinue());
 		continueLabel.on('click tap', () => this.onContinue());
 
+		tutorialButton.on('click tap', () => this.onTutorial());
+		tutorialLabel.on('click tap', () => this.onTutorial());
+
 		this.group.add(backdrop);
 		this.group.add(title);
-		this.group.add(instructions);
+		this.group.add(story);
 		this.group.add(continueButton);
 		this.group.add(continueLabel);
+		this.group.add(tutorialButton);
+		this.group.add(tutorialLabel);
 	}
 
 	getGroup(): Group {

@@ -36,7 +36,7 @@ export class PlayerModel extends EntityModel {
 		if (this.attackCooldown <= 0 && prey_model.isAlive()) {
 			this.attackCooldown = this.attackCooldownMax;
 			if (prey_model.takeDamage(this.damage)) {
-				this.addExperience(40);
+				this.addExperience(50);
 			}
 		}
 	}
