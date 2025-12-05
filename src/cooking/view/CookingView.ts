@@ -2,7 +2,6 @@ import { CustomerDisplayData } from 'src/cooking/types/CustomerDisplayData';
 import Konva from 'konva';
 import { formatSpeciesName } from 'src/common/types/Species';
 import { CookingGameConfig } from 'src/cooking/config/CookingGameConfig';
-import { b } from 'vitest/dist/chunks/suite.d.BJWk38HB';
 
 // View constants (avoid magic numbers)
 const PROGRESS_BAR_WIDTH = 400;
